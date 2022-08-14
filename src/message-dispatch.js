@@ -43,6 +43,18 @@ export default class MessageDispatch extends EventTarget {
   }
 
   receive(message) {
+
+		// private messages
+		if(message.body !== undefined) { 
+			let tokens = message.body.split('@');
+			if(tokens.length > 1) {
+				if(message.name != window.APP.store.state.profile.displayName
+				&& tokens[1].split(" ")[0] != window.APP.store.state.profile.displayName) {
+					return;
+				}
+			}
+		}
+
     this.addToPresenceLog(message);
     this.dispatchEvent(new CustomEvent("message", { detail: message }));
   }

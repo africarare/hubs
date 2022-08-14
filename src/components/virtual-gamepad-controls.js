@@ -142,6 +142,9 @@ AFRAME.registerComponent("virtual-gamepad-controls", {
     this.leftStick = nipplejs.create({
       zone: this.leftTouchZone,
       color: "white",
+      mode: 'static',
+      position: {left: '50%', top: '50%'},
+      restOpacity: 1,  
       fadeTime: 0
     });
     this.leftStick.on("start", this.onFirstInteraction);

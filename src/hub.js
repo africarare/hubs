@@ -257,6 +257,34 @@ const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
+// romamile
+import infoBid from "./assets/SU00113_Bid_Button_v01.glb";
+import infoSold from "./assets/SU00113_Bid_Button_Sold_v01.glb";
+
+import expMeetingClass from "./hubs_private/exp_meeting.js";
+import expGalleryClass from "./hubs_private/exp_gallery.js";
+import expTherapyClass from "./hubs_private/exp_therapy.js";
+//import expQuizClass from "./hubs_private/exp_quiz.js";
+
+	// Handling of tutorial
+const skipTuto = localStorage.getItem('skipTuto') !== null ? localStorage.getItem('skipTuto')
+								   : (qs.has("skipTuto") ? qs.get("skipTuto") : false);
+
+	// Category of room
+window.room = "";
+if(window.location.href.includes("psychology")) window.room = "therapy"
+if(window.location.href.includes("therapy")) window.room = "therapy"
+if(window.location.href.includes("meeting")) window.room = "meeting"
+if(window.location.href.includes("yoga")) window.room = "yoga"
+if(window.location.href.includes("gallery")) window.room = "gallery"
+if(window.location.href.includes("mila")) window.room = "gallery"
+if(window.location.href.includes("inuka")) window.room = "gallery"
+if(window.location.href.includes("quiz")) window.room = "quiz"
+
+
+// romamilend
+
+
 let isOAuthModal = false;
 
 // OAuth popup handler
@@ -1408,4 +1436,58 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   authChannel.setSocket(socket);
   linkChannel.setSocket(socket);
+
+	// romamile
+
+		// A] Handle guests
+  var myGuest = {idAvatar:0, firstName:"guest", lastName:""};
+  store.update({ preferences: { enableOnScreenJoystickLeft: true } });
+  store.update({ preferences: { disableIdleDetection: true } });
+
+
+		// B] Update room status
+  var timerID_updateRoomStatus = setInterval( () => {
+
+    if(!scene.is("entered"))
+      return;
+
+    const occupantCount = Object.entries(hubChannel.presence.state).length;
+
+    var xhr = new XMLHttpRequest();
+    const baseUrl = "https://api.appafricarare.io/";  
+    let linkTo = baseUrl+"updateRoomStatus?nbrOccupant="+occupantCount+"&roomSublink="+window.location.pathname;
+
+    xhr.open("GET", linkTo, true);
+
+    xhr.onerror = function (e) {
+      console.error(xhr.statusText);
+    };
+
+    xhr.send(null);
+
+  }, 10000000);
+
+
+		// C] Modular experiences
+	if(window.room === "meeting") {
+		window.expMeeting = new expMeetingClass();
+		window.expMeeting.init();
+	}
+
+	if(window.room === "therapy") {
+		window.expTherapy = new expTherapyClass();
+		window.expTherapy.init();
+	}
+
+	if(window.room === "gallery") {
+		window.expGallery = new expGalleryClass();
+		window.expGallery.init();
+	}
+
+		// D] Tutorial
+
+	// romamilend
+
 });
+
+

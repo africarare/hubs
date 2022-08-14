@@ -94,7 +94,9 @@ function chooseRandom(arr) {
 }
 
 export function generateRandomName() {
-  return `${chooseRandom(names)}-${Math.floor(10000 + Math.random() * 10000)}`;
+  let number = Math.floor(Math.random() * 10000);
+  return "Guest"+number;
+//  return `${chooseRandom(names)}-${Math.floor(10000 + Math.random() * 10000)}`;
 }
 
 export async function fetchRandomDefaultAvatarId() {

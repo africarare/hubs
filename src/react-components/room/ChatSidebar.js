@@ -336,18 +336,35 @@ SystemMessage.propTypes = {
   showLineBreak: PropTypes.bool
 };
 
-function MessageBubble({ media, monospace, emoji, children }) {
-  return (
-    <div
-      className={classNames(styles.messageBubble, {
-        [styles.media]: media,
-        [styles.emoji]: emoji,
-        [styles.monospace]: monospace
-      })}
-    >
-      {children}
-    </div>
-  );
+function MessageBubble({ media, monospace, emoji, isPrivate, children }) {
+  if(isPrivate) {
+    return (
+      <div
+        className={classNames(styles.messageBubble, {
+          [styles.media]: media,
+          [styles.emoji]: emoji,
+          [styles.monospace]: monospace
+        })}
+        style={{"backgroundColor":"#db7093"}}
+      >
+        {children}
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className={classNames(styles.messageBubble, {
+          [styles.media]: media,
+          [styles.emoji]: emoji,
+          [styles.monospace]: monospace
+        })}
+        
+      >
+        {children}
+      </div>
+    );
+  }
+
 }
 
 MessageBubble.propTypes = {
@@ -362,7 +379,7 @@ function getMessageComponent(message) {
     case "chat": {
       const { formattedBody, monospace, emoji } = formatMessageBody(message.body);
       return (
-        <MessageBubble key={message.id} monospace={monospace} emoji={emoji}>
+        <MessageBubble key={message.id} monospace={monospace} emoji={emoji} isPrivate={message.isPrivate}>
           {formattedBody}
         </MessageBubble>
       );
@@ -386,8 +403,22 @@ function getMessageComponent(message) {
 }
 
 export function ChatMessageGroup({ sent, sender, timestamp, messages }) {
+
+    // private messages
+  messages.map( (message) => { 
+    message.isPrivate = false;
+    if(message.body !== undefined) { 
+      let tokens = message.body.split('@');
+      if(tokens.length > 1) {
+        if(sent || tokens[1].split(" ")[0] === window.APP.store.state.profile.displayName) {
+          message.isPrivate = true;
+        }
+      }
+    }
+  });
+
   return (
-    <li className={classNames(styles.messageGroup, { [styles.sent]: sent })}>
+    <li className={classNames(styles.messageGroup, { [styles.sent]: sent })} >
       <p className={styles.messageGroupLabel}>
         {sender} | <FormattedRelativeTime updateIntervalInSeconds={10} value={(timestamp - Date.now()) / 1000} />
       </p>
