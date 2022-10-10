@@ -98,6 +98,11 @@ import { MediaDevicesEvents } from "../utils/media-devices-utils";
 // romamile
 import  InfoPanel from "./info-panel/InfoPanel.js";
 import "./info-panel/infoPanelUtils.js";
+
+import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js";
+import TreasureContainer from '../hubs_private/react-components/TreasureContainer/TreasureContainer';
+import TreasureLoader from '../hubs_private/react-components/Loader/Loader';
+import WelcomeDialog from '../hubs_private/react-components/WelcomeDialog/WelcomeDialog';
 // romamilend
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
@@ -1299,6 +1304,32 @@ class UIRoot extends Component {
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
+
+        {window.room === "treasurehunt" && (
+          <>
+            <TreasureContainer
+               imageIndex={-1}
+               onTreasureHuntComplete={() => {
+                 alert('Treasure Complete');
+               }}
+            />
+       
+            <TreasureLoader />
+            <WelcomeDialog />
+       
+            <Popup
+              isMinimized={false}
+              isShowing={false}
+              title = "testTitle"
+              artist = "testArtist"
+              year = "testYear"
+              canvasType  = "testCanvasType"
+              description  = "testDescription"
+            />
+          </>
+        )}
+   
+
         
           <InfoPanel
             isOpen={false}

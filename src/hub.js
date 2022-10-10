@@ -261,9 +261,10 @@ NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 import infoBid from "./assets/SU00113_Bid_Button_v01.glb";
 import infoSold from "./assets/SU00113_Bid_Button_Sold_v01.glb";
 
-import expMeetingClass from "./hubs_private/exp_meeting.js";
-import expGalleryClass from "./hubs_private/exp_gallery.js";
-import expTherapyClass from "./hubs_private/exp_therapy.js";
+import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
+import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
+import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
+import {expTreasureHuntClass} from "./hubs_private/experiences/exp_treasurehunt.js";
 //import expQuizClass from "./hubs_private/exp_quiz.js";
 
 	// Handling of tutorial
@@ -280,6 +281,7 @@ if(window.location.href.includes("gallery")) window.room = "gallery"
 if(window.location.href.includes("mila")) window.room = "gallery"
 if(window.location.href.includes("inuka")) window.room = "gallery"
 if(window.location.href.includes("quiz")) window.room = "quiz"
+if(window.location.href.includes("treasure")) window.room = "treasurehunt"
 
 
 // romamilend
@@ -1484,6 +1486,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 		window.expGallery.init();
 	}
 
+	if(window.room === "treasurehunt") {
+		window.expTreasure = new expTreasureHuntClass();
+		window.expTreasure.init();
+
+		function onPointerMove( event ) {
+		  window.expTreasure.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		  window.expTreasure.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+		}
+		document.addEventListener( 'mousemove', onPointerMove );
+
+	}
 		// D] Tutorial
 
 	// romamilend
