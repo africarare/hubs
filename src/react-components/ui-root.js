@@ -69,6 +69,7 @@ import { ReactComponent as VRIcon } from "./icons/VR.svg";
 import { ReactComponent as LeaveIcon } from "./icons/Leave.svg";
 import { ReactComponent as EnterIcon } from "./icons/Enter.svg";
 import { ReactComponent as InviteIcon } from "./icons/Invite.svg";
+import { ReactComponent as HelpIcon } from "./icons/Help.svg";
 import { PeopleSidebarContainer, userFromPresence } from "./room/PeopleSidebarContainer";
 import { ObjectListProvider } from "./room/useObjectList";
 import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
@@ -98,6 +99,9 @@ import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 
 // romamile
+import YourVoiceMessageField from '../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField';
+import NedbankInfoPopup from "../hubs_private/nedbank/NedbankInfoPopup/NedbankInfoPopup";
+
 import  InfoPanel from "./info-panel/InfoPanel.js";
 import "./info-panel/infoPanelUtils.js";
 
@@ -1295,6 +1299,15 @@ class UIRoot extends Component {
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
 
+        {window.room === "mtn" && (
+          <YourVoiceMessageField />
+        )}
+
+        {window.room === "nedbank" && (
+          <NedbankInfoPopup />
+        )}
+
+
         {window.room === "treasurehunt" && (
           <>
             <TreasureContainer
@@ -1347,21 +1360,20 @@ class UIRoot extends Component {
                      />
                    )}
 
-                  <img
-                    className="nonDragSel iconTopLeftMenu"
-                    src= "../assets/help.png"
-                    onClick={() => {
-                      this.state.isHelping = !this.state.isHelping;
+                   <ToolbarButton
+                     icon={<HelpIcon />}
+                     label={<FormattedMessage id="toolbar.help-button" defaultMessage="Help" />}
+                     onClick={() => {
+                       this.state.isHelping = !this.state.isHelping;
 
-											console.log("In Room => " + window.room);
-                      switch(window.room) {
-                      case "therapy":
-												break;
-                      case "meeting": break;
-                      case "lobby": break;
-                      }
-                      document.getElementById("centerDisplay").style.display = this.state.isHelping ? "none" : "block";
-                    }}
+                       switch(window.room) {
+                       case "therapy":
+										  		break;
+                       case "meeting": break;
+                       case "lobby": break;
+                       }
+                       document.getElementById("centerDisplay").style.display = this.state.isHelping ? "none" : "block";
+                     }}
                    />
 
                  </>

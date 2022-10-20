@@ -251,6 +251,8 @@ import infoSold from "./assets/SU00113_Bid_Button_Sold_v01.glb";
 
 import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
 import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
+import {ftrVoiceClass} from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
+import {ftrNedbankClass} from "./hubs_private/nedbank/ftr_nedbank.js";
 import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 import {expTreasureHuntClass} from "./hubs_private/experiences/exp_treasurehunt.js";
 //import expQuizClass from "./hubs_private/exp_quiz.js";
@@ -270,6 +272,12 @@ if(window.location.href.includes("mila")) window.room = "gallery"
 if(window.location.href.includes("inuka")) window.room = "gallery"
 if(window.location.href.includes("quiz")) window.room = "quiz"
 if(window.location.href.includes("treasure")) window.room = "treasurehunt"
+
+// TODO => should get project / experience / level
+if(window.location.href.includes("mtn")) window.room = "mtn"
+if(window.location.href.includes("nedbank")) window.room = "nedbank"
+
+window.listFeatures = [];
 
 
 // romamilend
@@ -1458,6 +1466,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 		document.addEventListener( 'mousemove', onPointerMove );
 
 	}
+
+	if(window.room === "mtn") {
+		let ftrVoice = new ftrVoiceClass();
+		ftrVoice.init();
+		window.listFeatures.push( ftrVoice );
+	}
+
+	if(window.room === "nedbank") {
+		let ftrNedbank = new ftrNedbankClass();
+		ftrNedbank.init();
+		window.listFeatures.push( ftrNedbank );
+	}
+
+	// The big Loop, 
+	setInterval(() => {
+
+		window.listFeatures.forEach( _ftr => _ftr.tick() )
+
+	}, 60); // Should be a tick in AFRAME
+
 		// D] Tutorial
 
 	// romamilend
