@@ -457,7 +457,7 @@ const preferenceLabels = defineMessages({
   },
   allowMultipleHubsInstances: {
     id: "preferences-screen.preference.allow-multiple-hubs-instances",
-    defaultMessage: "Disable auto-exit when multiple hubs instances are open"
+    defaultMessage: "Disable auto-exit when multiple instances are open"
   },
   disableIdleDetection: {
     id: "preferences-screen.preference.disable-idle-detection",

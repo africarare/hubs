@@ -255,7 +255,7 @@ import {ftrVoiceClass} from "./hubs_private/voiceInstalation/ftr_voiceInstalatio
 import {ftrNedbankClass} from "./hubs_private/nedbank/ftr_nedbank.js";
 import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 import {expTreasureHuntClass} from "./hubs_private/experiences/exp_treasurehunt.js";
-//import expQuizClass from "./hubs_private/exp_quiz.js";
+import {ftrLeaderboardClass} from "./hubs_private/leaderboard/ftr_leaderboard.js";
 
 	// Handling of tutorial
 const skipTuto = localStorage.getItem('skipTuto') !== null ? localStorage.getItem('skipTuto')
@@ -1477,6 +1477,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 		let ftrNedbank = new ftrNedbankClass();
 		ftrNedbank.init();
 		window.listFeatures.push( ftrNedbank );
+	}
+
+	if(window.room === "quiz") {
+		let ftrLeaderboard = new ftrLeaderboardClass();
+		ftrLeaderboard.init();
+		window.listFeatures.push( ftrLeaderboard );
 	}
 
 	// The big Loop, 
