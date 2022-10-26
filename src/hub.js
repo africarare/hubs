@@ -274,7 +274,7 @@ if(window.location.href.includes("quiz")) window.room = "quiz"
 if(window.location.href.includes("treasure")) window.room = "treasurehunt"
 
 // TODO => should get project / experience / level
-if(window.location.href.includes("mtn")) window.room = "mtn"
+if(window.location.href.includes("yvi")) window.room = "mtn"
 if(window.location.href.includes("nedbank")) window.room = "nedbank"
 
 window.listFeatures = [];
