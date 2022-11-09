@@ -99,6 +99,7 @@ import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 
 // romamile
+import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
 import YourVoiceMessageField from '../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField';
 import NedbankInfoPopup from "../hubs_private/nedbank/NedbankInfoPopup/NedbankInfoPopup";
 
@@ -1310,6 +1311,8 @@ class UIRoot extends Component {
 
         {window.room === "treasurehunt" && (
           <>
+						<TreasureHuntMain/>
+						{/*
             <TreasureContainer
                imageIndex={-1}
                onTreasureHuntComplete={() => {
@@ -1319,7 +1322,8 @@ class UIRoot extends Component {
        
             <TreasureLoader />
             <WelcomeDialog />
-       
+						*/}
+
             <Popup
               isMinimized={false}
               isShowing={false}

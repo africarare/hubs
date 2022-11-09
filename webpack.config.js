@@ -548,7 +548,7 @@ module.exports = async (env, argv) => {
           oneOf: [
             { resourceQuery: /inline/, type: "asset/inline" },
             {
-              test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|wav|otf|woff2|webm|3dl|cube)$/,
+              test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|wav|ttf|otf|woff2|webm|3dl|cube)$/,
               type: "asset/resource",
               generator: {
                 // move required assets to output dir and add a hash for cache busting

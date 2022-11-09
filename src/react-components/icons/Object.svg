@@ -1,5 +1,17 @@
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M17.5 13.3361V6.66583C17.4997 6.44751 17.4423 6.23307 17.3334 6.04385C17.2245 5.85463 17.0679 5.69723 16.8793 5.58732L10.9418 2.13185C10.6557 1.9653 10.3306 1.87756 9.99961 1.87756C9.66859 1.87756 9.34349 1.9653 9.05742 2.13185L3.1207 5.58732C2.93207 5.69723 2.77551 5.85463 2.66661 6.04385C2.55771 6.23307 2.50027 6.44751 2.5 6.66583V13.3361C2.50013 13.5546 2.55751 13.7692 2.66641 13.9586C2.77532 14.1479 2.93195 14.3055 3.1207 14.4154L9.0582 17.8709C9.34435 18.0372 9.66942 18.1248 10.0004 18.1248C10.3314 18.1248 10.6564 18.0372 10.9426 17.8709L16.8801 14.4154C17.0687 14.3054 17.2252 14.1478 17.3339 13.9584C17.4427 13.7691 17.4999 13.5545 17.5 13.3361Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M2.69531 6.01636L10 10.3132L17.3047 6.01636" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10 18.1254V10.3129" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 26.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 20 20" style="enable-background:new 0 0 20 20;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#FFFFFF;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+<g>
+	<path class="st0" d="M9.98,16.27c-0.25,0-0.49-0.06-0.68-0.16L4.68,13.6c-0.18-0.1-0.27-0.22-0.27-0.35V6.5"/>
+	<line class="st0" x1="9.98" y1="9.5" x2="9.98" y2="16.27"/>
+	<path class="st0" d="M10.03,3.73c0.25,0,0.5,0.04,0.69,0.14l4.57,2.26c0.39,0.19,0.4,0.51,0.03,0.71l-4.63,2.51
+		c-0.19,0.1-0.43,0.15-0.68,0.16H9.99c-0.25,0-0.5-0.06-0.68-0.16L4.68,6.83C4.3,6.63,4.32,6.31,4.7,6.12l4.58-2.26
+		c0.19-0.1,0.44-0.14,0.69-0.14"/>
+	<path class="st0" d="M10.02,16.27c0.25,0,0.49-0.06,0.68-0.16l4.63-2.51c0.18-0.1,0.27-0.22,0.27-0.35V6.5"/>
+	<line class="st0" x1="10.02" y1="9.5" x2="10.02" y2="16.27"/>
+</g>
 </svg>

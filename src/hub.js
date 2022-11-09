@@ -271,11 +271,13 @@ if(window.location.href.includes("gallery")) window.room = "gallery"
 if(window.location.href.includes("mila")) window.room = "gallery"
 if(window.location.href.includes("inuka")) window.room = "gallery"
 if(window.location.href.includes("quiz")) window.room = "quiz"
-if(window.location.href.includes("treasure")) window.room = "treasurehunt"
 
 // TODO => should get project / experience / level
 if(window.location.href.includes("yvi")) window.room = "mtn"
 if(window.location.href.includes("nedbank")) window.room = "nedbank"
+
+if(window.location.href.includes("nedbank-quiz")) window.room = "nedbank-quiz"
+if(window.location.href.includes("treasure")) window.room = "treasurehunt"
 
 window.listFeatures = [];
 
@@ -1481,8 +1483,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	if(window.room === "quiz") {
 		let ftrLeaderboard = new ftrLeaderboardClass();
-		ftrLeaderboard.init();
+		ftrLeaderboard.init({
+				type: "bush"
+			});
 		window.listFeatures.push( ftrLeaderboard );
+	}
+
+	if(window.room === "nedbank-quiz") {
+		let ftrNedbankLeaderboard = new ftrLeaderboardClass();
+		ftrNedbankLeaderboard.init({
+				type: "nedbank"
+			});
+		window.listFeatures.push( ftrNedbankLeaderboard );
 	}
 
 	// The big Loop, 
