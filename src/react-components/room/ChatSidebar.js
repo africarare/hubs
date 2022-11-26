@@ -264,26 +264,26 @@ const logMessages = defineMessages({
 // TODO: use react-intl's defineMessages to get proper extraction
 export function formatSystemMessage(entry, intl) {
   switch (entry.type) {
-    case "join":
-      return intl.formatMessage(joinedMessages[entry.presence], { name: <b>{entry.name}</b> });
-    case "entered":
-      return intl.formatMessage(enteredMessages[entry.presence], { name: <b>{entry.name}</b> });
-    case "leave":
-      return (
-        <FormattedMessage
-          id="chat-sidebar.system-message.leave"
-          defaultMessage="{name} left."
-          values={{ name: <b>{entry.name}</b> }}
-        />
-      );
-    case "display_name_changed":
-      return (
-        <FormattedMessage
-          id="chat-sidebar.system-message.name-change"
-          defaultMessage="{oldName} is now known as {newName}"
-          values={{ oldName: <b>{entry.oldName}</b>, newName: <b>{entry.newName}</b> }}
-        />
-      );
+    //case "join":
+    //  return intl.formatMessage(joinedMessages[entry.presence], { name: <b>{entry.name}</b> });
+    //case "entered":
+    //  return intl.formatMessage(enteredMessages[entry.presence], { name: <b>{entry.name}</b> });
+    //case "leave":
+    //  return (
+    //    <FormattedMessage
+    //      id="chat-sidebar.system-message.leave"
+    //      defaultMessage="{name} left."
+    //      values={{ name: <b>{entry.name}</b> }}
+    //    />
+    //  );
+    //case "display_name_changed":
+    //  return (
+    //    <FormattedMessage
+    //      id="chat-sidebar.system-message.name-change"
+    //      defaultMessage="{oldName} is now known as {newName}"
+    //      values={{ oldName: <b>{entry.oldName}</b>, newName: <b>{entry.newName}</b> }}
+    //    />
+    //  );
     case "scene_changed":
       return (
         <FormattedMessage
