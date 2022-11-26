@@ -463,9 +463,9 @@ class MediaBrowserContainer extends Component {
         }
         searchDescription={searchDescription}
         headerRight={
-          showCustomOption && (
+          false && showCustomOption && (
             <IconButton lg onClick={() => handleCustomClicked(urlSource)}>
-              {["scenes", "avatars"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}
+              {["scenes", "avatar"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}
               <p>{intl.formatMessage(customObjectMessages[customObjectType])}</p>
             </IconButton>
           )

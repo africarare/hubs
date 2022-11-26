@@ -256,6 +256,8 @@ import {ftrNedbankClass} from "./hubs_private/nedbank/ftr_nedbank.js";
 import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 import {expTreasureHuntClass} from "./hubs_private/experiences/exp_treasurehunt.js";
 import {ftrLeaderboardClass} from "./hubs_private/leaderboard/ftr_leaderboard.js";
+import {ftrPortalClass} from "./hubs_private/portal/ftr_portal.js";
+import {ftrLoadbalancingClass} from "./hubs_private/global/ftr_loadbalancing.js";
 
 	// Handling of tutorial
 const skipTuto = localStorage.getItem('skipTuto') !== null ? localStorage.getItem('skipTuto')
@@ -273,13 +275,30 @@ if(window.location.href.includes("inuka")) window.room = "gallery"
 if(window.location.href.includes("quiz")) window.room = "quiz"
 
 // TODO => should get project / experience / level
-if(window.location.href.includes("yvi")) window.room = "mtn"
+//if(window.location.href.includes("yvi")) window.room = "mtn"
 if(window.location.href.includes("nedbank")) window.room = "nedbank"
 
 if(window.location.href.includes("nedbank-quiz")) window.room = "nedbank-quiz"
 if(window.location.href.includes("treasure")) window.room = "treasurehunt"
 
 window.listFeatures = [];
+
+
+
+// land/exp/lvl
+
+window.land = qs.get("land");
+window.exp = qs.get("exp");
+if(window.exp === null)
+	window.exp = "default";
+window.lvl = qs.get("lvl");
+if(window.lvl === null)
+	window.lvl = "default";
+
+// hash
+window.hash = qs.get("hash");
+if(window.hash === null)
+	window.hash = "guest";
 
 
 // romamilend
@@ -1412,36 +1431,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// romamile
 
-		// A] Handle guests
-  var myGuest = {idAvatar:0, firstName:"guest", lastName:""};
   store.update({ preferences: { enableOnScreenJoystickLeft: true } });
   store.update({ preferences: { disableIdleDetection: true } });
 
-
-		// B] Update room status
-  var timerID_updateRoomStatus = setInterval( () => {
-
-    if(!scene.is("entered"))
-      return;
-
-    const occupantCount = Object.entries(hubChannel.presence.state).length;
-
-    var xhr = new XMLHttpRequest();
-    const baseUrl = "https://api.appafricarare.io/";  
-    let linkTo = baseUrl+"updateRoomStatus?nbrOccupant="+occupantCount+"&roomSublink="+window.location.pathname;
-
-    xhr.open("GET", linkTo, true);
-
-    xhr.onerror = function (e) {
-      console.error(xhr.statusText);
-    };
-
-    xhr.send(null);
-
-  }, 10000000);
-
-
-		// C] Modular experiences
+		// Modular experiences
 	if(window.room === "meeting") {
 		window.expMeeting = new expMeetingClass();
 		window.expMeeting.init();
@@ -1469,7 +1462,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	}
 
-	if(window.room === "mtn") {
+	if(window.land === "altmtn" && window.exp === "main") {
 		let ftrVoice = new ftrVoiceClass();
 		ftrVoice.init();
 		window.listFeatures.push( ftrVoice );
@@ -1497,6 +1490,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 		window.listFeatures.push( ftrNedbankLeaderboard );
 	}
 
+	// Global features
+
+	if(window.hash != "guest") {
+		fetch(proxiedUrlFor("https://www.ubuntu.land/api/privateaccess/getdisplaynamefromhash?hash="+window.hash))
+		.then(function (response) {
+			return response.json();
+		}).then(function (data) {
+		
+					// 1) Name
+				window.APP.store.update({ profile: { displayName: data.name} }); 
+				window.APP.store.state.activity.hasChangedName = true;
+		});
+	}
+
+	let ftrPortal = new ftrPortalClass();
+	ftrPortal.init();
+	window.listFeatures.push( ftrPortal );
+
+	let ftrLoadbalancing = new ftrLoadbalancingClass();
+	ftrLoadbalancing.init();
+	window.listFeatures.push( ftrLoadbalancing );
+	
 	// The big Loop, 
 	setInterval(() => {
 
