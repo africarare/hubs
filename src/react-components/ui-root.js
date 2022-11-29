@@ -101,6 +101,7 @@ import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 // romamile
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
 import YourVoiceMessageField from '../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField';
+import Mtn from '../hubs_private/voiceInstalation/mtn_voice';
 import NedbankInfoPopup from "../hubs_private/nedbank/NedbankInfoPopup/NedbankInfoPopup";
 
 import  InfoPanel from "./info-panel/InfoPanel.js";
@@ -1300,29 +1301,20 @@ class UIRoot extends Component {
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
 
-        {window.room === "mtn" && (
-          <YourVoiceMessageField />
+        <TreasureLoader />
+
+        {window.land === "altmtn" && window.exp === "main" && (
+        	<Mtn />
         )}
 
-        {window.room === "nedbank" && (
+        {/*window.room === "nedbank" && (
           <NedbankInfoPopup />
-        )}
+        )*/}
 
 
-        {window.room === "treasurehunt" && (
+        {/* window.room === "treasurehunt" && (
           <>
 						<TreasureHuntMain/>
-						{/*
-            <TreasureContainer
-               imageIndex={-1}
-               onTreasureHuntComplete={() => {
-                 alert('Treasure Complete');
-               }}
-            />
-       
-            <TreasureLoader />
-            <WelcomeDialog />
-						*/}
 
             <Popup
               isMinimized={false}
@@ -1334,7 +1326,7 @@ class UIRoot extends Component {
               description  = "testDescription"
             />
           </>
-        )}
+        )*/}
    
 
         
@@ -1364,21 +1356,22 @@ class UIRoot extends Component {
                      />
                    )}
 
-                   <ToolbarButton
+                   {false && (<ToolbarButton
                      icon={<HelpIcon />}
                      label={<FormattedMessage id="toolbar.help-button" defaultMessage="Help" />}
                      onClick={() => {
                        this.state.isHelping = !this.state.isHelping;
 
+												/*
                        switch(window.room) {
                        case "therapy":
 										  		break;
                        case "meeting": break;
                        case "lobby": break;
-                       }
+                       }*/
                        document.getElementById("centerDisplay").style.display = this.state.isHelping ? "none" : "block";
                      }}
-                   />
+                   />)}
 
                  </>
                )}

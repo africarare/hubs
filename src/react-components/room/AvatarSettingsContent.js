@@ -18,7 +18,8 @@ export function AvatarSettingsContent({
 }) {
   return (
     <Column as="form" className={styles.content} {...rest}>
-      <TextInputField
+    
+      {window.land !== "altmtn" && (<TextInputField
         disabled={disableDisplayNameInput}
         label={<FormattedMessage id="avatar-settings-content.display-name-label" defaultMessage="Display Name" />}
         value={displayName}
@@ -33,7 +34,7 @@ export function AvatarSettingsContent({
           />
         }
         ref={displayNameInputRef}
-      />
+      />)}
       <div className={styles.avatarPreviewContainer}>
         {avatarPreview || <div />}
         <Button type="button" preset="basic" onClick={onChangeAvatar}>

@@ -265,6 +265,7 @@ const skipTuto = localStorage.getItem('skipTuto') !== null ? localStorage.getIte
 
 	// Category of room
 window.room = "";
+/*
 if(window.location.href.includes("psychology")) window.room = "therapy"
 if(window.location.href.includes("therapy")) window.room = "therapy"
 if(window.location.href.includes("meeting")) window.room = "meeting"
@@ -272,14 +273,15 @@ if(window.location.href.includes("yoga")) window.room = "yoga"
 if(window.location.href.includes("gallery")) window.room = "gallery"
 if(window.location.href.includes("mila")) window.room = "gallery"
 if(window.location.href.includes("inuka")) window.room = "gallery"
+*/
 if(window.location.href.includes("quiz")) window.room = "quiz"
 
 // TODO => should get project / experience / level
 //if(window.location.href.includes("yvi")) window.room = "mtn"
-if(window.location.href.includes("nedbank")) window.room = "nedbank"
+//if(window.location.href.includes("nedbank")) window.room = "nedbank"
 
-if(window.location.href.includes("nedbank-quiz")) window.room = "nedbank-quiz"
-if(window.location.href.includes("treasure")) window.room = "treasurehunt"
+//if(window.location.href.includes("nedbank-quiz")) window.room = "nedbank-quiz"
+//if(window.location.href.includes("treasure")) window.room = "treasurehunt"
 
 window.listFeatures = [];
 
@@ -297,8 +299,18 @@ if(window.lvl === null)
 
 // hash
 window.hash = qs.get("hash");
-if(window.hash === null)
+if(window.hash === null || window.hash === "guest")
 	window.hash = "guest";
+
+if(window.land === null) {
+	// please connect through actually links and not directly to rooms
+	//window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You can't connect directly with room link, you need to go through ubuntu.land"
+}
+if(window.land === "altmtn") {
+	if(window.hash === "guest") {
+		window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You need to have a private access link to connect to that experience."
+	}
+}
 
 
 // romamilend
@@ -1435,6 +1447,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   store.update({ preferences: { disableIdleDetection: true } });
 
 		// Modular experiences
+    /*
 	if(window.room === "meeting") {
 		window.expMeeting = new expMeetingClass();
 		window.expMeeting.init();
@@ -1461,11 +1474,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 		document.addEventListener( 'mousemove', onPointerMove );
 
 	}
+*/
 
 	if(window.land === "altmtn" && window.exp === "main") {
 		let ftrVoice = new ftrVoiceClass();
 		ftrVoice.init();
 		window.listFeatures.push( ftrVoice );
+
+		// tmp debug
+		window.tmpAccess = ftrVoice;
+
+      // TODO => find how to do binding, so that we can leave that in the feature class, and not here
+    let updatePointer = () => {
+      ftrVoice.pointer.x =   ( event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
+      ftrVoice.pointer.y = - ( event.clientY / document.getElementsByTagName("canvas")[0].offsetHeight ) * 2 + 1;
+    }
+
+	  let updateAtClick = () => {
+      if(!ftrVoice.buttHovered)
+        return;
+      window.mtnOpen();
+    }
+    document.addEventListener( 'mousemove', updatePointer );
+    document.addEventListener( 'mousedown', updateAtClick );
+
 	}
 
 	if(window.room === "nedbank") {
@@ -1482,6 +1514,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		window.listFeatures.push( ftrLeaderboard );
 	}
 
+/*
 	if(window.room === "nedbank-quiz") {
 		let ftrNedbankLeaderboard = new ftrLeaderboardClass();
 		ftrNedbankLeaderboard.init({
@@ -1489,14 +1522,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 			});
 		window.listFeatures.push( ftrNedbankLeaderboard );
 	}
-
+*/
 	// Global features
 
+    // Should be in global feature "access"
 	if(window.hash != "guest") {
 		fetch(proxiedUrlFor("https://www.ubuntu.land/api/privateaccess/getdisplaynamefromhash?hash="+window.hash))
 		.then(function (response) {
 			return response.json();
 		}).then(function (data) {
+
+				if(data.name === "Guest") {
+					if(window.land === "altmtn") {
+							window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=Wrong hash. You need to have a working private access link to connect to that experience."
+					}
+				}
 		
 					// 1) Name
 				window.APP.store.update({ profile: { displayName: data.name} }); 
