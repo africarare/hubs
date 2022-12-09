@@ -1445,6 +1445,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   store.update({ preferences: { enableOnScreenJoystickLeft: true } });
   store.update({ preferences: { disableIdleDetection: true } });
+  store.update({ preferences: { theme:"hubs-dark-mode" } });
 
 		// Modular experiences
     /*
@@ -1534,7 +1535,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 				if(data.name === "Guest") {
 					if(window.land === "altmtn") {
-							window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=Wrong hash. You need to have a working private access link to connect to that experience."
+							window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=Please note altMTN is closed currently, look out for future notifications to rejoin."
 					}
 				}
 		

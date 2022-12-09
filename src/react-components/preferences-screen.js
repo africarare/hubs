@@ -1104,11 +1104,6 @@ class PreferencesScreen extends Component {
             prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
             options: availableLocales
           },
-          {
-            key: "theme",
-            prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
-            options: availableThemes
-          },
           { key: "maxResolution", prefType: PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION },
           {
             key: "nametagVisibility",

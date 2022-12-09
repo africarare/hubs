@@ -72,10 +72,10 @@ function processChatMessage(messageGroups, newMessage) {
 // If the message is ignored, we return the original message group array.
 function updateMessageGroups(messageGroups, newMessage) {
   switch (newMessage.type) {
-    case "join":
-    case "entered":
-    case "leave":
-    case "display_name_changed":
+    //case "join":
+    //case "entered":
+    //case "leave":
+    //case "display_name_changed":
     case "scene_changed":
     case "hub_name_changed":
     case "hub_changed":
