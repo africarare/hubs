@@ -246,15 +246,13 @@ NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
 // romamile
-import infoBid from "./assets/SU00113_Bid_Button_v01.glb";
-import infoSold from "./assets/SU00113_Bid_Button_Sold_v01.glb";
-
 import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
 import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
-import {ftrVoiceClass} from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
-import {ftrNedbankClass} from "./hubs_private/nedbank/ftr_nedbank.js";
 import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 import {expTreasureHuntClass} from "./hubs_private/experiences/exp_treasurehunt.js";
+
+import {ftrVoiceClass} from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
+import {ftrNedbankClass} from "./hubs_private/nedbank/ftr_nedbank.js";
 import {ftrLeaderboardClass} from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import {ftrPortalClass} from "./hubs_private/portal/ftr_portal.js";
 import {ftrLoadbalancingClass} from "./hubs_private/global/ftr_loadbalancing.js";
@@ -262,30 +260,6 @@ import {ftrLoadbalancingClass} from "./hubs_private/global/ftr_loadbalancing.js"
 	// Handling of tutorial
 const skipTuto = localStorage.getItem('skipTuto') !== null ? localStorage.getItem('skipTuto')
 								   : (qs.has("skipTuto") ? qs.get("skipTuto") : false);
-
-	// Category of room
-window.room = "";
-/*
-if(window.location.href.includes("psychology")) window.room = "therapy"
-if(window.location.href.includes("therapy")) window.room = "therapy"
-if(window.location.href.includes("meeting")) window.room = "meeting"
-if(window.location.href.includes("yoga")) window.room = "yoga"
-if(window.location.href.includes("gallery")) window.room = "gallery"
-if(window.location.href.includes("mila")) window.room = "gallery"
-if(window.location.href.includes("inuka")) window.room = "gallery"
-*/
-if(window.location.href.includes("quiz")) window.room = "quiz"
-
-// TODO => should get project / experience / level
-//if(window.location.href.includes("yvi")) window.room = "mtn"
-//if(window.location.href.includes("nedbank")) window.room = "nedbank"
-
-//if(window.location.href.includes("nedbank-quiz")) window.room = "nedbank-quiz"
-//if(window.location.href.includes("treasure")) window.room = "treasurehunt"
-
-window.listFeatures = [];
-
-
 
 // land/exp/lvl
 
@@ -297,6 +271,8 @@ window.lvl = qs.get("lvl");
 if(window.lvl === null)
 	window.lvl = "default";
 
+window.listFeatures = [];
+
 // hash
 window.hash = qs.get("hash");
 if(window.hash === null || window.hash === "guest")
@@ -306,6 +282,7 @@ if(window.land === null) {
 	// please connect through actually links and not directly to rooms
 	//window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You can't connect directly with room link, you need to go through ubuntu.land"
 }
+
 if(window.land === "altmtn") {
 	if(window.hash === "guest") {
 		window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You need to have a private access link to connect to that experience."
@@ -1449,20 +1426,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		// Modular experiences
     /*
-	if(window.room === "meeting") {
-		window.expMeeting = new expMeetingClass();
-		window.expMeeting.init();
-	}
-
-	if(window.room === "therapy") {
-		window.expTherapy = new expTherapyClass();
-		window.expTherapy.init();
-	}
-
-	if(window.room === "gallery") {
-		window.expGallery = new expGalleryClass();
-		window.expGallery.init();
-	}
 
 	if(window.room === "treasurehunt") {
 		window.expTreasure = new expTreasureHuntClass();
@@ -1475,7 +1438,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 		document.addEventListener( 'mousemove', onPointerMove );
 
 	}
-*/
 
 	if(window.land === "altmtn" && window.exp === "main") {
 		let ftrVoice = new ftrVoiceClass();
@@ -1507,33 +1469,45 @@ document.addEventListener("DOMContentLoaded", async () => {
 		window.listFeatures.push( ftrNedbank );
 	}
 
-	if(window.room === "quiz") {
-		let ftrLeaderboard = new ftrLeaderboardClass();
-		ftrLeaderboard.init({
-				type: "bush"
-			});
-		window.listFeatures.push( ftrLeaderboard );
-	}
+	*/
 
-/*
-	if(window.room === "nedbank-quiz") {
-		let ftrNedbankLeaderboard = new ftrLeaderboardClass();
-		ftrNedbankLeaderboard.init({
-				type: "nedbank"
-			});
-		window.listFeatures.push( ftrNedbankLeaderboard );
-	}
-*/
-	// Global features
 
+		// Features specific to that land
+	fetch(`https://africarare.glitch.me/api/get-featurelist-by-name?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}`)
+	.then(function (response) {
+		return response.json();
+	}).then(function (data) {
+
+		[...data.fromExp, ...data.fromLvl].forEach( (_ftr) => {
+			switch(_ftr.name) { // Could be a better way to structure it?
+			case "portal":
+				let ftrPortal = new ftrPortalClass();
+				ftrPortal.init(_ftr);
+				window.listFeatures.push( ftrPortal );
+				break;
+			case "leaderboard":
+				let ftrLeaderboard = new ftrLeaderboardClass();
+				_ftr.typeQuiz = "bush";
+				ftrLeaderboard.init(_ftr);
+				window.listFeatures.push( ftrLeaderboard );
+				break;
+			case "access": // NO
+				break;
+			}
+		});
+
+	});
+
+
+		// Global features
     // Should be in global feature "access"
-	if(window.hash != "guest") {
+	if(window.hash != "guest" && window.hash != "snowwhitedonttellmewhattodo") {
 		fetch(proxiedUrlFor("https://www.ubuntu.land/api/privateaccess/getdisplaynamefromhash?hash="+window.hash))
 		.then(function (response) {
 			return response.json();
 		}).then(function (data) {
 
-				if(data.name === "Guest") {
+				if(data.name === "guest") {
 					if(window.land === "altmtn") {
 							window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=Please note altMTN is closed currently, look out for future notifications to rejoin."
 					}
@@ -1545,14 +1519,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 		});
 	}
 
-	let ftrPortal = new ftrPortalClass();
-	ftrPortal.init();
-	window.listFeatures.push( ftrPortal );
-
 	let ftrLoadbalancing = new ftrLoadbalancingClass();
 	ftrLoadbalancing.init();
 	window.listFeatures.push( ftrLoadbalancing );
-	
+
+
 	// The big Loop, 
 	setInterval(() => {
 

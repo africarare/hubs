@@ -1312,7 +1312,7 @@ class UIRoot extends Component {
         )*/}
 
 
-        {/* window.room === "treasurehunt" && (
+        { window.room === "treasurehunt" && (
           <>
 						<TreasureHuntMain/>
 
@@ -1326,7 +1326,7 @@ class UIRoot extends Component {
               description  = "testDescription"
             />
           </>
-        )*/}
+        )}
    
 
         
