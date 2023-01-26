@@ -1303,7 +1303,7 @@ class UIRoot extends Component {
 
         <TreasureLoader />
 
-        {window.land === "altmtn" && window.exp === "main" && (
+        {window.land === "altmtn" && window.exp === "concert" && window.lvl === "default" &&  (
         	<Mtn />
         )}
 

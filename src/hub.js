@@ -245,7 +245,9 @@ const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
-// romamile
+// AFRICARARE INTRO begin
+
+	// 0] Imports (experiences, features...)
 import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
 import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
 import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
@@ -257,41 +259,77 @@ import {ftrLeaderboardClass} from "./hubs_private/leaderboard/ftr_leaderboard.js
 import {ftrPortalClass} from "./hubs_private/portal/ftr_portal.js";
 import {ftrLoadbalancingClass} from "./hubs_private/global/ftr_loadbalancing.js";
 
-	// Handling of tutorial
-const skipTuto = localStorage.getItem('skipTuto') !== null ? localStorage.getItem('skipTuto')
-								   : (qs.has("skipTuto") ? qs.get("skipTuto") : false);
-
-// land/exp/lvl
-
+	// 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
+
 window.exp = qs.get("exp");
 if(window.exp === null)
 	window.exp = "default";
+
 window.lvl = qs.get("lvl");
 if(window.lvl === null)
 	window.lvl = "default";
 
 window.listFeatures = [];
 
-// hash
-window.hash = qs.get("hash");
-if(window.hash === null || window.hash === "guest")
-	window.hash = "guest";
 
+	// 2) ACCESS
 if(window.land === null) {
 	// please connect through actually links and not directly to rooms
 	//window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You can't connect directly with room link, you need to go through ubuntu.land"
 }
 
-if(window.land === "altmtn") {
-	if(window.hash === "guest") {
-		window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You need to have a private access link to connect to that experience."
-	}
+window.hash = qs.get("hash");
+if(window.hash === null || window.hash === "guest")
+	window.hash = "guest";
+
+
+if(window.hash != "masterpass") {
+	fetch(`https://www.ubuntu.land/api/knockknock?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}&hash=${window.hash}`)
+	.then(function (response) {
+		return response.json();
+	}).then(function (data) {
+
+		// If there is an access system, and the hash isn't accepted, then redirect
+		if(!data.accepted) {
+			window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=This experience is under access management, please contact an administrator if you think you should have access to that experience."
+		}
+		
+		// If accepted, then update info
+		if(data.name !== undefined) {
+			window.APP.store.update({ profile: { displayName: data.name} }); 
+			window.APP.store.state.activity.hasChangedName = true;
+		}
+
+		if(data.avatariId !== undefined) {
+			window.APP.store.update({ profile: { avatarId: data.avatarId} }); 
+		}
+
+	});
 }
 
+	// 3] Load balancing
+window.afrUID = localStorage.getItem('afrUID');
+if(window.afrUID === null) {
+	var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var charactersLength = characters.length;
+	for ( var i = 0; i < 20; i++ ) {
+			window.afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	localStorage.setItem('afrUID', window.afrUID);
+}
 
-// romamilend
+let ftrLoadbalancing = new ftrLoadbalancingClass();
+ftrLoadbalancing.init();
+window.listFeatures.push( ftrLoadbalancing );
 
+
+	// 9] The big Loop, 
+setInterval(() => {
+	window.listFeatures.forEach( _ftr => _ftr.tick() )
+}, 60); // Should be a tick in AFRAME
+
+// AFRICARARE INTRO end
 
 let isOAuthModal = false;
 
@@ -1439,7 +1477,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	}
 
-	if(window.land === "altmtn" && window.exp === "main") {
+*/
+	if(window.land === "altmtn" && window.exp === "concert" && window.lvl === "default") {
 		let ftrVoice = new ftrVoiceClass();
 		ftrVoice.init();
 		window.listFeatures.push( ftrVoice );
@@ -1462,7 +1501,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.addEventListener( 'mousedown', updateAtClick );
 
 	}
-
+/*
 	if(window.room === "nedbank") {
 		let ftrNedbank = new ftrNedbankClass();
 		ftrNedbank.init();
@@ -1473,7 +1512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 		// Features specific to that land
-	fetch(`https://africarare.glitch.me/api/get-featurelist-by-name?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}`)
+	fetch(`https://www.ubuntu.land/api/get-featurelist-by-name?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}`)
 	.then(function (response) {
 		return response.json();
 	}).then(function (data) {
@@ -1498,40 +1537,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	});
 
-
-		// Global features
-    // Should be in global feature "access"
-	if(window.hash != "guest" && window.hash != "snowwhitedonttellmewhattodo") {
-		fetch(proxiedUrlFor("https://www.ubuntu.land/api/privateaccess/getdisplaynamefromhash?hash="+window.hash))
-		.then(function (response) {
-			return response.json();
-		}).then(function (data) {
-
-				if(data.name === "guest") {
-					if(window.land === "altmtn") {
-							window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=Please note altMTN is closed currently, look out for future notifications to rejoin."
-					}
-				}
-		
-					// 1) Name
-				window.APP.store.update({ profile: { displayName: data.name} }); 
-				window.APP.store.state.activity.hasChangedName = true;
-		});
-	}
-
-	let ftrLoadbalancing = new ftrLoadbalancingClass();
-	ftrLoadbalancing.init();
-	window.listFeatures.push( ftrLoadbalancing );
-
-
-	// The big Loop, 
-	setInterval(() => {
-
-		window.listFeatures.forEach( _ftr => _ftr.tick() )
-
-	}, 60); // Should be a tick in AFRAME
-
-		// D] Tutorial
 
 	// romamilend
 
