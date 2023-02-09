@@ -218,7 +218,7 @@ import "./components/set-yxz-order";
 
 import "./components/cursor-controller";
 
-import "./hubs_private/global/ftr_pen-restricted";
+import "./components/tools/pen";
 import "./components/tools/pen-laser";
 import "./components/tools/networked-drawing";
 import "./components/tools/drawing-manager";
