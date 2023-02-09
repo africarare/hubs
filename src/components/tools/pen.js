@@ -102,8 +102,7 @@ AFRAME.registerComponent("pen", {
     penVisible: { default: true },
     penTipPosition: { default: { x: 0, y: 0, z: 0 } },
 
-    isRestrictedDrawing: { default: false },
-    drawableObjects: { default: [] }
+    isRestrictedDrawing: { default: true }
   },
 
   init() {
@@ -164,9 +163,6 @@ AFRAME.registerComponent("pen", {
       this.observer.observe(scene, { childList: true, attributes: true, subtree: true });
       scene.addEventListener("object3dset", this.setDirty);
       scene.addEventListener("object3dremove", this.setDirty);
-
-      this.data.isRestrictedDrawing = true;
-      this.data.drawableObjects = ["MM01473_Rebuild_v04_-_Head_Sculptureglb"];
     });
 
     this.penSystem = this.el.sceneEl.systems["pen-tools"];
@@ -328,11 +324,8 @@ AFRAME.registerComponent("pen", {
 
   _checkIsDrawingEnabled(intersection) {
     if (this.data.isRestrictedDrawing) {
-      if (intersection) {
-        const intersectionEl = intersection.object.el;
-        this.isDrawingEnabled = this.data.drawableObjects.some(className =>
-          intersectionEl.classList.contains(className)
-        );
+      if (intersection && intersection.object.userData.drawable) {
+        this.isDrawingEnabled = JSON.parse(intersection.object.userData.drawable) === "true";
       } else this.isDrawingEnabled = false;
     } else this.isDrawingEnabled = true;
   },
