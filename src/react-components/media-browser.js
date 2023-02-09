@@ -53,11 +53,20 @@ const DEFAULT_FACETS = {
   ],
   avatars: [
     { text: "Featured", params: { filter: "featured" } },
+
+    { text: "Avatar Collections", params: { filter: "avatar-collections" } },
+    { text: "Experience Avatars", params: { filter: "experience-avatars" } },
+    { text: "NFT Collections", params: { filter: "nft-collections" } },
+    { text: "Community Highlights", params: { filter: "community-highlights" } },
+
     { text: "My Avatars", params: { filter: "my-avatars" } },
     { text: "Newest", params: { filter: "" } }
   ],
   favorites: [],
-  scenes: [{ text: "Featured", params: { filter: "featured" } }, { text: "My Scenes", params: { filter: "my-scenes" } }]
+  scenes: [
+    { text: "Featured", params: { filter: "featured" } },
+    { text: "My Scenes", params: { filter: "my-scenes" } }
+  ]
 };
 
 const poweredByMessages = defineMessages({
@@ -463,9 +472,9 @@ class MediaBrowserContainer extends Component {
         }
         searchDescription={searchDescription}
         headerRight={
-					window.hash === "masterpass" && showCustomOption && (
+          showCustomOption && (
             <IconButton lg onClick={() => handleCustomClicked(urlSource)}>
-              {["scenes", "avatar"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}
+              {["scenes", "avatars"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}
               <p>{intl.formatMessage(customObjectMessages[customObjectType])}</p>
             </IconButton>
           )
@@ -492,23 +501,22 @@ class MediaBrowserContainer extends Component {
                 label={<FormattedMessage id="media-browser.create-avatar" defaultMessage="Create Avatar" />}
               />
             )}
-            {urlSource === "scenes" &&
-              configs.feature("enable_spoke") && (
-                <CreateTile
-                  as="a"
-                  href="/spoke/new"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  type="scene"
-                  label={
-                    <FormattedMessage
-                      id="media-browser.create-scene"
-                      defaultMessage="Create Scene with {editorName}"
-                      values={{ editorName: configs.translation("editor-name") }}
-                    />
-                  }
-                />
-              )}
+            {urlSource === "scenes" && configs.feature("enable_spoke") && (
+              <CreateTile
+                as="a"
+                href="/spoke/new"
+                rel="noopener noreferrer"
+                target="_blank"
+                type="scene"
+                label={
+                  <FormattedMessage
+                    id="media-browser.create-scene"
+                    defaultMessage="Create Scene with {editorName}"
+                    values={{ editorName: configs.translation("editor-name") }}
+                  />
+                }
+              />
+            )}
             {entries.map((entry, idx) => {
               const isAvatar = entry.type === "avatar" || entry.type === "avatar_listing";
               const isScene = entry.type === "scene" || entry.type === "scene_listing";
