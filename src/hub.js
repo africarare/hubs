@@ -260,6 +260,7 @@ import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
 import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.js";
 import { ftrChatlogClass } from "./hubs_private/global/ftr_chatlog.js";
 import { ftrFloorButtonsClass } from "./hubs_private/global/ftr_floor-buttons";
+import { ftrRestrictedPenClass } from "./hubs_private/global/ftr_restricted-pen-drawing";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1517,12 +1518,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           _ftr.name // Could be a better way to structure it?
         ) {
           case "restricted pen drawing":
-            window.restrictedPenFeature = _ftr;
+            let ftrRestrictedPen = new ftrRestrictedPenClass();
+            ftrRestrictedPen.init(_ftr);
+            window.listFeatures.push(ftrRestrictedPen);
             break;
           case "teleportation panel":
             let ftrFloorButtons = new ftrFloorButtonsClass();
             ftrFloorButtons.init(_ftr);
-            window.list.push(ftrFloorButtons);
+            window.listFeatures.push(ftrFloorButtons);
             break;
           case "portal":
             let ftrPortal = new ftrPortalClass();

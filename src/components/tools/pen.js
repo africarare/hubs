@@ -166,20 +166,11 @@ AFRAME.registerComponent("pen", {
       scene.addEventListener("object3dset", this.setDirty);
       scene.addEventListener("object3dremove", this.setDirty);
 
-      if (window.restrictedPenFeature) {
-        const drawableObjects = [];
+      const ftrRestrictedPen = window.listFeatures.find(ftr => ftr.name === "restricted-pen-drawing");
 
-        const response = await (
-          await fetch(`https://www.ubuntu.land/api/feature/get?id=${window.restrictedPenFeature.id}`)
-        ).json();
-
-        response?.data?.GetCellById.forEach(cell => {
-          if (cell.information["drawable object name"]) {
-            drawableObjects.push(cell.information["drawable object name"]);
-          }
-        });
-
-        this.data.drawableObjects = drawableObjects;
+      if (ftrRestrictedPen) {
+        this.data.isRestrictedDrawing = ftrRestrictedPen.getIsRestrictedDrawing();
+        this.data.drawableObjects = ftrRestrictedPen.getDrawableObjects();
       }
     });
 
