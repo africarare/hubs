@@ -258,6 +258,7 @@ import {ftrNedbankClass} from "./hubs_private/nedbank/ftr_nedbank.js";
 import {ftrLeaderboardClass} from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import {ftrPortalClass} from "./hubs_private/portal/ftr_portal.js";
 import {ftrLoadbalancingClass} from "./hubs_private/global/ftr_loadbalancing.js";
+import {ftrChatlogClass} from "./hubs_private/global/ftr_chatlog.js";
 
 	// 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -285,7 +286,7 @@ if(window.hash === null || window.hash === "guest")
 
 
 if(window.hash != "masterpass") {
-	fetch(`https://www.ubuntu.land/api/knockknock?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}&hash=${window.hash}`)
+	fetch(`https://www.ubuntu.land/api/knockknock?land=${window.land}&experience=${window.exp}&level=${window.lvl}&hash=${window.hash}`)
 	.then(function (response) {
 		return response.json();
 	}).then(function (data) {
@@ -309,15 +310,15 @@ if(window.hash != "masterpass") {
 }
 
 	// 3] Load balancing
-window.afrUID = localStorage.getItem('afrUID');
-if(window.afrUID === null) {
+//window.afrUID = localStorage.getItem('afrUID'); // If in local storage, then multiple tabs on same webbrowser would appear as the same
+//if(window.afrUID === null) {
 	var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 	var charactersLength = characters.length;
 	for ( var i = 0; i < 20; i++ ) {
 			window.afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
 	}
-	localStorage.setItem('afrUID', window.afrUID);
-}
+//	localStorage.setItem('afrUID', window.afrUID);
+//}
 
 let ftrLoadbalancing = new ftrLoadbalancingClass();
 ftrLoadbalancing.init();
@@ -1478,7 +1479,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 
 */
-	if(window.land === "altmtn" && window.exp === "concert" && window.lvl === "default") {
+	if(window.land === "altmtn" && window.exp === "concert" && window.lvl === "main") {
 		let ftrVoice = new ftrVoiceClass();
 		ftrVoice.init();
 		window.listFeatures.push( ftrVoice );
@@ -1501,22 +1502,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.addEventListener( 'mousedown', updateAtClick );
 
 	}
-/*
-	if(window.room === "nedbank") {
+
+	if(window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
 		let ftrNedbank = new ftrNedbankClass();
 		ftrNedbank.init();
 		window.listFeatures.push( ftrNedbank );
 	}
 
-	*/
-
-
 		// Features specific to that land
-	fetch(`https://www.ubuntu.land/api/get-featurelist-by-name?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}`)
+	fetch(`https://www.ubuntu.land/api/get-featurelist-by-name?land=${window.land}&experience=${window.exp}&level=${window.lvl}`)
 	.then(function (response) {
 		return response.json();
 	}).then(function (data) {
 
+		console.log(data);
 		[...data.fromExp, ...data.fromLvl].forEach( (_ftr) => {
 			switch(_ftr.name) { // Could be a better way to structure it?
 			case "portal":
@@ -1531,6 +1530,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 				window.listFeatures.push( ftrLeaderboard );
 				break;
 			case "access": // NO
+				break;
+			case "chatlog": // NO
+				let ftrChatlog = new ftrChatlogClass();
+				ftrChatlog.init(_ftr);
+				window.listFeatures.push( ftrChatlog );
 				break;
 			}
 		});
