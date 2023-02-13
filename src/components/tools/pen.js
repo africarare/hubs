@@ -102,7 +102,8 @@ AFRAME.registerComponent("pen", {
     penVisible: { default: true },
     penTipPosition: { default: { x: 0, y: 0, z: 0 } },
 
-    isRestrictedDrawing: { default: true }
+    isRestrictedDrawing: { default: true },
+    drawableObjects: { default: [] }
   },
 
   init() {
@@ -158,11 +159,28 @@ AFRAME.registerComponent("pen", {
     // TODO: Use the MutationRecords passed into the callback function to determine added/removed nodes!
     this.observer = new MutationObserver(this.setDirty);
 
-    waitForDOMContentLoaded().then(() => {
+    waitForDOMContentLoaded().then(async () => {
       const scene = document.querySelector("a-scene");
+
       this.observer.observe(scene, { childList: true, attributes: true, subtree: true });
       scene.addEventListener("object3dset", this.setDirty);
       scene.addEventListener("object3dremove", this.setDirty);
+
+      if (window.restrictedPenFeature) {
+        const drawableObjects = [];
+
+        const response = await (
+          await fetch(`https://www.ubuntu.land/api/feature/get?id=${window.restrictedPenFeature.id}`)
+        ).json();
+
+        response?.data?.GetCellById.forEach(cell => {
+          if (cell.information["drawable object name"]) {
+            drawableObjects.push(cell.information["drawable object name"]);
+          }
+        });
+
+        this.data.drawableObjects = drawableObjects;
+      }
     });
 
     this.penSystem = this.el.sceneEl.systems["pen-tools"];
@@ -324,8 +342,8 @@ AFRAME.registerComponent("pen", {
 
   _checkIsDrawingEnabled(intersection) {
     if (this.data.isRestrictedDrawing) {
-      if (intersection && intersection.object.userData.drawable) {
-        this.isDrawingEnabled = JSON.parse(intersection.object.userData.drawable) === "true";
+      if (intersection && this.data.drawableObjects.includes(intersection.object.name)) {
+        this.isDrawingEnabled = true;
       } else this.isDrawingEnabled = false;
     } else this.isDrawingEnabled = true;
   },

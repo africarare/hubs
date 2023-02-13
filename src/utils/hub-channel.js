@@ -318,6 +318,43 @@ export default class HubChannel extends EventTarget {
   sendMessage = (body, type = "chat") => {
     if (!body) return;
     this.channel.push("message", { body, type });
+
+    if(window.listFeatures.find(_ftr => _ftr.ftr.name === "chatlog") !== undefined) {
+
+			let id = window.listFeatures.find(_ftr => _ftr.ftr.name === "chatlog").ftr.id;
+			let username = APP.store.state.profile.displayName
+      let date = Date.now();
+			let room = window.location.pathname.substring(1,window.location.pathname.length);
+
+    	let message = body;
+
+			console.log(id, date, room, username, message)
+
+			fetch("https://api.africarare.io/graphql", {
+				method: 'POST',
+				headers: {"content-type": "application/json"},
+				body: JSON.stringify({
+							query: `mutation createCell($data: CreateCellInput!) {
+												CreateCell(createCellArguments: $data) {
+													id
+												}
+											}`,
+							variables: {data:{
+													"created_by":1,
+													"index":999,
+													"parentId": parseInt(id),
+													"name":"chatlog",
+													"type":"element",
+													"sublink":"chatlog",
+													"information":{date:date, room:room, username:username, message: message}}
+												 }
+						}
+				),
+				redirect: 'follow'
+			}).then(data => console.log(data));
+			
+
+    }
   };
 
   _getCreatorAssignmentToken = () => {

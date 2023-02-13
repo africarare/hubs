@@ -1303,13 +1303,13 @@ class UIRoot extends Component {
 
         <TreasureLoader />
 
-        {window.land === "altmtn" && window.exp === "concert" && window.lvl === "default" &&  (
+        {window.land === "altmtn" && window.exp === "concert" && window.lvl === "main" &&  (
         	<Mtn />
         )}
 
-        {/*window.room === "nedbank" && (
+        {window.room === "nedbank" && (
           <NedbankInfoPopup />
-        )*/}
+        )}
 
 
         { window.room === "treasurehunt" && (

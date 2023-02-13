@@ -258,7 +258,8 @@ import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
 import { ftrLeaderboardClass } from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
 import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.js";
-import { ftrFloorButtons } from "./hubs_private/global/ftr_floor-buttons.js";
+import { ftrChatlogClass } from "./hubs_private/global/ftr_chatlog.js";
+import { ftrFloorButtonsClass } from "./hubs_private/global/ftr_floor-buttons";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -282,7 +283,7 @@ if (window.hash === null || window.hash === "guest") window.hash = "guest";
 
 if (window.hash != "masterpass") {
   fetch(
-    `https://www.ubuntu.land/api/knockknock?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}&hash=${window.hash}`
+    `https://www.ubuntu.land/api/knockknock?land=${window.land}&experience=${window.exp}&level=${window.lvl}&hash=${window.hash}`
   )
     .then(function (response) {
       return response.json();
@@ -307,23 +308,19 @@ if (window.hash != "masterpass") {
 }
 
 // 3] Load balancing
-window.afrUID = localStorage.getItem("afrUID");
-if (window.afrUID === null) {
-  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < 20; i++) {
-    window.afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  localStorage.setItem("afrUID", window.afrUID);
+//window.afrUID = localStorage.getItem('afrUID'); // If in local storage, then multiple tabs on same webbrowser would appear as the same
+//if(window.afrUID === null) {
+var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+var charactersLength = characters.length;
+for (var i = 0; i < 20; i++) {
+  window.afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
 }
+//	localStorage.setItem('afrUID', window.afrUID);
+//}
 
 let ftrLoadbalancing = new ftrLoadbalancingClass();
 ftrLoadbalancing.init();
 window.listFeatures.push(ftrLoadbalancing);
-
-let ftrFloorbuttons = new ftrFloorButtons();
-ftrFloorbuttons.init();
-window.listFeatures.push(ftrFloorbuttons);
 
 // 9] The big Loop,
 setInterval(() => {
@@ -1479,7 +1476,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 
 */
-  if (window.land === "altmtn" && window.exp === "concert" && window.lvl === "default") {
+  if (window.land === "altmtn" && window.exp === "concert" && window.lvl === "main") {
     let ftrVoice = new ftrVoiceClass();
     ftrVoice.init();
     window.listFeatures.push(ftrVoice);
@@ -1500,18 +1497,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.addEventListener("mousemove", updatePointer);
     document.addEventListener("mousedown", updateAtClick);
   }
-  /*
-	if(window.room === "nedbank") {
-		let ftrNedbank = new ftrNedbankClass();
-		ftrNedbank.init();
-		window.listFeatures.push( ftrNedbank );
-	}
 
-	*/
+  if (window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
+    let ftrNedbank = new ftrNedbankClass();
+    ftrNedbank.init();
+    window.listFeatures.push(ftrNedbank);
+  }
 
   // Features specific to that land
   fetch(
-    `https://www.ubuntu.land/api/get-featurelist-by-name?sublinkLand=${window.land}&sublinkExp=${window.exp}&sublinkLvl=${window.lvl}`
+    `https://www.ubuntu.land/api/get-featurelist-by-name?land=${window.land}&experience=${window.exp}&level=${window.lvl}`
   )
     .then(function (response) {
       return response.json();
@@ -1521,6 +1516,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         switch (
           _ftr.name // Could be a better way to structure it?
         ) {
+          case "restricted pen drawing":
+            window.restrictedPenFeature = _ftr;
+            break;
+          case "teleportation panel":
+            let ftrFloorButtons = new ftrFloorButtonsClass();
+            ftrFloorButtons.init(_ftr);
+            window.list.push(ftrFloorButtons);
+            break;
           case "portal":
             let ftrPortal = new ftrPortalClass();
             ftrPortal.init(_ftr);
@@ -1533,6 +1536,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.listFeatures.push(ftrLeaderboard);
             break;
           case "access": // NO
+            break;
+          case "chatlog": // NO
+            let ftrChatlog = new ftrChatlogClass();
+            ftrChatlog.init(_ftr);
+            window.listFeatures.push(ftrChatlog);
             break;
         }
       });
