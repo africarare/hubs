@@ -16,7 +16,11 @@ const URL_SOURCE_TO_TO_API_SOURCE = {
   favorites: "favorites"
 };
 
-const desiredSources = ["sketchfab", "videos", "scenes", "avatars", "gifs", "images"];
+let desiredSources = ["sketchfab", "videos", "scenes", "avatars", "gifs", "images"];
+if (!configs.hasMasterPass) {
+  desiredSources = desiredSources.filter(source => source !== "scenes");
+}
+
 const availableSources = desiredSources.filter(source => {
   const apiSource = URL_SOURCE_TO_TO_API_SOURCE[source];
   return configs.integration(apiSource);
