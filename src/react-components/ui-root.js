@@ -50,7 +50,13 @@ import { MicSetupModalContainer } from "./room/MicSetupModalContainer";
 import { InvitePopoverContainer } from "./room/InvitePopoverContainer";
 import { MoreMenuPopoverButton, CompactMoreMenuButton, MoreMenuContextProvider } from "./room/MoreMenuPopover";
 import { ChatSidebarContainer, ChatContextProvider, ChatToolbarButtonContainer } from "./room/ChatSidebarContainer";
-import { ContentMenu, ChatMenuButton, PeopleMenuButton, ObjectsMenuButton, ECSDebugMenuButton } from "./room/ContentMenu";
+import {
+  ContentMenu,
+  ChatMenuButton,
+  PeopleMenuButton,
+  ObjectsMenuButton,
+  ECSDebugMenuButton
+} from "./room/ContentMenu";
 import { ReactComponent as CameraIcon } from "./icons/Camera.svg";
 import { ReactComponent as AvatarIcon } from "./icons/Avatar.svg";
 import { ReactComponent as AddIcon } from "./icons/Add.svg";
@@ -100,17 +106,17 @@ import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 
 // romamile
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
-import YourVoiceMessageField from '../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField';
-import Mtn from '../hubs_private/voiceInstalation/mtn_voice';
+import YourVoiceMessageField from "../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField";
+import Mtn from "../hubs_private/voiceInstalation/mtn_voice";
 import NedbankInfoPopup from "../hubs_private/nedbank/NedbankInfoPopup/NedbankInfoPopup";
 
-import  InfoPanel from "./info-panel/InfoPanel.js";
+import InfoPanel from "./info-panel/InfoPanel.js";
 import "./info-panel/infoPanelUtils.js";
 
 import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js";
-import TreasureContainer from '../hubs_private/react-components/TreasureContainer/TreasureContainer';
-import TreasureLoader from '../hubs_private/react-components/Loader/Loader';
-import WelcomeDialog from '../hubs_private/react-components/WelcomeDialog/WelcomeDialog';
+import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
+import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
+import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
 // romamilend
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
@@ -1100,6 +1106,7 @@ class UIRoot extends Component {
     const canCloseRoom = this.props.hubChannel && !!this.props.hubChannel.canOrWillIfCreator("close_hub");
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
     const isAdmin = window.location.toString().includes("admin");
+    const displaySignIn = configs.hasMasterPass;
 
     const moreMenu = [
       {
@@ -1114,32 +1121,34 @@ class UIRoot extends Component {
           />
         ),
         items: [
-          this.state.signedIn
-            ? {
-                id: "sign-out",
-                label: <FormattedMessage id="more-menu.sign-out" defaultMessage="Sign Out" />,
-                icon: LeaveIcon,
-                onClick: async () => {
-                  await this.props.authChannel.signOut(this.props.hubChannel);
-                  this.setState({ signedIn: false });
+          displaySignIn &&
+            (this.state.signedIn
+              ? {
+                  id: "sign-out",
+                  label: <FormattedMessage id="more-menu.sign-out" defaultMessage="Sign Out" />,
+                  icon: LeaveIcon,
+                  onClick: async () => {
+                    await this.props.authChannel.signOut(this.props.hubChannel);
+                    this.setState({ signedIn: false });
+                  }
                 }
-              }
-            : {
-                id: "sign-in",
-                label: <FormattedMessage id="more-menu.sign-in" defaultMessage="Sign In" />,
-                icon: EnterIcon,
-                onClick: () => this.showContextualSignInDialog()
-              },
-          false && canCreateRoom && {
-            id: "create-room",
-            label: <FormattedMessage id="more-menu.create-room" defaultMessage="Create Room" />,
-            icon: AddIcon,
-            onClick: () =>
-              this.showNonHistoriedDialog(LeaveRoomModal, {
-                destinationUrl: "/",
-                reason: LeaveReason.createRoom
-              })
-          },
+              : {
+                  id: "sign-in",
+                  label: <FormattedMessage id="more-menu.sign-in" defaultMessage="Sign In" />,
+                  icon: EnterIcon,
+                  onClick: () => this.showContextualSignInDialog()
+                }),
+          false &&
+            canCreateRoom && {
+              id: "create-room",
+              label: <FormattedMessage id="more-menu.create-room" defaultMessage="Create Room" />,
+              icon: AddIcon,
+              onClick: () =>
+                this.showNonHistoriedDialog(LeaveRoomModal, {
+                  destinationUrl: "/",
+                  reason: LeaveReason.createRoom
+                })
+            },
           {
             id: "user-profile",
             label: <FormattedMessage id="more-menu.profile" defaultMessage="Change Name & Avatar" />,
@@ -1178,7 +1187,8 @@ class UIRoot extends Component {
             icon: HomeIcon,
             onClick: () => this.setSidebar("room-info")
           },
-          false && (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
+          false &&
+            (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
             (this.props.hub.entry_mode !== "invite" || this.props.hubChannel.can("update_hub")) && {
               id: "invite",
               label: <FormattedMessage id="more-menu.invite" defaultMessage="Invite" />,
@@ -1209,7 +1219,8 @@ class UIRoot extends Component {
               icon: CameraIcon,
               onClick: () => this.toggleStreamerMode()
             },
-          false && (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
+          false &&
+            (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
             entered && {
               id: "leave-room",
               label: <FormattedMessage id="more-menu.enter-leave-room" defaultMessage="Leave Room" />,
@@ -1221,24 +1232,25 @@ class UIRoot extends Component {
                 });
               }
             },
-          false && canCloseRoom && {
-            id: "close-room",
-            label: <FormattedMessage id="more-menu.close-room" defaultMessage="Close Room" />,
-            icon: DeleteIcon,
-            onClick: () =>
-              this.props.performConditionalSignIn(
-                () => this.props.hubChannel.can("update_hub"),
-                () => {
-                  this.showNonHistoriedDialog(CloseRoomModal, {
-                    roomName: this.props.hub.name,
-                    onConfirm: () => {
-                      this.props.hubChannel.closeHub();
-                    }
-                  });
-                },
-                SignInMessages.closeRoom
-              )
-          }
+          false &&
+            canCloseRoom && {
+              id: "close-room",
+              label: <FormattedMessage id="more-menu.close-room" defaultMessage="Close Room" />,
+              icon: DeleteIcon,
+              onClick: () =>
+                this.props.performConditionalSignIn(
+                  () => this.props.hubChannel.can("update_hub"),
+                  () => {
+                    this.showNonHistoriedDialog(CloseRoomModal, {
+                      roomName: this.props.hub.name,
+                      onConfirm: () => {
+                        this.props.hubChannel.closeHub();
+                      }
+                    });
+                  },
+                  SignInMessages.closeRoom
+                )
+            }
         ].filter(item => item)
       },
       {
@@ -1257,12 +1269,13 @@ class UIRoot extends Component {
             icon: WarningCircleIcon,
             href: configs.link("issue_report", "https://hubs.mozilla.com/docs/help.html")
           },
-          false && entered && {
-            id: "start-tour",
-            label: <FormattedMessage id="more-menu.start-tour" defaultMessage="Start Tour" />,
-            icon: SupportIcon,
-            onClick: () => this.props.scene.systems.tips.resetTips()
-          },
+          false &&
+            entered && {
+              id: "start-tour",
+              label: <FormattedMessage id="more-menu.start-tour" defaultMessage="Start Tour" />,
+              icon: SupportIcon,
+              onClick: () => this.props.scene.systems.tips.resetTips()
+            },
           configs.feature("show_docs_link") && {
             id: "help",
             label: <FormattedMessage id="more-menu.help" defaultMessage="Help" />,
@@ -1300,91 +1313,83 @@ class UIRoot extends Component {
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
+          <TreasureLoader />
 
-        <TreasureLoader />
+          {window.land === "altmtn" && window.exp === "concert" && window.lvl === "main" && <Mtn />}
 
-        {window.land === "altmtn" && window.exp === "concert" && window.lvl === "main" &&  (
-        	<Mtn />
-        )}
+          {window.room === "nedbank" && <NedbankInfoPopup />}
 
-        {window.room === "nedbank" && (
-          <NedbankInfoPopup />
-        )}
+          {window.room === "treasurehunt" && (
+            <>
+              <TreasureHuntMain />
 
+              <Popup
+                isMinimized={false}
+                isShowing={false}
+                title="testTitle"
+                artist="testArtist"
+                year="testYear"
+                canvasType="testCanvasType"
+                description="testDescription"
+              />
+            </>
+          )}
 
-        { window.room === "treasurehunt" && (
-          <>
-						<TreasureHuntMain/>
-
-            <Popup
-              isMinimized={false}
-              isShowing={false}
-              title = "testTitle"
-              artist = "testArtist"
-              year = "testYear"
-              canvasType  = "testCanvasType"
-              description  = "testDescription"
-            />
-          </>
-        )}
-   
-
-        
-          <InfoPanel
-            isOpen={false}
-          />
+          <InfoPanel isOpen={false} />
 
           <div className={classNames(rootStyles)}>
+            <div className="topLeftMenu">
+              {entered && (
+                <>
+                  <MoreMenuPopoverButton style={{ marginLeft: "10px" }} menu={moreMenu} />
+                  <AudioPopoverContainer scene={this.props.scene} />
+                  <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
 
-             <div className="topLeftMenu">
-               {entered && (
-                 <>
-                   <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
-                   <AudioPopoverContainer scene={this.props.scene} />
-                   <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-                   
-                   <PlacePopoverContainer
-                     scene={this.props.scene}
-                     hubChannel={this.props.hubChannel}
-                     mediaSearchStore={this.props.mediaSearchStore}
-                     showNonHistoriedDialog={this.showNonHistoriedDialog}
-                   />
-                   {this.props.hubChannel.can("spawn_emoji") && (
-                     <ReactionPopoverContainer
-                       scene={this.props.scene}
-                       initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)}
-                     />
-                   )}
+                  <PlacePopoverContainer
+                    scene={this.props.scene}
+                    hubChannel={this.props.hubChannel}
+                    mediaSearchStore={this.props.mediaSearchStore}
+                    showNonHistoriedDialog={this.showNonHistoriedDialog}
+                  />
+                  {this.props.hubChannel.can("spawn_emoji") && (
+                    <ReactionPopoverContainer
+                      scene={this.props.scene}
+                      initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)}
+                    />
+                  )}
 
-                   {false && (<ToolbarButton
-                     icon={<HelpIcon />}
-                     label={<FormattedMessage id="toolbar.help-button" defaultMessage="Help" />}
-                     onClick={() => {
-                       this.state.isHelping = !this.state.isHelping;
+                  {false && (
+                    <ToolbarButton
+                      icon={<HelpIcon />}
+                      label={<FormattedMessage id="toolbar.help-button" defaultMessage="Help" />}
+                      onClick={() => {
+                        this.state.isHelping = !this.state.isHelping;
 
-												/*
+                        /*
                        switch(window.room) {
                        case "therapy":
 										  		break;
                        case "meeting": break;
                        case "lobby": break;
                        }*/
-                       document.getElementById("centerDisplay").style.display = this.state.isHelping ? "none" : "block";
-                     }}
-                   />)}
-
-                 </>
-               )}
-               {entered && isMobileVR && (
-                   <ToolbarButton
-                     className={styleUtils.hideLg}
-                     icon={<VRIcon />}
-                     preset="accept"
-                     label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
-                     onClick={() => exit2DInterstitialAndEnterVR(true)}
-                   />
-               )}
-             </div>
+                        document.getElementById("centerDisplay").style.display = this.state.isHelping
+                          ? "none"
+                          : "block";
+                      }}
+                    />
+                  )}
+                </>
+              )}
+              {entered && isMobileVR && (
+                <ToolbarButton
+                  className={styleUtils.hideLg}
+                  icon={<VRIcon />}
+                  preset="accept"
+                  label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
+                  onClick={() => exit2DInterstitialAndEnterVR(true)}
+                />
+              )}
+            </div>
 
             {preload && this.props.hub && (
               <PreloadOverlay
@@ -1717,13 +1722,12 @@ class UIRoot extends Component {
         <img
           id="centerDisplay"
           className="nonDragSel"
-          style={{position: "absolute", margin: "auto", display:"none"}}
+          style={{ position: "absolute", margin: "auto", display: "none" }}
           onClick={() => {
             this.state.isHelping = !this.state.isHelping;
             document.getElementById("centerDisplay").style.display = this.state.isHelping ? "none" : "block";
-          }}>
-       </img>
-
+          }}
+        ></img>
       </MoreMenuContextProvider>
     );
   }
