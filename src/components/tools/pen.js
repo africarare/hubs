@@ -4,7 +4,8 @@ import {
   SOUND_PEN_START_DRAW,
   SOUND_PEN_STOP_DRAW,
   SOUND_PEN_UNDO_DRAW,
-  SOUND_PEN_CHANGE_COLOR
+  SOUND_PEN_CHANGE_COLOR,
+  SOUND_QUACK
 } from "../../systems/sound-effects-system";
 import { waitForDOMContentLoaded } from "../../utils/async-utils";
 import { convertStandardMaterial } from "../../utils/material-utils";
@@ -99,10 +100,15 @@ AFRAME.registerComponent("pen", {
     near: { default: 0.01 },
     drawMode: { default: DRAW_MODE.DEFAULT_3D, oneOf: [DRAW_MODE.DEFAULT_3D, DRAW_MODE.PROJECTION] },
     penVisible: { default: true },
-    penTipPosition: { default: { x: 0, y: 0, z: 0 } }
+    penTipPosition: { default: { x: 0, y: 0, z: 0 } },
+
+    isRestrictedDrawing: { default: true },
+    drawableObjects: { default: [] }
   },
 
   init() {
+    this.isDrawingEnabled = false;
+
     this.timeSinceLastDraw = 0;
 
     this.lastPosition = new THREE.Vector3();
@@ -153,11 +159,19 @@ AFRAME.registerComponent("pen", {
     // TODO: Use the MutationRecords passed into the callback function to determine added/removed nodes!
     this.observer = new MutationObserver(this.setDirty);
 
-    waitForDOMContentLoaded().then(() => {
+    waitForDOMContentLoaded().then(async () => {
       const scene = document.querySelector("a-scene");
+
       this.observer.observe(scene, { childList: true, attributes: true, subtree: true });
       scene.addEventListener("object3dset", this.setDirty);
       scene.addEventListener("object3dremove", this.setDirty);
+
+      const ftrRestrictedPen = window.listFeatures.find(ftr => ftr.name === "restricted-pen-drawing");
+
+      if (ftrRestrictedPen) {
+        this.data.isRestrictedDrawing = ftrRestrictedPen.getIsRestrictedDrawing();
+        this.data.drawableObjects = ftrRestrictedPen.getDrawableObjects();
+      }
     });
 
     this.penSystem = this.el.sceneEl.systems["pen-tools"];
@@ -200,9 +214,10 @@ AFRAME.registerComponent("pen", {
 
       const intersection = this._getIntersection(cursorPose);
 
+      this._checkIsDrawingEnabled(intersection);
       this._updatePenTip(intersection);
 
-      const laserVisible = this.data.drawMode === DRAW_MODE.PROJECTION && !!intersection;
+      const laserVisible = this.data.drawMode === DRAW_MODE.PROJECTION && !!intersection && this.isDrawingEnabled;
       const laserInHand = this.el.sceneEl.is("vr-mode") && laserVisible;
 
       if (this.penLaserAttributes.laserVisible !== laserVisible) {
@@ -219,7 +234,8 @@ AFRAME.registerComponent("pen", {
         this._updateLaser(cursorPose, intersection);
       }
 
-      const penVisible = (this.grabberId !== "left-cursor" && this.grabberId !== "right-cursor") || !intersection;
+      const penVisible =
+        (this.grabberId !== "left-cursor" && this.grabberId !== "right-cursor") || !this.isDrawingEnabled;
       this._setPenVisible(penVisible);
       this.el.setAttribute("pen", { penVisible: penVisible });
 
@@ -255,9 +271,12 @@ AFRAME.registerComponent("pen", {
     if (this.grabberId && pathsMap[this.grabberId]) {
       const sfx = this.el.sceneEl.systems["hubs-systems"].soundEffectsSystem;
       const paths = pathsMap[this.grabberId];
-      if (userinput.get(paths.startDrawing)) {
+      if (this.isDrawingEnabled && userinput.get(paths.startDrawing)) {
         this._startDraw();
         sfx.playSoundOneShot(SOUND_PEN_START_DRAW);
+      } else if (userinput.get(paths.startDrawing)) {
+        // TODO | Quack Sound, change per customer
+        sfx.playSoundOneShot(SOUND_QUACK);
       }
       if (userinput.get(paths.stopDrawing)) {
         this._endDraw();
@@ -288,7 +307,7 @@ AFRAME.registerComponent("pen", {
   _getIntersection: (() => {
     const rawIntersections = [];
     const worldQuaternion = new THREE.Quaternion();
-    return function(cursorPose) {
+    return function (cursorPose) {
       rawIntersections.length = 0;
 
       if (this.data.drawMode === DRAW_MODE.PROJECTION) {
@@ -311,6 +330,14 @@ AFRAME.registerComponent("pen", {
       return null;
     };
   })(),
+
+  _checkIsDrawingEnabled(intersection) {
+    if (this.data.isRestrictedDrawing) {
+      if (intersection && this.data.drawableObjects.includes(intersection.object.name)) {
+        this.isDrawingEnabled = true;
+      } else this.isDrawingEnabled = false;
+    } else this.isDrawingEnabled = true;
+  },
 
   _updatePenTip(intersection) {
     if (this.data.drawMode === DRAW_MODE.PROJECTION) {
@@ -338,7 +365,7 @@ AFRAME.registerComponent("pen", {
     const laserEndPosition = new THREE.Vector3();
     const camerWorldPosition = new THREE.Vector3();
     const remoteLaserOrigin = new THREE.Vector3();
-    return function(cursorPose, intersection) {
+    return function (cursorPose, intersection) {
       if (cursorPose) {
         laserStartPosition.copy(cursorPose.position);
       } else {
@@ -351,10 +378,7 @@ AFRAME.registerComponent("pen", {
         remoteLaserOrigin.copy(laserStartPosition);
       } else {
         this.data.camera.object3D.getWorldPosition(camerWorldPosition);
-        remoteLaserOrigin
-          .subVectors(laserEndPosition, camerWorldPosition)
-          .normalize()
-          .multiplyScalar(0.5);
+        remoteLaserOrigin.subVectors(laserEndPosition, camerWorldPosition).normalize().multiplyScalar(0.5);
         remoteLaserOrigin.add(camerWorldPosition);
       }
 
@@ -382,12 +406,16 @@ AFRAME.registerComponent("pen", {
   })(),
 
   _doDraw(intersection, dt) {
+    if (!this.isDrawingEnabled) {
+      this.worldPosition.copy(this.lastPosition);
+      this._endDraw();
+    }
+
     //Prevent drawings from "jumping" large distances
     if (
       this.currentDrawing &&
-      (this.lastIntersectedObject !== (intersection ? intersection.object : null) &&
-        (!intersection ||
-          Math.abs(intersection.distance - this.lastIntersectionDistance) > MAX_DISTANCE_BETWEEN_SURFACES))
+      this.lastIntersectedObject !== (intersection ? intersection.object : null) &&
+      (!intersection || Math.abs(intersection.distance - this.lastIntersectionDistance) > MAX_DISTANCE_BETWEEN_SURFACES)
     ) {
       this.worldPosition.copy(this.lastPosition);
       this._endDraw();
@@ -432,7 +460,7 @@ AFRAME.registerComponent("pen", {
   //helper function to get normal of direction of drawing cross direction to camera
   _getNormal: (() => {
     const directionToCamera = new THREE.Vector3();
-    return function(normal, position, direction) {
+    return function (normal, position, direction) {
       directionToCamera.subVectors(position, this.data.camera.object3D.position).normalize();
       normal.crossVectors(direction, directionToCamera);
     };
