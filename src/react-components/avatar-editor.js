@@ -7,7 +7,7 @@ import { faCloudUploadAlt } from "@fortawesome/free-solid-svg-icons/faCloudUploa
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import configs from "../utils/configs";
-import IfFeature from "./if-feature";
+// import IfFeature from "./if-feature";
 import { fetchReticulumAuthenticated } from "../utils/phoenix-utils";
 import { upload } from "../utils/media-utils";
 import { ensureAvatarMaterial } from "../utils/avatar-utils";
@@ -654,7 +654,19 @@ class AvatarEditor extends Component {
               />
             </div>
             <div className="info">
-              <IfFeature name="show_avatar_editor_link">
+              <p>
+                <FormattedMessage
+                  id="avatar-url-modal.readyplayer-description"
+                  defaultMessage="Create your own readyplayer.me Avatar on:"
+                />{" "}
+                <a href="https://africarare.readyplayer.me" target="_blank" rel="noopener noreferrer">
+                  <FormattedMessage
+                    id="avatar-url-modal.readyplayer-link"
+                    defaultMessage="https://africarare.readyplayer.me"
+                  />
+                </a>
+              </p>
+              {/* <IfFeature name="show_avatar_editor_link">
                 <p>
                   <FormattedMessage
                     id="avatar-editor.external-editor-info"
@@ -690,7 +702,7 @@ class AvatarEditor extends Component {
                     }}
                   />
                 </p>
-              </IfFeature>
+              </IfFeature> */}
             </div>
             <div>
               <button disabled={this.state.uploading} className="form-submit" type="submit">

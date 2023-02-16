@@ -108,6 +108,10 @@ export default class MediaSearchStore extends EventTarget {
     this.dispatchEvent(new CustomEvent("statechanged"));
     const result = fetch ? await fetchReticulumAuthenticated(path) : EMPTY_RESULT;
 
+    if (urlSource === "avatars" && searchParams.get("filter") === "featured") {
+      // Filter if list features included
+    }
+
     if (this.requestIndex != currentRequestIndex) return;
 
     this.result = result;
