@@ -52,8 +52,8 @@ const DEFAULT_FACETS = {
     { text: "Weapons", params: { filter: "weapons-military" } }
   ],
   avatars: [
-    { text: "Experience Avatars", params: { filter: "featured" } },
     { text: "Avatar Collections", params: { filter: "avatar-collections" } },
+    { text: "Experience Avatars", params: { filter: "featured" } },
     { text: "NFT Collections", params: { filter: "nft-collections" } },
     { text: "Community Highlights", params: { filter: "community-highlights" } },
     { text: "External", params: { filter: "external" } }

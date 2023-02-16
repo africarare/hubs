@@ -656,15 +656,24 @@ class AvatarEditor extends Component {
             <div className="info">
               <p>
                 <FormattedMessage
-                  id="avatar-url-modal.readyplayer-description"
-                  defaultMessage="Create your own readyplayer.me Avatar on:"
-                />{" "}
-                <a href="https://africarare.readyplayer.me" target="_blank" rel="noopener noreferrer">
+                  id="avatar-editor.hackweek-description"
+                  defaultMessage="Create your own Hackweek Avatar on:"
+                />
+              </p>
+              <p>
+                <a href="https://mozilla.github.io/hackweek-avatar-maker/" target="_blank" rel="noopener noreferrer">
                   <FormattedMessage
-                    id="avatar-url-modal.readyplayer-link"
-                    defaultMessage="https://africarare.readyplayer.me"
+                    id="avatar-editor.hackweek-link"
+                    defaultMessage="https://mozilla.github.io/hackweek-avatar-maker/"
                   />
                 </a>
+              </p>
+              <p>
+                <FormattedMessage
+                  id="avatar-editor.hackweek-upload"
+                  // eslint-disable-next-line @calm/react-intl/missing-attribute
+                  defaultMessage={`After creating avatar click "Export Avatar" and upload it as GLB`}
+                />
               </p>
               {/* <IfFeature name="show_avatar_editor_link">
                 <p>
