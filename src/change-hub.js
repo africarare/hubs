@@ -30,6 +30,10 @@ export async function changeHub(hubId, addToHistory = true) {
     console.log("Change hub called with the current hub id. This is a noop.");
     return;
   }
+
+  // Start Loading screen
+  document.dispatchEvent(new Event("changeHub.loader.show"));
+
   // Suppress on-screen join and leave messages until we receive a sync.
   APP.hideHubPresenceEvents = true;
   const scene = AFRAME.scenes[0];
@@ -99,6 +103,9 @@ export async function changeHub(hubId, addToHistory = true) {
 
   loadRoomObjects(hubId);
 
+  // End Loading screen
+  document.dispatchEvent(new Event("changeHub.loader.hide"));
+
   APP.hubChannel.sendEnteredEvent();
 
   APP.messageDispatch.receive({
@@ -110,7 +117,7 @@ export async function changeHub(hubId, addToHistory = true) {
 window.changeHub = changeHub;
 
 // TODO see if there is a better way to do this with react router
-window.addEventListener("popstate", function() {
+window.addEventListener("popstate", function () {
   if (!APP.store.state.preferences.fastRoomSwitching) return;
   const qs = new URLSearchParams(location.search);
   const newHubId = qs.get("hub_id") || document.location.pathname.substring(1).split("/")[0];

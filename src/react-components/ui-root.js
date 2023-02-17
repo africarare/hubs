@@ -115,7 +115,7 @@ import "./info-panel/infoPanelUtils.js";
 
 import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js";
 import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
-import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
+import { TreasureLoader, ChangeHubLoader } from "../hubs_private/react-components/Loader/Loader";
 import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
 // romamilend
 
@@ -1313,7 +1313,9 @@ class UIRoot extends Component {
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
+          {/* LOADERS */}
           <TreasureLoader />
+          <ChangeHubLoader />
 
           {window.land === "altmtn" && window.exp === "concert" && window.lvl === "main" && <Mtn />}
 
