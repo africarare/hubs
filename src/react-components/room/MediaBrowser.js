@@ -70,21 +70,24 @@ export function MediaBrowser({
               </h3>
             </>
           ) : (
-            <TextInputField
-              value={query}
-              onChange={onChangeQuery}
-              autoFocus={autoFocusSearch}
-              ref={searchInputRef}
-              placeholder={searchPlaceholder}
-              onKeyDown={onSearchKeyDown}
-              beforeInput={<SearchIcon className={styles.searchIcon} />}
-              afterInput={
-                <IconButton onClick={onClearSearch}>
-                  <CloseIcon height={16} width={16} />
-                </IconButton>
-              }
-              description={searchDescription}
-            />
+            // Disabled searching for avatars untill created to search only by selected category
+            selectedSource !== "avatars" && (
+              <TextInputField
+                value={query}
+                onChange={onChangeQuery}
+                autoFocus={autoFocusSearch}
+                ref={searchInputRef}
+                placeholder={searchPlaceholder}
+                onKeyDown={onSearchKeyDown}
+                beforeInput={<SearchIcon className={styles.searchIcon} />}
+                afterInput={
+                  <IconButton onClick={onClearSearch}>
+                    <CloseIcon height={16} width={16} />
+                  </IconButton>
+                }
+                description={searchDescription}
+              />
+            )
           )}
         </>
       }
