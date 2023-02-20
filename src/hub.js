@@ -470,7 +470,85 @@ export async function getSceneUrlForHub(hub) {
   return sceneUrl;
 }
 
+const updateUbuntuLand = () => {
+  // Reset list features
+  window.listFeatures = window.listFeatures.filter(feature => feature.name === "load-balancing");
+
+  if (window.land === "altmtn" && window.exp === "concert" && window.lvl === "main") {
+    let ftrVoice = new ftrVoiceClass();
+    ftrVoice.init();
+    window.listFeatures.push(ftrVoice);
+
+    // tmp debug
+    window.tmpAccess = ftrVoice;
+
+    // TODO => find how to do binding, so that we can leave that in the feature class, and not here
+    let updatePointer = () => {
+      ftrVoice.pointer.x = (event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
+      ftrVoice.pointer.y = -(event.clientY / document.getElementsByTagName("canvas")[0].offsetHeight) * 2 + 1;
+    };
+
+    let updateAtClick = () => {
+      if (!ftrVoice.buttHovered) return;
+      window.mtnOpen();
+    };
+    document.addEventListener("mousemove", updatePointer);
+    document.addEventListener("mousedown", updateAtClick);
+  }
+
+  if (window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
+    let ftrNedbank = new ftrNedbankClass();
+    ftrNedbank.init();
+    window.listFeatures.push(ftrNedbank);
+  }
+
+  // Features specific to that land
+  fetch(
+    `https://www.ubuntu.land/api/get-featurelist-by-name?land=${window.land}&experience=${window.exp}&level=${window.lvl}`
+  )
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      [...data.fromExp, ...data.fromLvl].forEach(_ftr => {
+        switch (
+          _ftr.name // Could be a better way to structure it?
+        ) {
+          case "restricted pen drawing":
+            let ftrRestrictedPen = new ftrRestrictedPenClass();
+            ftrRestrictedPen.init(_ftr);
+            window.listFeatures.push(ftrRestrictedPen);
+            break;
+          case "teleportation panel":
+            let ftrFloorButtons = new ftrFloorButtonsClass();
+            ftrFloorButtons.init(_ftr);
+            window.listFeatures.push(ftrFloorButtons);
+            break;
+          case "portal":
+            let ftrPortal = new ftrPortalClass();
+            ftrPortal.init(_ftr);
+            window.listFeatures.push(ftrPortal);
+            break;
+          case "leaderboard":
+            let ftrLeaderboard = new ftrLeaderboardClass();
+            _ftr.typeQuiz = "bush";
+            ftrLeaderboard.init(_ftr);
+            window.listFeatures.push(ftrLeaderboard);
+            break;
+          case "access": // NO
+            break;
+          case "chatlog": // NO
+            let ftrChatlog = new ftrChatlogClass();
+            ftrChatlog.init(_ftr);
+            window.listFeatures.push(ftrChatlog);
+            break;
+        }
+      });
+    });
+};
+
 export async function updateEnvironmentForHub(hub, entryManager) {
+  updateUbuntuLand();
   console.log("Updating environment for hub");
   const sceneUrl = await getSceneUrlForHub(hub);
 
@@ -1477,77 +1555,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 
 */
-  if (window.land === "altmtn" && window.exp === "concert" && window.lvl === "main") {
-    let ftrVoice = new ftrVoiceClass();
-    ftrVoice.init();
-    window.listFeatures.push(ftrVoice);
-
-    // tmp debug
-    window.tmpAccess = ftrVoice;
-
-    // TODO => find how to do binding, so that we can leave that in the feature class, and not here
-    let updatePointer = () => {
-      ftrVoice.pointer.x = (event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
-      ftrVoice.pointer.y = -(event.clientY / document.getElementsByTagName("canvas")[0].offsetHeight) * 2 + 1;
-    };
-
-    let updateAtClick = () => {
-      if (!ftrVoice.buttHovered) return;
-      window.mtnOpen();
-    };
-    document.addEventListener("mousemove", updatePointer);
-    document.addEventListener("mousedown", updateAtClick);
-  }
-
-  if (window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
-    let ftrNedbank = new ftrNedbankClass();
-    ftrNedbank.init();
-    window.listFeatures.push(ftrNedbank);
-  }
-
-  // Features specific to that land
-  fetch(
-    `https://www.ubuntu.land/api/get-featurelist-by-name?land=${window.land}&experience=${window.exp}&level=${window.lvl}`
-  )
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      [...data.fromExp, ...data.fromLvl].forEach(_ftr => {
-        switch (
-          _ftr.name // Could be a better way to structure it?
-        ) {
-          case "restricted pen drawing":
-            let ftrRestrictedPen = new ftrRestrictedPenClass();
-            ftrRestrictedPen.init(_ftr);
-            window.listFeatures.push(ftrRestrictedPen);
-            break;
-          case "teleportation panel":
-            let ftrFloorButtons = new ftrFloorButtonsClass();
-            ftrFloorButtons.init(_ftr);
-            window.listFeatures.push(ftrFloorButtons);
-            break;
-          case "portal":
-            let ftrPortal = new ftrPortalClass();
-            ftrPortal.init(_ftr);
-            window.listFeatures.push(ftrPortal);
-            break;
-          case "leaderboard":
-            let ftrLeaderboard = new ftrLeaderboardClass();
-            _ftr.typeQuiz = "bush";
-            ftrLeaderboard.init(_ftr);
-            window.listFeatures.push(ftrLeaderboard);
-            break;
-          case "access": // NO
-            break;
-          case "chatlog": // NO
-            let ftrChatlog = new ftrChatlogClass();
-            ftrChatlog.init(_ftr);
-            window.listFeatures.push(ftrChatlog);
-            break;
-        }
-      });
-    });
 
   // romamilend
 });
