@@ -112,6 +112,16 @@ export default class MediaSearchStore extends EventTarget {
     this.dispatchEvent(new CustomEvent("statechanged"));
     const result = fetch ? await fetchReticulumAuthenticated(path) : EMPTY_RESULT;
 
+    if (urlSource === "avatars" && searchParams.get("filter") === "featured") {
+      const experienceAvatarsFeature = window.listFeatures.find(_ftr => _ftr.name === "experience-avatars");
+
+      if (experienceAvatarsFeature) {
+        result.entries = result.entries.filter(entry =>
+          experienceAvatarsFeature.getExperienceAvatars().includes(entry.id)
+        );
+      }
+    }
+
     if (this.requestIndex != currentRequestIndex) return;
 
     this.result = result;

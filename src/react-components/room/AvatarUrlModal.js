@@ -13,6 +13,19 @@ export function AvatarUrlModal({ onSubmit, onClose }) {
   return (
     <Modal title="Custom Avatar URL" beforeTitle={<CloseButton onClick={onClose} />}>
       <Column as="form" padding center onSubmit={handleSubmit(onSubmit)}>
+        <p>
+          <FormattedMessage
+            id="avatar-url-modal.readyplayer-description"
+            defaultMessage="Create your own readyplayer.me Avatar on:"
+          />{" "}
+          <a href="https://africarare.readyplayer.me" target="_blank" rel="noopener noreferrer">
+            <FormattedMessage
+              id="avatar-url-modal.readyplayer-link"
+              defaultMessage="https://africarare.readyplayer.me"
+            />
+          </a>
+        </p>
+
         <TextInputField
           name="url"
           label={<FormattedMessage id="avatar-url-modal.avatar-url-label" defaultMessage="Avatar GLB URL" />}

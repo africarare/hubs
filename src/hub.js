@@ -261,6 +261,7 @@ import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.j
 import { ftrChatlogClass } from "./hubs_private/global/ftr_chatlog.js";
 import { ftrFloorButtonsClass } from "./hubs_private/global/ftr_floor-buttons";
 import { ftrRestrictedPenClass } from "./hubs_private/global/ftr_restricted-pen-drawing";
+import { ftrExperienceAvatarsClass } from "./hubs_private/global/ftr_experience-avatars";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1517,6 +1518,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         switch (
           _ftr.name // Could be a better way to structure it?
         ) {
+          case "experience avatars":
+            let ftrExperienceAvatars = new ftrExperienceAvatarsClass();
+            ftrExperienceAvatars.init(_ftr);
+            window.listFeatures.push(ftrExperienceAvatars);
+            break;
           case "restricted pen drawing":
             let ftrRestrictedPen = new ftrRestrictedPenClass();
             ftrRestrictedPen.init(_ftr);

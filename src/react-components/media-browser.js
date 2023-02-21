@@ -52,12 +52,24 @@ const DEFAULT_FACETS = {
     { text: "Weapons", params: { filter: "weapons-military" } }
   ],
   avatars: [
-    { text: "Featured", params: { filter: "featured" } },
-    { text: "My Avatars", params: { filter: "my-avatars" } },
-    { text: "Newest", params: { filter: "" } }
+    { text: "Avatar Collections", params: { filter: "avatar-collections" } },
+    { text: "Experience Avatars", params: { filter: "featured" } },
+    { text: "NFT Collections", params: { filter: "nft-collections" } }
+
+    // Hided for now
+    // { text: "Community Highlights", params: { filter: "community-highlights" } },
+    // { text: "External", params: { filter: "external" } }
+
+    // Disabled default filters
+    // { text: "Featured", params: { filter: "featured" } },
+    // { text: "My Avatars", params: { filter: "my-avatars" } }
+    // { text: "Newest", params: { filter: "" } }
   ],
   favorites: [],
-  scenes: [{ text: "Featured", params: { filter: "featured" } }, { text: "My Scenes", params: { filter: "my-scenes" } }]
+  scenes: [
+    { text: "Featured", params: { filter: "featured" } },
+    { text: "My Scenes", params: { filter: "my-scenes" } }
+  ]
 };
 
 const poweredByMessages = defineMessages({
@@ -463,9 +475,9 @@ class MediaBrowserContainer extends Component {
         }
         searchDescription={searchDescription}
         headerRight={
-					window.hash === "masterpass" && showCustomOption && (
+          showCustomOption && (
             <IconButton lg onClick={() => handleCustomClicked(urlSource)}>
-              {["scenes", "avatar"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}
+              {["scenes", "avatars"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}
               <p>{intl.formatMessage(customObjectMessages[customObjectType])}</p>
             </IconButton>
           )
@@ -486,75 +498,113 @@ class MediaBrowserContainer extends Component {
         !showEmptyStringOnNoResult ? (
           <>
             {urlSource === "avatars" && (
+              <>
+                {activeFilter === "external" && (
+                  <>
+                    <CreateTile
+                      type="avatar"
+                      onClick={() => handleCustomClicked(urlSource)}
+                      label={
+                        <FormattedMessage
+                          id="media-browser.create-readyplayerme-avatar"
+                          defaultMessage="Create Readyplayer Avatar"
+                        />
+                      }
+                    />
+                    <CreateTile
+                      type="avatar"
+                      onClick={this.onCreateAvatar}
+                      label={
+                        <FormattedMessage
+                          id="media-browser.create-hackweek-avatar"
+                          defaultMessage="Create Hackweek Avatar"
+                        />
+                      }
+                    />
+                  </>
+                )}
+              </>
+            )}
+            {urlSource === "scenes" && configs.feature("enable_spoke") && (
               <CreateTile
-                type="avatar"
-                onClick={this.onCreateAvatar}
-                label={<FormattedMessage id="media-browser.create-avatar" defaultMessage="Create Avatar" />}
+                as="a"
+                href="/spoke/new"
+                rel="noopener noreferrer"
+                target="_blank"
+                type="scene"
+                label={
+                  <FormattedMessage
+                    id="media-browser.create-scene"
+                    defaultMessage="Create Scene with {editorName}"
+                    values={{ editorName: configs.translation("editor-name") }}
+                  />
+                }
               />
             )}
-            {urlSource === "scenes" &&
-              configs.feature("enable_spoke") && (
-                <CreateTile
-                  as="a"
-                  href="/spoke/new"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  type="scene"
-                  label={
-                    <FormattedMessage
-                      id="media-browser.create-scene"
-                      defaultMessage="Create Scene with {editorName}"
-                      values={{ editorName: configs.translation("editor-name") }}
-                    />
-                  }
-                />
-              )}
-            {entries.map((entry, idx) => {
-              const isAvatar = entry.type === "avatar" || entry.type === "avatar_listing";
-              const isScene = entry.type === "scene" || entry.type === "scene_listing";
-              const onShowSimilar =
-                entry.type === "avatar_listing"
-                  ? e => {
-                      e.preventDefault();
-                      this.onShowSimilar(entry.id, entry.name);
-                    }
-                  : undefined;
+            {activeFilter !== "nft-collections" ? (
+              entries.map((entry, idx) => {
+                const isAvatar = entry.type === "avatar" || entry.type === "avatar_listing";
+                const isScene = entry.type === "scene" || entry.type === "scene_listing";
+                const onShowSimilar =
+                  entry.type === "avatar_listing"
+                    ? e => {
+                        e.preventDefault();
+                        this.onShowSimilar(entry.id, entry.name);
+                      }
+                    : undefined;
 
-              let onEdit;
+                let onEdit;
 
-              if (entry.type === "avatar") {
-                onEdit = e => {
-                  e.preventDefault();
-                  pushHistoryState(this.props.history, "overlay", "avatar-editor", { avatarId: entry.id });
-                };
-              } else if (entry.type === "scene") {
-                onEdit = e => {
-                  e.preventDefault();
-                  const spokeProjectUrl = getReticulumFetchUrl(`/spoke/projects/${entry.project_id}`);
-                  window.open(spokeProjectUrl);
-                };
-              }
+                if (entry.type === "avatar") {
+                  onEdit = e => {
+                    e.preventDefault();
+                    pushHistoryState(this.props.history, "overlay", "avatar-editor", { avatarId: entry.id });
+                  };
+                } else if (entry.type === "scene") {
+                  onEdit = e => {
+                    e.preventDefault();
+                    const spokeProjectUrl = getReticulumFetchUrl(`/spoke/projects/${entry.project_id}`);
+                    window.open(spokeProjectUrl);
+                  };
+                }
 
-              let onCopy;
+                let onCopy;
 
-              if (isAvatar) {
-                onCopy = e => this.handleCopyAvatar(e, entry);
-              } else if (isScene) {
-                onCopy = e => this.handleCopyScene(e, entry);
-              }
+                if (isAvatar) {
+                  onCopy = e => this.handleCopyAvatar(e, entry);
+                } else if (isScene) {
+                  onCopy = e => this.handleCopyScene(e, entry);
+                }
 
-              return (
-                <MediaTile
-                  key={`${entry.id}_${idx}`}
-                  entry={entry}
-                  processThumbnailUrl={this.processThumbnailUrl}
-                  onClick={e => this.handleEntryClicked(e, entry)}
-                  onEdit={onEdit}
-                  onShowSimilar={onShowSimilar}
-                  onCopy={onCopy}
-                />
-              );
-            })}
+                return (
+                  <MediaTile
+                    key={`${entry.id}_${idx}`}
+                    entry={entry}
+                    processThumbnailUrl={this.processThumbnailUrl}
+                    onClick={e => this.handleEntryClicked(e, entry)}
+                    onEdit={onEdit}
+                    onShowSimilar={onShowSimilar}
+                    onCopy={onCopy}
+                  />
+                );
+              })
+            ) : (
+              // Temporary solution for upcoming nft collections
+              <div
+                style={{
+                  position: "absolute",
+                  display: "flex",
+                  height: "calc(100% - 210px)",
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "36px",
+                  color: "#BBB"
+                }}
+              >
+                <FormattedMessage id="media-browser.coming-soon" defaultMessage="Coming Soon!" />
+              </div>
+            )}
           </>
         ) : null}
       </MediaBrowser>
