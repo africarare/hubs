@@ -589,7 +589,7 @@ class MediaBrowserContainer extends Component {
                 );
               })
             ) : (
-              // Temporary solution for upcomming nft collections
+              // Temporary solution for upcoming nft collections
               <div
                 style={{
                   position: "absolute",
@@ -602,7 +602,7 @@ class MediaBrowserContainer extends Component {
                   color: "#BBB"
                 }}
               >
-                <FormattedMessage id="media-browser.comming-soon" defaultMessage="Comming Soon!" />
+                <FormattedMessage id="media-browser.coming-soon" defaultMessage="Coming Soon!" />
               </div>
             )}
           </>
