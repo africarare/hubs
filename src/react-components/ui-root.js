@@ -1322,18 +1322,18 @@ class UIRoot extends Component {
           {window.room === "treasurehunt" && (
             <>
               <TreasureHuntMain />
-
-              <Popup
-                isMinimized={false}
-                isShowing={false}
-                title="testTitle"
-                artist="testArtist"
-                year="testYear"
-                canvasType="testCanvasType"
-                description="testDescription"
-              />
             </>
           )}
+
+          <Popup
+            isMinimized={false}
+            isShowing={false}
+            title="testTitle"
+            artist="testArtist"
+            year="testYear"
+            canvasType="testCanvasType"
+            description="testDescription"
+          />
 
           <InfoPanel isOpen={false} />
 
