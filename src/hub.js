@@ -254,6 +254,8 @@ import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
 
 import { ftrVoiceClass } from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
+import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js";
+import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
 import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
 import { ftrLeaderboardClass } from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
@@ -1546,10 +1548,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             break;
           case "access": // NO
             break;
-          case "chatlog": // NO
+          case "chatlog":
             let ftrChatlog = new ftrChatlogClass();
             ftrChatlog.init(_ftr);
             window.listFeatures.push(ftrChatlog);
+            break;
+          case "presentation":
+            let ftrPresentation = new ftrPresentationClass();
+            ftrPresentation.init(_ftr);
+            window.listFeatures.push(ftrPresentation);
+            break;
+          case "participation":
+            let ftrParticipation = new ftrParticipationClass();
+            ftrParticipation.init(_ftr);
+            window.listFeatures.push(ftrParticipation);
             break;
         }
       });
