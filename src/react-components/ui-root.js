@@ -105,6 +105,7 @@ import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 
 // romamile
+import Modal from "../hubs_private/package/Modal.js";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
 import YourVoiceMessageField from "../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField";
 import Mtn from "../hubs_private/voiceInstalation/mtn_voice";
@@ -1336,6 +1337,8 @@ class UIRoot extends Component {
           />
 
           <InfoPanel isOpen={false} />
+
+          <Modal />
 
           <div className={classNames(rootStyles)}>
             <div className="topLeftMenu">

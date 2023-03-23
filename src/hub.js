@@ -254,6 +254,7 @@ import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
+import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
 import { ftrVoiceClass } from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
 import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js";
 import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
@@ -1568,6 +1569,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             let ftrInfopin = new ftrInfopinClass();
             ftrInfopin.init(_ftr);
             window.listFeatures.push(ftrInfopin);
+            break;
+          case "exhibit":
+            let ftrExhibit = new ftrExhibitClass();
+            ftrExhibit.init(_ftr);
+            window.listFeatures.push(ftrExhibit);
             break;
         }
       });
