@@ -101,9 +101,9 @@ export default class HubChannel extends EventTarget {
         onSync: this.presence.caller.onSync
       };
 
-      this.presence.onJoin(function() {});
-      this.presence.onLeave(function() {});
-      this.presence.onSync(function() {});
+      this.presence.onJoin(function () {});
+      this.presence.onLeave(function () {});
+      this.presence.onSync(function () {});
     }
 
     this.channel = await migrateChannelToSocket(this.channel, socket, params);
@@ -129,9 +129,9 @@ export default class HubChannel extends EventTarget {
         onSync: this.presence.caller.onSync
       };
 
-      this.presence.onJoin(function() {});
-      this.presence.onLeave(function() {});
-      this.presence.onSync(function() {});
+      this.presence.onJoin(function () {});
+      this.presence.onLeave(function () {});
+      this.presence.onSync(function () {});
     }
 
     this.channel = newChannel;
@@ -319,41 +319,24 @@ export default class HubChannel extends EventTarget {
     if (!body) return;
     this.channel.push("message", { body, type });
 
-    if(window.listFeatures.find(_ftr => _ftr.ftr.name === "chatlog") !== undefined) {
-
-			let id = window.listFeatures.find(_ftr => _ftr.ftr.name === "chatlog").ftr.id;
-			let username = APP.store.state.profile.displayName
+    if (window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog") !== undefined) {
+      let id = window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog").ftr._id;
+      let username = APP.store.state.profile.displayName;
       let date = Date.now();
-			let room = window.location.pathname.substring(1,window.location.pathname.length);
+      let room = window.location.pathname.substring(1, window.location.pathname.length);
 
-    	let message = body;
+      let message = body;
 
-			console.log(id, date, room, username, message)
+      console.log(id, date, room, username, message);
 
-			fetch("https://api.africarare.io/graphql", {
-				method: 'POST',
-				headers: {"content-type": "application/json"},
-				body: JSON.stringify({
-							query: `mutation createCell($data: CreateCellInput!) {
-												CreateCell(createCellArguments: $data) {
-													id
-												}
-											}`,
-							variables: {data:{
-													"created_by":1,
-													"index":999,
-													"parentId": parseInt(id),
-													"name":"chatlog",
-													"type":"element",
-													"sublink":"chatlog",
-													"information":{date:date, room:room, username:username, message: message}}
-												 }
-						}
-				),
-				redirect: 'follow'
-			}).then(data => console.log(data));
-			
-
+      fetch("https://backend-dashboard.ubuntuland.io/api/visit/chatlog-message", {
+        method: "POST",
+        body: JSON.stringify({
+          room,
+          username,
+          message
+        })
+      }).then(data => console.log(data));
     }
   };
 
@@ -440,10 +423,7 @@ export default class HubChannel extends EventTarget {
       payload.promotion_token = promotionToken;
     }
     return new Promise((resolve, reject) => {
-      this.channel
-        .push("pin", payload)
-        .receive("ok", resolve)
-        .receive("error", reject);
+      this.channel.push("pin", payload).receive("ok", resolve).receive("error", reject);
     });
   };
 
