@@ -331,6 +331,9 @@ export default class HubChannel extends EventTarget {
 
       fetch("https://backend-dashboard.ubuntuland.io/api/visit/chatlog-message", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           room,
           username,
