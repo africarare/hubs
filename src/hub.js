@@ -289,25 +289,25 @@ if (window.hash === null || window.hash === "guest") window.hash = "guest";
 
 if (window.hash != "masterpass") {
   fetch(
-    `https://www.ubuntu.land/api/knockknock?land=${window.land}&experience=${window.exp}&level=${window.lvl}&hash=${window.hash}`
+    `https://backend-dashboard.ubuntuland.io/api/visit/knock-knock?land=${window.land}&experience=${window.exp}&level=${window.lvl}&hash=${window.hash}`
   )
     .then(function (response) {
       return response.json();
     })
     .then(function (data) {
       // If there is an access system, and the hash isn't accepted, then redirect
-      if (!data.accepted) {
+      if (!data.data.accepted) {
         window.location =
           "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=This experience is under access management, please contact an administrator if you think you should have access to that experience.";
       }
 
       // If accepted, then update info
-      if (data.name !== undefined) {
+      if (data.data.name !== undefined) {
         window.APP.store.update({ profile: { displayName: data.name } });
         window.APP.store.state.activity.hasChangedName = true;
       }
 
-      if (data.avatariId !== undefined) {
+      if (data.data.avatariId !== undefined) {
         window.APP.store.update({ profile: { avatarId: data.avatarId } });
       }
     });
@@ -316,15 +316,17 @@ if (window.hash != "masterpass") {
 // 3] Load balancing
 //window.afrUID = localStorage.getItem('afrUID'); // If in local storage, then multiple tabs on same webbrowser would appear as the same
 //if(window.afrUID === null) {
-var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-var charactersLength = characters.length;
-for (var i = 0; i < 20; i++) {
-  window.afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
+const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const charactersLength = characters.length;
+let afrUID = "";
+for (let i = 0; i < 20; i++) {
+  afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
 }
+window.afrUID = afrUID;
 //	localStorage.setItem('afrUID', window.afrUID);
 //}
 
-let ftrLoadbalancing = new ftrLoadbalancingClass();
+const ftrLoadbalancing = new ftrLoadbalancingClass();
 ftrLoadbalancing.init();
 window.listFeatures.push(ftrLoadbalancing);
 
@@ -1512,38 +1514,43 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Features specific to that land
   fetch(
-    `https://www.ubuntu.land/api/get-featurelist-by-name?land=${window.land}&experience=${window.exp}&level=${window.lvl}`
+    `https://backend-dashboard.ubuntuland.io/api/visit/feature-list?land=${window.land}&experience=${window.exp}&level=${window.lvl}`
   )
     .then(function (response) {
       return response.json();
     })
     .then(function (data) {
-      [...data.fromExp, ...data.fromLvl].forEach(_ftr => {
+      data.data.forEach(_ftr => {
         switch (
-          _ftr.name // Could be a better way to structure it?
+          _ftr.type // Could be a better way to structure it?
         ) {
-          case "experience avatars":
-            let ftrExperienceAvatars = new ftrExperienceAvatarsClass();
+          case "experience-avatars":
+            // eslint-disable-next-line no-case-declarations
+            const ftrExperienceAvatars = new ftrExperienceAvatarsClass();
             ftrExperienceAvatars.init(_ftr);
             window.listFeatures.push(ftrExperienceAvatars);
             break;
-          case "restricted pen drawing":
-            let ftrRestrictedPen = new ftrRestrictedPenClass();
+          case "restricted-pen-drawing":
+            // eslint-disable-next-line no-case-declarations
+            const ftrRestrictedPen = new ftrRestrictedPenClass();
             ftrRestrictedPen.init(_ftr);
             window.listFeatures.push(ftrRestrictedPen);
             break;
-          case "teleportation panel":
-            let ftrFloorButtons = new ftrFloorButtonsClass();
+          case "teleportation-panel":
+            // eslint-disable-next-line no-case-declarations
+            const ftrFloorButtons = new ftrFloorButtonsClass();
             ftrFloorButtons.init(_ftr);
             window.listFeatures.push(ftrFloorButtons);
             break;
           case "portal":
-            let ftrPortal = new ftrPortalClass();
+            // eslint-disable-next-line no-case-declarations
+            const ftrPortal = new ftrPortalClass();
             ftrPortal.init(_ftr);
             window.listFeatures.push(ftrPortal);
             break;
           case "leaderboard":
-            let ftrLeaderboard = new ftrLeaderboardClass();
+            // eslint-disable-next-line no-case-declarations
+            const ftrLeaderboard = new ftrLeaderboardClass();
             _ftr.typeQuiz = "bush";
             ftrLeaderboard.init(_ftr);
             window.listFeatures.push(ftrLeaderboard);
@@ -1551,27 +1558,32 @@ document.addEventListener("DOMContentLoaded", async () => {
           case "access": // NO
             break;
           case "chatlog":
-            let ftrChatlog = new ftrChatlogClass();
+            // eslint-disable-next-line no-case-declarations
+            const ftrChatlog = new ftrChatlogClass();
             ftrChatlog.init(_ftr);
             window.listFeatures.push(ftrChatlog);
             break;
           case "presentation":
-            let ftrPresentation = new ftrPresentationClass();
+            // eslint-disable-next-line no-case-declarations
+            const ftrPresentation = new ftrPresentationClass();
             ftrPresentation.init(_ftr);
             window.listFeatures.push(ftrPresentation);
             break;
           case "participation":
-            let ftrParticipation = new ftrParticipationClass();
+            // eslint-disable-next-line no-case-declarations
+            const ftrParticipation = new ftrParticipationClass();
             ftrParticipation.init(_ftr);
             window.listFeatures.push(ftrParticipation);
             break;
-          case "info pin":
-            let ftrInfopin = new ftrInfopinClass();
+          case "info-pin":
+            // eslint-disable-next-line no-case-declarations
+            const ftrInfopin = new ftrInfopinClass();
             ftrInfopin.init(_ftr);
             window.listFeatures.push(ftrInfopin);
             break;
           case "exhibit":
-            let ftrExhibit = new ftrExhibitClass();
+            // eslint-disable-next-line no-case-declarations
+            const ftrExhibit = new ftrExhibitClass();
             ftrExhibit.init(_ftr);
             window.listFeatures.push(ftrExhibit);
             break;
