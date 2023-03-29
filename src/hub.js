@@ -303,12 +303,12 @@ if (window.hash != "masterpass") {
 
       // If accepted, then update info
       if (data.data.name !== undefined) {
-        window.APP.store.update({ profile: { displayName: data.name } });
+        window.APP.store.update({ profile: { displayName: data.data.name } });
         window.APP.store.state.activity.hasChangedName = true;
       }
 
       if (data.data.avatariId !== undefined) {
-        window.APP.store.update({ profile: { avatarId: data.avatarId } });
+        window.APP.store.update({ profile: { avatarId: data.data.avatarId } });
       }
     });
 }
