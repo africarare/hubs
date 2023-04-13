@@ -1364,22 +1364,6 @@ class UIRoot extends Component {
                     />
                   )}
 
-                      <ToolbarButton
-                        icon={<VRIcon />}
-                        label={<FormattedMessage id="toolbar.camera-view" defaultMessage="3rd person view" />}
-                        onClick={() => {
-                          const cameraMode = AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.mode;
-
-                          if (cameraMode === CAMERA_MODE_FIRST_PERSON) {
-                            AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.mode = CAMERA_MODE_THIRD_PERSON_VIEW;
-                          }
-
-                          if (cameraMode === CAMERA_MODE_THIRD_PERSON_VIEW) {
-                            AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.mode = CAMERA_MODE_FIRST_PERSON;
-                          }
-                        }}
-                      />
-
                   {false && (
                     <ToolbarButton
                       icon={<HelpIcon />}

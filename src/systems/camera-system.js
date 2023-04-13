@@ -552,7 +552,7 @@ export class CameraSystem {
       } else if (this.mode === CAMERA_MODE_THIRD_PERSON_VIEW) {
         this.viewingCameraRotator.on = false;
         wheelAcceleration += this.userinput.get(paths.device.mouse.wheel);
-				wheelAcceleration = wheelAcceleration > 0 ? wheelAcceleration : 0;
+				wheelAcceleration = wheelAcceleration > 1 ? wheelAcceleration : 1;
 				wheelAcceleration = wheelAcceleration < 5 ? wheelAcceleration : 5;
 
         //console.log("wheelAcceleration", wheelAcceleration);
