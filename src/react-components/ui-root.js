@@ -104,7 +104,10 @@ import { MediaDevicesEvents } from "../utils/media-devices-utils";
 import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 
-// romamile
+// africarare
+
+import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
+
 import Modal from "../hubs_private/package/Modal.js";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
 import YourVoiceMessageField from "../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField";
@@ -1361,6 +1364,22 @@ class UIRoot extends Component {
                     />
                   )}
 
+                      <ToolbarButton
+                        icon={<VRIcon />}
+                        label={<FormattedMessage id="toolbar.camera-view" defaultMessage="3rd person view" />}
+                        onClick={() => {
+                          const cameraMode = AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.mode;
+
+                          if (cameraMode === CAMERA_MODE_FIRST_PERSON) {
+                            AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.mode = CAMERA_MODE_THIRD_PERSON_VIEW;
+                          }
+
+                          if (cameraMode === CAMERA_MODE_THIRD_PERSON_VIEW) {
+                            AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.mode = CAMERA_MODE_FIRST_PERSON;
+                          }
+                        }}
+                      />
+
                   {false && (
                     <ToolbarButton
                       icon={<HelpIcon />}
@@ -1383,6 +1402,7 @@ class UIRoot extends Component {
                   )}
                 </>
               )}
+
               {entered && isMobileVR && (
                 <ToolbarButton
                   className={styleUtils.hideLg}

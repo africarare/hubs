@@ -4,6 +4,7 @@ import { registerComponentInstance, deregisterComponentInstance } from "../utils
 import defaultAvatar from "../assets/models/DefaultAvatar.glb";
 import { MediaDevicesEvents } from "../utils/media-devices-utils";
 import { createHeadlessModelForSkinnedMesh } from "../utils/three-utils";
+import { createModelForSkinnedMesh } from "../utils/three-utils";
 import { Layers } from "./layers";
 
 function ensureAvatarNodes(json) {
@@ -77,7 +78,8 @@ AFRAME.registerComponent("player-info", {
       let isSkinnedAvatar = false;
       modelEl.object3D.traverse(function(o) {
         if (o.isSkinnedMesh) {
-          const headlessMesh = createHeadlessModelForSkinnedMesh(o);
+          //const headlessMesh = createHeadlessModelForSkinnedMesh(o);
+					const headlessMesh = createModelForSkinnedMesh(o);
           if (headlessMesh) {
             isSkinnedAvatar = true;
             o.parent.add(headlessMesh);
