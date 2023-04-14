@@ -558,6 +558,7 @@ export class CameraSystem {
         //console.log("wheelAcceleration", wheelAcceleration);
         //console.log("this.viewingCamera.position.z", this.viewingCamera.position.z);
         if (wheelAcceleration >= 0) {
+				/*
           if (!isThirdPersonTransition) {
             setInterval(() => {
               if (this.viewingCamera.position.z < 1) {
@@ -572,12 +573,13 @@ export class CameraSystem {
               }
             }, 100);
           } else {
+					*/
             translation.makeTranslation(
               0,
               (wheelAcceleration / 4) * (wheelAcceleration / 4) + 0.02,
               1 + wheelAcceleration / 2
             );
-          }
+          //}
         }
         //   this part of  code switches to first person on scroll
         // else {
