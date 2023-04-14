@@ -1468,6 +1468,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   store.update({ preferences: { disableIdleDetection: true } });
   store.update({ preferences: { theme: "hubs-dark-mode" } });
 
+  
+	let { enableThirdPersonView } = store.state.preferences;
+  console.log("==========================")
+  console.log(enableThirdPersonView)
+  console.log("==========================")
+  store.update({ preferences: { theme: "hubs-dark-mode" } });
+
   // Modular experiences
   /*
 
