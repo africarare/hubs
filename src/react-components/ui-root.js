@@ -1367,7 +1367,7 @@ class UIRoot extends Component {
                         icon={<VRIcon />}
                         label={<FormattedMessage id="toolbar.camera-view" defaultMessage="view" />}
                         onClick={() => {
-													let { enableThirdPersonView } = this.props.store.state.preferences;
+													const { enableThirdPersonView } = this.props.store.state.preferences;
     											this.props.store.update({ preferences: { enableThirdPersonView: !enableThirdPersonView } });
 													AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.setMode(
 														!enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
