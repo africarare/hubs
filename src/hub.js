@@ -266,6 +266,7 @@ import { ftrChatlogClass } from "./hubs_private/global/ftr_chatlog.js";
 import { ftrFloorButtonsClass } from "./hubs_private/global/ftr_floor-buttons";
 import { ftrRestrictedPenClass } from "./hubs_private/global/ftr_restricted-pen-drawing";
 import { ftrExperienceAvatarsClass } from "./hubs_private/global/ftr_experience-avatars";
+import { ftrClearDrawingClass } from "./hubs_private/global/ftr_clear-drawing";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1468,11 +1469,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   store.update({ preferences: { disableIdleDetection: true } });
   store.update({ preferences: { theme: "hubs-dark-mode" } });
 
-  
-	let { enableThirdPersonView } = store.state.preferences;
-  console.log("==========================")
-  console.log(enableThirdPersonView)
-  console.log("==========================")
+  const { enableThirdPersonView } = store.state.preferences;
+  console.log("==========================");
+  console.log(enableThirdPersonView);
+  console.log("==========================");
   store.update({ preferences: { theme: "hubs-dark-mode" } });
 
   // Modular experiences
@@ -1492,7 +1492,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 */
   if (window.land === "altmtn" && window.exp === "concert" && window.lvl === "main") {
-    let ftrVoice = new ftrVoiceClass();
+    const ftrVoice = new ftrVoiceClass();
     ftrVoice.init();
     window.listFeatures.push(ftrVoice);
 
@@ -1500,12 +1500,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.tmpAccess = ftrVoice;
 
     // TODO => find how to do binding, so that we can leave that in the feature class, and not here
-    let updatePointer = () => {
+    const updatePointer = () => {
       ftrVoice.pointer.x = (event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
       ftrVoice.pointer.y = -(event.clientY / document.getElementsByTagName("canvas")[0].offsetHeight) * 2 + 1;
     };
 
-    let updateAtClick = () => {
+    const updateAtClick = () => {
       if (!ftrVoice.buttHovered) return;
       window.mtnOpen();
     };
@@ -1514,7 +1514,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
-    let ftrNedbank = new ftrNedbankClass();
+    const ftrNedbank = new ftrNedbankClass();
     ftrNedbank.init();
     window.listFeatures.push(ftrNedbank);
   }
@@ -1542,6 +1542,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ftrRestrictedPen = new ftrRestrictedPenClass();
             ftrRestrictedPen.init(_ftr);
             window.listFeatures.push(ftrRestrictedPen);
+            break;
+          case "clear-drawing":
+            // eslint-disable-next-line no-case-declarations
+            const ftrClearDrawing = new ftrClearDrawingClass();
+            ftrClearDrawing.init(_ftr);
+            window.listFeatures.push(ftrClearDrawing);
             break;
           case "teleportation-panel":
             // eslint-disable-next-line no-case-declarations
