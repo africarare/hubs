@@ -107,6 +107,7 @@ export class CharacterControllerSystem {
     const finalPosition = new THREE.Vector3();
     const finalPOV = new THREE.Matrix4();
     return function travelByWaypoint(inMat4, snapToNavMesh, willMaintainInitialOrientation) {
+      const startRotY = this.avatarRig.object3D.rotation.y;
       this.avatarPOV.object3D.updateMatrices();
       if (!this.fly && !snapToNavMesh) {
         this.fly = true;
@@ -145,6 +146,8 @@ export class CharacterControllerSystem {
       }
       calculateCameraTransformForWaypoint(this.avatarPOV.object3D.matrixWorld, finalPOV, finalPOV);
       childMatch(this.avatarRig.object3D, this.avatarPOV.object3D, finalPOV);
+
+      window.offsetRotationY = (window.offsetRotationY || 0) + startRotY - this.avatarRig.object3D.rotation.y;
     };
   })();
 

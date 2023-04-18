@@ -121,6 +121,7 @@ import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js
 import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
 import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
+import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
 // romamilend
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
@@ -1363,17 +1364,17 @@ class UIRoot extends Component {
                       initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)}
                     />
                   )}
-                      <ToolbarButton
-                        icon={<VRIcon />}
-                        label={<FormattedMessage id="toolbar.camera-view" defaultMessage="view" />}
-                        onClick={() => {
-													let { enableThirdPersonView } = this.props.store.state.preferences;
-    											this.props.store.update({ preferences: { enableThirdPersonView: !enableThirdPersonView } });
-													AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.setMode(
-														!enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
-													);
-                        }}
-                      />
+                  <ToolbarButton
+                    icon={<VRIcon />}
+                    label={<FormattedMessage id="toolbar.camera-view" defaultMessage="view" />}
+                    onClick={() => {
+                      const { enableThirdPersonView } = this.props.store.state.preferences;
+                      this.props.store.update({ preferences: { enableThirdPersonView: !enableThirdPersonView } });
+                      AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.setMode(
+                        !enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
+                      );
+                    }}
+                  />
 
                   {false && (
                     <ToolbarButton
@@ -1476,6 +1477,7 @@ class UIRoot extends Component {
                 streaming={streaming}
                 viewport={
                   <>
+                    {window.hash === "masterpass" && <AdminFeatures />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                     {(!this.props.selectedObject ||
