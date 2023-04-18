@@ -258,6 +258,7 @@ import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
 import { ftrVoiceClass } from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
 import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js";
 import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
+import { ftrCameraChestClass } from "./hubs_private/global/ftr_camera-chest.js";
 import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
 import { ftrLeaderboardClass } from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
@@ -1582,6 +1583,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrParticipation.init(_ftr);
             window.listFeatures.push(ftrParticipation);
             break;
+          case "camera-chest":
+            // eslint-disable-next-line no-case-declarations
+            const ftrCameraChest = new ftrCameraChestClass();
+            ftrCameraChest.init(_ftr);
+            window.listFeatures.push(ftrCameraChest);
+            break;
           case "info-pin":
             // eslint-disable-next-line no-case-declarations
             const ftrInfopin = new ftrInfopinClass();
@@ -1598,5 +1605,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
 
-  // romamilend
 });
