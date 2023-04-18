@@ -414,7 +414,7 @@ export class CameraSystem {
     let uiRoot;
 
     let wheelAcceleration = 0;
-    let isThirdPersonTransition = false;
+    const isThirdPersonTransition = false;
     
 		return function tick(scene, dt) {
       this.viewingCamera.matrixNeedsUpdate = true;
@@ -576,8 +576,8 @@ export class CameraSystem {
 					*/
             translation.makeTranslation(
               0,
-              (wheelAcceleration / 4) * (wheelAcceleration / 4) + 0.02,
-              1 + wheelAcceleration / 2
+              Math.pow(wheelAcceleration, 1.5) / 40 + 0.5,
+              1.5 + wheelAcceleration / 3
             );
           //}
         }
