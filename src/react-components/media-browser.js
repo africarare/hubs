@@ -52,6 +52,7 @@ const DEFAULT_FACETS = {
     { text: "Weapons", params: { filter: "weapons-military" } }
   ],
   avatars: [
+    { text: "Admin Avatars", params: { filter: "admin-avatars" }, display: () => window.hash === "masterpass" },
     { text: "Avatar Collections", params: { filter: "avatar-collections" } },
     { text: "Experience Avatars", params: { filter: "featured" } },
     { text: "NFT Collections", params: { filter: "nft-collections" } }
@@ -207,7 +208,14 @@ class MediaBrowserContainer extends Component {
         return { text: s, params: { q: s } };
       });
     } else {
-      newState.facets = DEFAULT_FACETS[urlSource] || [];
+      let facets = DEFAULT_FACETS[urlSource] || [];
+      facets = facets.filter(facet => {
+        if (facet.display) {
+          return facet.display();
+        }
+        return true;
+      });
+      newState.facets = facets;
     }
 
     return newState;

@@ -122,6 +122,14 @@ export default class MediaSearchStore extends EventTarget {
       }
     }
 
+    if (urlSource === "avatars" && searchParams.get("filter") === "admin-avatars") {
+      const adminAvatarsFeature = window.listFeatures.find(_ftr => _ftr.name === "admin-avatars");
+
+      if (adminAvatarsFeature) {
+        result.entries = result.entries.filter(entry => adminAvatarsFeature.getAdminAvatars().includes(entry.id));
+      }
+    }
+
     if (this.requestIndex != currentRequestIndex) return;
 
     this.result = result;

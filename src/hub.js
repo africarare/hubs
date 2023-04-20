@@ -267,6 +267,7 @@ import { ftrChatlogClass } from "./hubs_private/global/ftr_chatlog.js";
 import { ftrFloorButtonsClass } from "./hubs_private/global/ftr_floor-buttons";
 import { ftrRestrictedPenClass } from "./hubs_private/global/ftr_restricted-pen-drawing";
 import { ftrExperienceAvatarsClass } from "./hubs_private/global/ftr_experience-avatars";
+import { ftrAdminAvatarsClass } from "./hubs_private/global/ftr_admin-avatars";
 import { ftrClearDrawingClass } from "./hubs_private/global/ftr_clear-drawing";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
@@ -1538,6 +1539,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrExperienceAvatars.init(_ftr);
             window.listFeatures.push(ftrExperienceAvatars);
             break;
+          case "admin-avatars":
+            // eslint-disable-next-line no-case-declarations
+            const ftrAdminAvatars = new ftrAdminAvatarsClass();
+            ftrAdminAvatars.init(_ftr);
+            window.listFeatures.push(ftrAdminAvatars);
+            break;
           case "restricted-pen-drawing":
             // eslint-disable-next-line no-case-declarations
             const ftrRestrictedPen = new ftrRestrictedPenClass();
@@ -1610,5 +1617,4 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     });
-
 });
