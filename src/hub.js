@@ -255,7 +255,7 @@ import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehun
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
-import { ftrVoiceClass } from "./hubs_private/voiceInstalation/ftr_voiceInstalation.js";
+import { ftrVoiceClass } from "./hubs_private/global/ftr_voice-installation.js";
 import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js";
 import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
 import { ftrCameraChestClass } from "./hubs_private/global/ftr_camera-chest.js";
@@ -1494,27 +1494,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 
 */
-  if (window.land === "altmtn" && window.exp === "concert" && window.lvl === "main") {
-    const ftrVoice = new ftrVoiceClass();
-    ftrVoice.init();
-    window.listFeatures.push(ftrVoice);
-
-    // tmp debug
-    window.tmpAccess = ftrVoice;
-
-    // TODO => find how to do binding, so that we can leave that in the feature class, and not here
-    const updatePointer = () => {
-      ftrVoice.pointer.x = (event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
-      ftrVoice.pointer.y = -(event.clientY / document.getElementsByTagName("canvas")[0].offsetHeight) * 2 + 1;
-    };
-
-    const updateAtClick = () => {
-      if (!ftrVoice.buttHovered) return;
-      window.mtnOpen();
-    };
-    document.addEventListener("mousemove", updatePointer);
-    document.addEventListener("mousedown", updateAtClick);
-  }
 
   if (window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
     const ftrNedbank = new ftrNedbankClass();
@@ -1621,6 +1600,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrRedirect.init(_ftr);
             window.listFeatures.push(ftrRedirect);
             break;
+          case "voice-installation":
+            // eslint-disable-next-line no-case-declarations
+            const ftrVoice = new ftrVoiceClass();
+            ftrVoice.init(_ftr);
+            window.listFeatures.push(ftrVoice);
+
+            // tmp debug
+            window.tmpAccess = ftrVoice;
+
+            // TODO => find how to do binding, so that we can leave that in the feature class, and not here
+            // eslint-disable-next-line no-case-declarations
+            const updatePointer = () => {
+              ftrVoice.pointer.x = (event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
+              ftrVoice.pointer.y = -(event.clientY / document.getElementsByTagName("canvas")[0].offsetHeight) * 2 + 1;
+            };
+
+            // eslint-disable-next-line no-case-declarations
+            const updateAtClick = () => {
+              if (!ftrVoice.buttHovered) return;
+              window.mtnOpen();
+            };
+
+            document.addEventListener("mousemove", updatePointer);
+            document.addEventListener("mousedown", updateAtClick);
         }
       });
     });

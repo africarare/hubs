@@ -110,8 +110,7 @@ import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../syst
 
 import Modal from "../hubs_private/package/Modal.js";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
-import YourVoiceMessageField from "../hubs_private/voiceInstalation/src/components/YourVoiceMessageField/YourVoiceMessageField";
-import Mtn from "../hubs_private/voiceInstalation/mtn_voice";
+import VoiceInstallation from "../hubs_private/react-components/VoiceInstallation/VoiceInstallation";
 import NedbankInfoPopup from "../hubs_private/nedbank/NedbankInfoPopup/NedbankInfoPopup";
 
 import InfoPanel from "./info-panel/InfoPanel.js";
@@ -1315,12 +1314,14 @@ class UIRoot extends Component {
       }
     ];
 
+    const voiceInstallationFtr = window.listFeatures.find(ftr => ftr.name === "voice-installation");
+
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
           <TreasureLoader />
 
-          {window.land === "altmtn" && window.exp === "concert" && window.lvl === "main" && <Mtn />}
+          {Boolean(voiceInstallationFtr) && <VoiceInstallation ftr={voiceInstallationFtr.ftr} />}
 
           {window.room === "nedbank" && <NedbankInfoPopup />}
 
