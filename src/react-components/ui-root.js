@@ -121,6 +121,7 @@ import TreasureContainer from "../hubs_private/react-components/TreasureContaine
 import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
 import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
+import Quiz from "../hubs_private/react-components/Quiz/Quiz";
 // romamilend
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
@@ -1315,12 +1316,14 @@ class UIRoot extends Component {
     ];
 
     const voiceInstallationFtr = window.listFeatures.find(ftr => ftr.name === "voice-installation");
+    const quizFtr = window.listFeatures.find(ftr => ftr.name === "quiz");
 
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
           <TreasureLoader />
 
+          {/* Features */}
           {Boolean(voiceInstallationFtr) && <VoiceInstallation ftr={voiceInstallationFtr.ftr} />}
 
           {window.room === "nedbank" && <NedbankInfoPopup />}
@@ -1478,6 +1481,7 @@ class UIRoot extends Component {
                 streaming={streaming}
                 viewport={
                   <>
+                    {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
                     {window.hash === "masterpass" && <AdminFeatures />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}

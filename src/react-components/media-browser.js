@@ -55,11 +55,11 @@ const DEFAULT_FACETS = {
     { text: "Admin Avatars", params: { filter: "admin-avatars" }, display: () => window.hash === "masterpass" },
     { text: "Avatar Collections", params: { filter: "avatar-collections" } },
     { text: "Experience Avatars", params: { filter: "featured" } },
-    { text: "NFT Collections", params: { filter: "nft-collections" } }
+    { text: "NFT Collections", params: { filter: "nft-collections" } },
 
     // Hided for now
     // { text: "Community Highlights", params: { filter: "community-highlights" } },
-    // { text: "External", params: { filter: "external" } }
+    { text: "External", params: { filter: "external" }, display: () => window.hash === "masterpass" }
 
     // Disabled default filters
     // { text: "Featured", params: { filter: "featured" } },
@@ -523,12 +523,7 @@ class MediaBrowserContainer extends Component {
                     <CreateTile
                       type="avatar"
                       onClick={this.onCreateAvatar}
-                      label={
-                        <FormattedMessage
-                          id="media-browser.create-hackweek-avatar"
-                          defaultMessage="Create Hackweek Avatar"
-                        />
-                      }
+                      label={<FormattedMessage id="media-browser.create-avatar" defaultMessage="Create Avatar" />}
                     />
                   </>
                 )}
