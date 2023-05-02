@@ -1554,7 +1554,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           case "leaderboard":
             // eslint-disable-next-line no-case-declarations
             const ftrLeaderboard = new ftrLeaderboardClass();
-            _ftr.typeQuiz = "bush";
             ftrLeaderboard.init(_ftr);
             window.listFeatures.push(ftrLeaderboard);
             break;
