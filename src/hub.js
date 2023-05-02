@@ -263,6 +263,7 @@ import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
 import { ftrLeaderboardClass } from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
 import { ftrQuizClass } from "./hubs_private/global/ftr_quiz.js";
+import { ftrLinkButtonClass } from "./hubs_private/global/ftr_link-button.js";
 import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.js";
 import { ftrChatlogClass } from "./hubs_private/global/ftr_chatlog.js";
 import { ftrFloorButtonsClass } from "./hubs_private/global/ftr_floor-buttons";
@@ -1607,6 +1608,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrQuiz.init(_ftr);
             window.listFeatures.push(ftrQuiz);
             break;
+          case "link-button":
+            // eslint-disable-next-line no-case-declarations
+            const ftrLinkButton = new ftrLinkButtonClass();
+            ftrLinkButton.init(_ftr);
+            window.listFeatures.push(ftrLinkButton);
+            break;
           case "voice-installation":
             // eslint-disable-next-line no-case-declarations
             const ftrVoice = new ftrVoiceClass();
@@ -1634,4 +1641,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     });
+
 });
