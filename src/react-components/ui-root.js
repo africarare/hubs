@@ -121,6 +121,7 @@ import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js
 import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
 import Quiz from "../hubs_private/react-components/Quiz/Quiz";
+import Collectables from "../hubs_private/react-components/Collectables/Collectables";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1316,6 +1317,7 @@ class UIRoot extends Component {
     const voiceInstallationFtr = window.listFeatures.find(ftr => ftr.name === "voice-installation");
     const quizFtr = window.listFeatures.find(ftr => ftr.name === "quiz");
     const exhibitFtr = window.listFeatures.find(ftr => ftr.name === "exhibit");
+    const collectablesFtr = window.listFeatures.find(ftr => ftr.name === "collectables");
 
     return (
       <MoreMenuContextProvider>
@@ -1480,6 +1482,8 @@ class UIRoot extends Component {
                 viewport={
                   <>
                     {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
+                    {Boolean(collectablesFtr) && <Collectables ftr={collectablesFtr.ftr} />}
+
                     {window.hash === "masterpass" && <AdminFeatures />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}

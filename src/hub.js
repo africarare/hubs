@@ -248,10 +248,10 @@ NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 // AFRICARARE INTRO begin
 
 // 0] Imports (experiences, features...)
-import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
-import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
-import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
-import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
+// import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
+// import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
+// import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
+// import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
@@ -272,6 +272,7 @@ import { ftrExperienceAvatarsClass } from "./hubs_private/global/ftr_experience-
 import { ftrAdminAvatarsClass } from "./hubs_private/global/ftr_admin-avatars";
 import { ftrClearDrawingClass } from "./hubs_private/global/ftr_clear-drawing";
 import { ftrRedirectClass } from "./hubs_private/global/ftr_redirect";
+import { ftrCollectablesClass } from "./hubs_private/global/ftr_collectables";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1489,7 +1490,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		function onPointerMove( event ) {
 		  window.expTreasure.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-		  window.expTreasure.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+		  window.expTreasure.pointer.y = e- ( event.clientY / window.innerHeight ) * 2 + 1;
 		}
 		document.addEventListener( 'mousemove', onPointerMove );
 
@@ -1637,8 +1638,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             document.addEventListener("mousemove", updatePointer);
             document.addEventListener("mousedown", updateAtClick);
+            break;
+          case "collectables":
+            // eslint-disable-next-line no-case-declarations
+            const ftrCollectables = new ftrCollectablesClass();
+            ftrCollectables.init(_ftr);
+            window.listFeatures.push(ftrCollectables);
+            break;
         }
       });
     });
-
 });
