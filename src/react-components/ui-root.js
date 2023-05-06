@@ -1482,7 +1482,9 @@ class UIRoot extends Component {
                 viewport={
                   <>
                     {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
-                    {Boolean(collectablesFtr) && <Collectables ftr={collectablesFtr.ftr} />}
+                    {Boolean(collectablesFtr) && (
+                      <Collectables ftr={collectablesFtr.ftr} closeModal={collectablesFtr.closeModal} />
+                    )}
 
                     {window.hash === "masterpass" && <AdminFeatures />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
