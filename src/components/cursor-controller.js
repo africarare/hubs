@@ -157,6 +157,9 @@ AFRAME.registerComponent("cursor-controller", {
       this.raycaster.far = this.data.far * playerScale;
       this.raycaster.near = this.data.near * playerScale;
 
+      this.data.cursor.object3D.visible = false;
+      this.line.material.visible = false;
+
       const isGrabbing = left ? anyEntityWith(APP.world, HeldRemoteLeft) : anyEntityWith(APP.world, HeldRemoteRight);
       let isHoveringSomething = false;
       if (!isGrabbing) {

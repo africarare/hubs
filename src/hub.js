@@ -261,6 +261,21 @@ const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
+// AFRICARARE INTRO begin
+
+// 0] Imports (experiences, features...)
+import { ftrPortalClass } from "./features/ftr_portal.js";
+import { ftrPresShapekeyClass } from "./features/ftr_pres-shapekey.js";
+import { ftrPresAnimationClass } from "./features/ftr_pres-animation.js";
+import { ftrLightClass } from "./features/ftr_spawnLight.js";
+
+window.listFeatures = [];
+setInterval(() => {
+  window.listFeatures.forEach(_ftr => _ftr.tick());
+}, 60); // Should be a tick in AFRAME
+
+// AFRICARARE INTRO end
+
 let isOAuthModal = false;
 
 // OAuth popup handler
@@ -1393,4 +1408,71 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   authChannel.setSocket(socket);
   linkChannel.setSocket(socket);
+
+
+	window.room = "forest";
+
+	if(window.location.href.includes("forest")) window.room = "forest";
+	if(window.location.href.includes("lobby")) window.room = "lobby";
+	if(window.location.href.includes("abstract")) window.room = "abstract";
+
+
+  fetch("https://tstwebui.glitch.me/dbVanillaSecret.json")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+			window.data = data;
+        
+		//		if(data.listUser.filter(user => user.name == _username).length > 0) {
+    const ftrPortal = new ftrPortalClass();
+    ftrPortal.init({schema:window.data.listPortal});
+    window.listFeatures.push(ftrPortal);
+
+      // Presence (position & gaze) to ShapeKey 
+    const ftrPresShapekey = new ftrPresShapekeyClass();
+    ftrPresShapekey.init({schema:window.data.listShapekey});
+    window.listFeatures.push(ftrPresShapekey);
+
+      // Presence (position & gaze) to ShapeKey 
+    const ftrLight = new ftrLightClass();
+    ftrLight.init({schema:window.data.listLight});
+    window.listFeatures.push(ftrLight);
+  });
+
+
+	window.deleteFeatures = () => {
+		// 1) delete list of feature
+			window.listFeatures = []
+
+		// 2) Delete lights
+		AFRAME.scenes[0].object3D.traverse( (e) => {
+			if(e.name === "lightT") {
+				e.el.parentNode.removeChild(e.el);
+			}
+		} )
+	}
+
+	window.reloadFeatures = () => {
+
+			//		if(data.listUser.filter(user => user.name == _username).length > 0) {
+			const ftrPortal = new ftrPortalClass();
+			ftrPortal.init({schema:window.data.listPortal});
+			window.listFeatures.push(ftrPortal);
+
+				// Presence (position & gaze) to ShapeKey 
+			const ftrPresShapekey = new ftrPresShapekeyClass();
+			ftrPresShapekey.init({schema:window.data.listShapekey});
+			window.listFeatures.push(ftrPresShapekey);
+
+				// Presence (position & gaze) to ShapeKey 
+			const ftrLight = new ftrLightClass();
+			ftrLight.init({schema:window.data.listLight});
+			window.listFeatures.push(ftrLight);
+
+	}
+
+
+
 });
