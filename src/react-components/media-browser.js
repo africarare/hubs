@@ -52,14 +52,18 @@ const DEFAULT_FACETS = {
     { text: "Weapons", params: { filter: "weapons-military" } }
   ],
   avatars: [
-    { text: "Admin Avatars", params: { filter: "admin-avatars" }, display: () => window.hash === "masterpass" },
+    {
+      text: "Admin Avatars",
+      params: { filter: "admin-avatars" },
+      display: () => window.authorization.role === "moderator"
+    },
     { text: "Avatar Collections", params: { filter: "avatar-collections" } },
     { text: "Experience Avatars", params: { filter: "featured" } },
     { text: "NFT Collections", params: { filter: "nft-collections" } },
 
     // Hided for now
     // { text: "Community Highlights", params: { filter: "community-highlights" } },
-    { text: "External", params: { filter: "external" }, display: () => window.hash === "masterpass" }
+    { text: "External", params: { filter: "external" }, display: () => window.authorization.role === "moderator" }
 
     // Disabled default filters
     // { text: "Featured", params: { filter: "featured" } },
@@ -483,7 +487,7 @@ class MediaBrowserContainer extends Component {
         }
         searchDescription={searchDescription}
         headerRight={
-          window.hash === "masterpass" &&
+          window.authorization.role === "moderator" &&
           showCustomOption && (
             <IconButton lg onClick={() => handleCustomClicked(urlSource)}>
               {["scenes", "avatar"].includes(urlSource) ? <LinkIcon /> : <UploadIcon />}

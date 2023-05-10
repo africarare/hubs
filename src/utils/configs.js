@@ -129,6 +129,4 @@ configs.translation = key => {
   );
 };
 
-configs.hasMasterPass = qs.get("hash") === "masterpass";
-
 export default configs;

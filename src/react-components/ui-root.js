@@ -1110,7 +1110,7 @@ class UIRoot extends Component {
     const canCloseRoom = this.props.hubChannel && !!this.props.hubChannel.canOrWillIfCreator("close_hub");
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
     const isAdmin = window.location.toString().includes("admin");
-    const displaySignIn = configs.hasMasterPass;
+    const displaySignIn = window.authorization?.role === "moderator";
 
     const moreMenu = [
       {
@@ -1486,7 +1486,7 @@ class UIRoot extends Component {
                       <Collectables ftr={collectablesFtr.ftr} closeModal={collectablesFtr.closeModal} />
                     )}
 
-                    {window.hash === "masterpass" && <AdminFeatures />}
+                    {window.authorization.role === "moderator" && <AdminFeatures />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                     {(!this.props.selectedObject ||

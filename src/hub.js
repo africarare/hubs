@@ -252,6 +252,7 @@ NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 // import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
 // import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 // import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
+import { hubsAuthorizationClass } from "./hubs_private/global/hubs_authrization";
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
@@ -291,48 +292,11 @@ if (window.land === null) {
   //window.location = "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=You can't connect directly with room link, you need to go through ubuntu.land"
 }
 
-window.hash = qs.get("hash");
-if (window.hash === null || window.hash === "guest") window.hash = "guest";
-
-if (window.hash != "masterpass") {
-  fetch(
-    `https://backend-dashboard.ubuntuland.io/api/visit/knock-knock?land=${window.land}&experience=${window.exp}&level=${window.lvl}&hash=${window.hash}`
-  )
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      // If there is an access system, and the hash isn't accepted, then redirect
-      if (!data.data.accepted) {
-        window.location =
-          "https://africarare.io/oops?heading=Oops&title=Access forbiden&subtitle=This experience is under access management, please contact an administrator if you think you should have access to that experience.";
-      }
-
-      // If accepted, then update info
-      if (data.data.name !== undefined) {
-        window.APP.store.update({ profile: { displayName: data.data.name } });
-        window.APP.store.state.activity.hasChangedName = true;
-      }
-
-      if (data.data.avatariId !== undefined) {
-        window.APP.store.update({ profile: { avatarId: data.data.avatarId } });
-      }
-    });
-}
+const hubsAuthorization = new hubsAuthorizationClass();
+hubsAuthorization.init();
+window.authorization = hubsAuthorization;
 
 // 3] Load balancing
-//window.afrUID = localStorage.getItem('afrUID'); // If in local storage, then multiple tabs on same webbrowser would appear as the same
-//if(window.afrUID === null) {
-const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const charactersLength = characters.length;
-let afrUID = "";
-for (let i = 0; i < 20; i++) {
-  afrUID += characters.charAt(Math.floor(Math.random() * charactersLength));
-}
-window.afrUID = afrUID;
-//	localStorage.setItem('afrUID', window.afrUID);
-//}
-
 const ftrLoadbalancing = new ftrLoadbalancingClass();
 ftrLoadbalancing.init();
 window.listFeatures.push(ftrLoadbalancing);
