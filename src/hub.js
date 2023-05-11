@@ -261,8 +261,8 @@ import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js"
 import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
 import { ftrCameraChestClass } from "./hubs_private/global/ftr_camera-chest.js";
 import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
-import { ftrLeaderboardClass } from "./hubs_private/leaderboard/ftr_leaderboard.js";
-import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
+import { ftrLeaderboardClass } from "./hubs_private/global/ftr_leaderboard.js";
+import { ftrPortalClass } from "./hubs_private/global/ftr_portal.js";
 import { ftrQuizClass } from "./hubs_private/global/ftr_quiz.js";
 import { ftrLinkButtonClass } from "./hubs_private/global/ftr_link-button.js";
 import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.js";

@@ -54,10 +54,19 @@ export default class HubChannel extends EventTarget {
   // Returns true if this current session has the given permission.
   can(permission) {
     if (!VALID_PERMISSIONS.includes(permission)) throw new Error(`Invalid permission name: ${permission}`);
+
+    if (window.authorization?.role === "moderator") {
+      return true;
+    }
+
     return this._permissions && this._permissions[permission];
   }
 
   userCan(clientId, permission) {
+    if (window.authorization?.role === "moderator") {
+      return true;
+    }
+
     const presenceState = this.presence.state[clientId];
     if (!presenceState) {
       console.warn(`userCan: Had no presence state for ${clientId}`);
@@ -320,12 +329,12 @@ export default class HubChannel extends EventTarget {
     this.channel.push("message", { body, type });
 
     if (window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog") !== undefined) {
-      let id = window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog").ftr._id;
-      let username = APP.store.state.profile.displayName;
-      let date = Date.now();
-      let room = window.location.pathname.substring(1, window.location.pathname.length);
+      const id = window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog").ftr._id;
+      const username = APP.store.state.profile.displayName;
+      const date = Date.now();
+      const room = window.location.pathname.substring(1, window.location.pathname.length);
 
-      let message = body;
+      const message = body;
 
       console.log(id, date, room, username, message);
 

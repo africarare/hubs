@@ -5,7 +5,7 @@ import homeHeroBackground from "../assets/images/home-hero-background-unbranded.
 import sceneEditorLogo from "../assets/images/editor-logo.png";
 import { getLocale, getMessage } from "./i18n";
 
-const qs = new URLSearchParams(location.search);
+// const qs = new URLSearchParams(location.search);
 // Read configs from global variable if available, otherwise use the process.env injected from build.
 const configs = {};
 let isAdmin = false;
