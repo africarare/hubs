@@ -122,6 +122,7 @@ import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
 import Quiz from "../hubs_private/react-components/Quiz/Quiz";
 import Collectables from "../hubs_private/react-components/Collectables/Collectables";
+import ExhibitImages from "../hubs_private/react-components/ExhibitImages/ExhibitImages";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1318,6 +1319,7 @@ class UIRoot extends Component {
     const quizFtr = window.listFeatures.find(ftr => ftr.name === "quiz");
     const exhibitFtr = window.listFeatures.find(ftr => ftr.name === "exhibit");
     const collectablesFtr = window.listFeatures.find(ftr => ftr.name === "collectables");
+    const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
 
     return (
       <MoreMenuContextProvider>
@@ -1482,6 +1484,13 @@ class UIRoot extends Component {
                 viewport={
                   <>
                     {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
+                    {Boolean(exhibitImagesFtr) && (
+                      <ExhibitImages
+                        ftr={exhibitImagesFtr.ftr}
+                        closeModal={exhibitImagesFtr.closeModal}
+                        expandModal={exhibitImagesFtr.expandModal}
+                      />
+                    )}
                     {Boolean(collectablesFtr) && (
                       <Collectables ftr={collectablesFtr.ftr} closeModal={collectablesFtr.closeModal} />
                     )}
