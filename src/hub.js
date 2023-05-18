@@ -252,7 +252,7 @@ NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 // import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
 // import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
 // import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
-import { hubsAuthorizationClass } from "./hubs_private/global/hubs_authrization";
+import { hubsAuthorizationClass } from "./hubs_private/global/hubs_authorization";
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
