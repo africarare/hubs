@@ -7,7 +7,7 @@ import { MediaPlayer } from "dashjs";
 import { addAndArrangeMedia, createVideoOrAudioEl, hasAudioTracks } from "../utils/media-utils";
 import { disposeTexture } from "../utils/material-utils";
 import { proxiedUrlFor } from "../utils/media-url-utils";
-import { buildAbsoluteURL } from "url-toolkit";
+// import { buildAbsoluteURL } from "url-toolkit";
 import { SOUND_CAMERA_TOOL_TOOK_SNAPSHOT } from "../systems/sound-effects-system";
 import { applyPersistentSync } from "../utils/permissions-utils";
 import { refreshMediaMirror, getCurrentMirroredMedia } from "../utils/mirror-utils";
@@ -607,19 +607,22 @@ AFRAME.registerComponent("media-video", {
 
             const hls = new HLS({
               debug: qsTruthy("hlsDebug"),
-              xhrSetup: (xhr, u) => {
-                if (u.startsWith(corsProxyPrefix)) {
-                  u = u.substring(corsProxyPrefix.length);
-                }
+              enableWorker: true,
+              lowLatencyMode: true,
+              backBufferLength: 90
+              // xhrSetup: (xhr, u) => {
+              //   if (u.startsWith(corsProxyPrefix)) {
+              //     u = u.substring(corsProxyPrefix.length);
+              //   }
 
-                // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
-                // TODO extend HLS.js to allow overriding of its internal resolving instead
-                if (!u.startsWith("http")) {
-                  u = buildAbsoluteURL(baseUrl, u.startsWith("/") ? u : `/${u}`);
-                }
+              //   // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
+              //   // TODO extend HLS.js to allow overriding of its internal resolving instead
+              //   if (!u.startsWith("http")) {
+              //     u = buildAbsoluteURL(baseUrl, u.startsWith("/") ? u : `/${u}`);
+              //   }
 
-                xhr.open("GET", proxiedUrlFor(u), true);
-              }
+              //   xhr.open("GET", proxiedUrlFor(u), true);
+              // }
             });
 
             texture.hls = hls;
@@ -627,6 +630,7 @@ AFRAME.registerComponent("media-video", {
             hls.attachMedia(videoEl);
 
             hls.on(HLS.Events.ERROR, function (event, data) {
+              console.log("HLS Error", data);
               if (data.fatal) {
                 switch (data.type) {
                   case HLS.ErrorTypes.NETWORK_ERROR:
