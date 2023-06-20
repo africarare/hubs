@@ -123,6 +123,7 @@ import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminF
 import Quiz from "../hubs_private/react-components/Quiz/Quiz";
 import Collectables from "../hubs_private/react-components/Collectables/Collectables";
 import ExhibitImages from "../hubs_private/react-components/ExhibitImages/ExhibitImages";
+import Help from "../hubs_private/react-components/Help/Help";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1320,6 +1321,7 @@ class UIRoot extends Component {
     const exhibitFtr = window.listFeatures.find(ftr => ftr.name === "exhibit");
     const collectablesFtr = window.listFeatures.find(ftr => ftr.name === "collectables");
     const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
+    const helpFtr = window.listFeatures.find(ftr => ftr.name === "help");
 
     return (
       <MoreMenuContextProvider>
@@ -1496,6 +1498,7 @@ class UIRoot extends Component {
                     )}
 
                     {window.authorization.role === "moderator" && <AdminFeatures />}
+                    {Boolean(helpFtr) && <Help ftr={helpFtr.ftr} />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                     {(!this.props.selectedObject ||

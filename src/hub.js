@@ -275,6 +275,7 @@ import { ftrClearDrawingClass } from "./hubs_private/global/ftr_clear-drawing";
 import { ftrRedirectClass } from "./hubs_private/global/ftr_redirect";
 import { ftrCollectablesClass } from "./hubs_private/global/ftr_collectables";
 import { ftrExhibitImagesClass } from "./hubs_private/global/ftr_exhibit-images";
+import { ftrHelpClass } from "./hubs_private/global/ftr_help";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1486,6 +1487,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ftrExperienceAvatars = new ftrExperienceAvatarsClass();
             ftrExperienceAvatars.init(_ftr);
             window.listFeatures.push(ftrExperienceAvatars);
+            break;
+          case "help":
+            // eslint-disable-next-line no-case-declarations
+            const ftrHelp = new ftrHelpClass();
+            ftrHelp.init(_ftr);
+            window.listFeatures.push(ftrHelp);
             break;
           case "admin-avatars":
             // eslint-disable-next-line no-case-declarations
