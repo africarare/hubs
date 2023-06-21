@@ -245,13 +245,9 @@ const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
-// AFRICARARE INTRO begin
+// AFRICARARE
 
-// 0] Imports (experiences, features...)
-import expMeetingClass from "./hubs_private/experiences/exp_meeting.js";
-import expGalleryClass from "./hubs_private/experiences/exp_gallery.js";
-import expTherapyClass from "./hubs_private/experiences/exp_therapy.js";
-import { expTreasureHuntClass } from "./hubs_private/experiences/exp_treasurehunt.js";
+// 0] Imports features
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
@@ -259,7 +255,8 @@ import { ftrVoiceClass } from "./hubs_private/global/ftr_voice-installation.js";
 import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js";
 import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
 import { ftrCameraChestClass } from "./hubs_private/global/ftr_camera-chest.js";
-import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
+//import { ftrNedbankClass } from "./hubs_private/nedbank/ftr_nedbank.js";
+import { ftrTreasureHuntClass } from "./hubs_private/global/ftr_treasure-hunt.js";
 import { ftrLeaderboardClass } from "./hubs_private/leaderboard/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/portal/ftr_portal.js";
 import { ftrQuizClass } from "./hubs_private/global/ftr_quiz.js";
@@ -1468,16 +1465,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   authChannel.setSocket(socket);
   linkChannel.setSocket(socket);
 
-  // romamile
 
   store.update({ preferences: { enableOnScreenJoystickLeft: true } });
   store.update({ preferences: { disableIdleDetection: true } });
   store.update({ preferences: { theme: "hubs-dark-mode" } });
-
-  const { enableThirdPersonView } = store.state.preferences;
-  console.log("==========================");
-  console.log(enableThirdPersonView);
-  console.log("==========================");
   store.update({ preferences: { theme: "hubs-dark-mode" } });
 
   // Modular experiences
@@ -1497,11 +1488,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 */
 
-  if (window.land === "nedbank" && window.experience === "treasurehunt" && window.level === "demo") {
-    const ftrNedbank = new ftrNedbankClass();
-    ftrNedbank.init();
-    window.listFeatures.push(ftrNedbank);
-  }
 
   // Features specific to that land
   fetch(
@@ -1613,6 +1599,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrLinkButton.init(_ftr);
             window.listFeatures.push(ftrLinkButton);
             break;
+          case "treasure-hunt":
+            // eslint-disable-next-line no-case-declarations
+						const ftrTreasureHunt = new ftrTreasureHuntClass();
+						ftrTreasureHunt.init(_ftr);
+						window.listFeatures.push(ftrTreasureHunt);
+						break;
           case "voice-installation":
             // eslint-disable-next-line no-case-declarations
             const ftrVoice = new ftrVoiceClass();
@@ -1622,7 +1614,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             // tmp debug
             window.tmpAccess = ftrVoice;
 
-            // TODO => find how to do binding, so that we can leave that in the feature class, and not here
             // eslint-disable-next-line no-case-declarations
             const updatePointer = () => {
               ftrVoice.pointer.x = (event.clientX / document.getElementsByTagName("canvas")[0].offsetWidth) * 2 - 1;
