@@ -45,7 +45,12 @@ function renderChatMessage(body, from, allowEmojiRender) {
   const { content, emoji, multiline } = messageBodyDom(body, from, null, null, styles.emoji);
   const isEmoji = allowEmojiRender && emoji;
   const el = document.createElement("div");
-  el.setAttribute("class", `${styles.presenceLog} ${styles.presenceLogSpawn}`);
+  function getRandomColor(array) {
+    return array[Math.floor(Math.random() * array.length)];
+  }
+  const styleColors = [styles.presenceLogPink, styles.presenceLogGreen, styles.presenceLogYellow];
+  const styleColor = getRandomColor(styleColors);
+  el.setAttribute("class", `${styles.presenceLog} ${styles.presenceLogSpawn} ${styleColor}`);
   document.body.appendChild(el);
 
   const entryDom = (

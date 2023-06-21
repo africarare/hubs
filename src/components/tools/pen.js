@@ -102,7 +102,7 @@ AFRAME.registerComponent("pen", {
     penVisible: { default: true },
     penTipPosition: { default: { x: 0, y: 0, z: 0 } },
 
-    isRestrictedDrawing: { default: true },
+    isRestrictedDrawing: { default: false },
     drawableObjects: { default: [] }
   },
 

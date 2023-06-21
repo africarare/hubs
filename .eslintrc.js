@@ -48,16 +48,16 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     // https://github.com/calm/eslint-plugin-react-intl
-    "@calm/react-intl/missing-formatted-message": [
-      "error",
-      {
-        noTrailingWhitespace: true,
-        ignoreLinks: true,
-        enforceLabels: true,
-        enforceImageAlts: true,
-        enforceInputProps: false
-      }
-    ],
+    // "@calm/react-intl/missing-formatted-message": [
+    //   "error",
+    //   {
+    //     noTrailingWhitespace: true,
+    //     ignoreLinks: true,
+    //     enforceLabels: true,
+    //     enforceImageAlts: true,
+    //     enforceInputProps: false
+    //   }
+    // ],
     "@calm/react-intl/missing-attribute": [
       "error",
       {

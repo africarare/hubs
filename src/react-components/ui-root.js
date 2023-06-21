@@ -105,10 +105,9 @@ import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
 
 // africarare
-
 import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
 
-import Modal from "../hubs_private/package/Modal.js";
+import Exhibit from "../hubs_private/react-components/Exhibit/Exhibit";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
 import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
 import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
@@ -117,11 +116,16 @@ import VoiceInstallation from "../hubs_private/react-components/VoiceInstallatio
 import InfoPanel from "./info-panel/InfoPanel.js";
 import "./info-panel/infoPanelUtils.js";
 
+// import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
+// import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
 import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js";
 import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
+import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
 import Quiz from "../hubs_private/react-components/Quiz/Quiz";
-// africarare end
+import Collectables from "../hubs_private/react-components/Collectables/Collectables";
+import ExhibitImages from "../hubs_private/react-components/ExhibitImages/ExhibitImages";
+import Help from "../hubs_private/react-components/Help/Help";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1110,7 +1114,7 @@ class UIRoot extends Component {
     const canCloseRoom = this.props.hubChannel && !!this.props.hubChannel.canOrWillIfCreator("close_hub");
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
     const isAdmin = window.location.toString().includes("admin");
-    const displaySignIn = configs.hasMasterPass;
+    const displaySignIn = window.authorization?.role === "moderator";
 
     const moreMenu = [
       {
@@ -1317,6 +1321,10 @@ class UIRoot extends Component {
     const voiceInstallationFtr = window.listFeatures.find(ftr => ftr.name === "voice-installation");
     const quizFtr = window.listFeatures.find(ftr => ftr.name === "quiz");
     const treasureHuntFtr = window.listFeatures.find(ftr => ftr.name === "treasure-hunt");
+    const exhibitFtr = window.listFeatures.find(ftr => ftr.name === "exhibit");
+    const collectablesFtr = window.listFeatures.find(ftr => ftr.name === "collectables");
+    const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
+    const helpFtr = window.listFeatures.find(ftr => ftr.name === "help");
 
     return (
       <MoreMenuContextProvider>
@@ -1325,6 +1333,7 @@ class UIRoot extends Component {
 
           {/* Features */}
           {Boolean(voiceInstallationFtr) && <VoiceInstallation ftr={voiceInstallationFtr.ftr} />}
+          {Boolean(exhibitFtr) && <Exhibit />}
 
           {Boolean(treasureHuntFtr) && (
             <TreasureHuntMain />
@@ -1341,8 +1350,6 @@ class UIRoot extends Component {
           />
 
           <InfoPanel isOpen={false} />
-
-          <Modal />
 
           <div className={classNames(rootStyles)}>
             <div className="topLeftMenu">
@@ -1478,7 +1485,19 @@ class UIRoot extends Component {
                 viewport={
                   <>
                     {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
-                    {window.hash === "masterpass" && <AdminFeatures />}
+                    {Boolean(exhibitImagesFtr) && (
+                      <ExhibitImages
+                        ftr={exhibitImagesFtr.ftr}
+                        closeModal={exhibitImagesFtr.closeModal}
+                        expandModal={exhibitImagesFtr.expandModal}
+                      />
+                    )}
+                    {Boolean(collectablesFtr) && (
+                      <Collectables ftr={collectablesFtr.ftr} closeModal={collectablesFtr.closeModal} />
+                    )}
+
+                    {window.authorization.role === "moderator" && <AdminFeatures />}
+                    {Boolean(helpFtr) && <Help ftr={helpFtr.ftr} />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                     {(!this.props.selectedObject ||

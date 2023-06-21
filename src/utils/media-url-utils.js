@@ -75,6 +75,7 @@ export const isNonCorsProxyDomain = hostname => {
 };
 
 export const proxiedUrlFor = url => {
+  if (url.includes("stream.mux")) return url;
   if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
 
   // Skip known domains that do not require CORS proxying.

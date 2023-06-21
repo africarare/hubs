@@ -17,7 +17,7 @@ const URL_SOURCE_TO_TO_API_SOURCE = {
 };
 
 let desiredSources = ["sketchfab", "videos", "scenes", "avatars", "gifs", "images"];
-if (!configs.hasMasterPass) {
+if (window.authorization?.role !== "moderator") {
   desiredSources = desiredSources.filter(source => source !== "scenes");
 }
 

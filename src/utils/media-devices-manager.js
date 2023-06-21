@@ -342,9 +342,9 @@ export default class MediaDevicesManager extends EventEmitter {
           video: {
             // Work around BMO 1449832 by calculating the width. This will break for multi monitors if you share anything
             // other than your current monitor that has a different aspect ratio.
-            width: 720 * (screen.width / screen.height),
-            height: 720,
-            frameRate: 30
+            width: 1280 * (screen.width / screen.height),
+            height: 1280,
+            frameRate: 60
           },
           audio: {
             echoCancellation: window.APP.store.state.preferences.disableEchoCancellation === true ? false : true,
@@ -355,8 +355,8 @@ export default class MediaDevicesManager extends EventEmitter {
       } else {
         newStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            width: isIOS ? { max: 1280 } : { max: 1280, ideal: 720 },
-            frameRate: 30
+            width: isIOS ? { max: 1280 } : { max: 1280, ideal: 1280 },
+            frameRate: 60
           }
           //TODO: Capture audio from camera?
         });
