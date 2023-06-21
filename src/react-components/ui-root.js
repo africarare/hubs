@@ -110,19 +110,18 @@ import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../syst
 
 import Modal from "../hubs_private/package/Modal.js";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
+import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
+import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import VoiceInstallation from "../hubs_private/react-components/VoiceInstallation/VoiceInstallation";
-import NedbankInfoPopup from "../hubs_private/nedbank/NedbankInfoPopup/NedbankInfoPopup";
 
 import InfoPanel from "./info-panel/InfoPanel.js";
 import "./info-panel/infoPanelUtils.js";
 
 import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js";
-import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
-import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
 import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
 import Quiz from "../hubs_private/react-components/Quiz/Quiz";
-// romamilend
+// africarare end
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1317,6 +1316,7 @@ class UIRoot extends Component {
 
     const voiceInstallationFtr = window.listFeatures.find(ftr => ftr.name === "voice-installation");
     const quizFtr = window.listFeatures.find(ftr => ftr.name === "quiz");
+    const treasureHuntFtr = window.listFeatures.find(ftr => ftr.name === "treasure-hunt");
 
     return (
       <MoreMenuContextProvider>
@@ -1326,12 +1326,8 @@ class UIRoot extends Component {
           {/* Features */}
           {Boolean(voiceInstallationFtr) && <VoiceInstallation ftr={voiceInstallationFtr.ftr} />}
 
-          {window.room === "nedbank" && <NedbankInfoPopup />}
-
-          {window.room === "treasurehunt" && (
-            <>
-              <TreasureHuntMain />
-            </>
+          {Boolean(treasureHuntFtr) && (
+            <TreasureHuntMain />
           )}
 
           <Popup
