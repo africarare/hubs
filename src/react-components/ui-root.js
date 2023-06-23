@@ -126,6 +126,7 @@ import Quiz from "../hubs_private/react-components/Quiz/Quiz";
 import Collectables from "../hubs_private/react-components/Collectables/Collectables";
 import ExhibitImages from "../hubs_private/react-components/ExhibitImages/ExhibitImages";
 import Help from "../hubs_private/react-components/Help/Help";
+import ConfirmationPopup from "../hubs_private/react-components/ConfirmationPopup/ConfirmationPopup";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1373,13 +1374,28 @@ class UIRoot extends Component {
                   )}
                   <ToolbarButton
                     icon={<VRIcon />}
-                    label={<FormattedMessage id="toolbar.camera-view" defaultMessage="view" />}
+                    label={<FormattedMessage id="toolbar.camera-view" defaultMessage="View" />}
                     onClick={() => {
                       const { enableThirdPersonView } = this.props.store.state.preferences;
                       this.props.store.update({ preferences: { enableThirdPersonView: !enableThirdPersonView } });
                       AFRAME.scenes[0].systems["hubs-systems"].cameraSystem.setMode(
                         !enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
                       );
+                    }}
+                  />
+                  <ToolbarButton
+                    icon={<LeaveIcon />}
+                    label={<FormattedMessage id="toolbar.exit" defaultMessage="Exit" />}
+                    onClick={() => {
+                      document.querySelector(`[aria-label="confirmation-popup-header"]`).innerHTML = "Leave Room";
+                      document.querySelector(`[aria-label="confirmation-popup-title"]`).innerHTML =
+                        "Are you sure you want to leave?";
+                      document
+                        .querySelector(`[aria-label="confirmation-popup-button"]`)
+                        .addEventListener("click", () => {
+                          window.location.href = "https://africarare.io/";
+                        });
+                      document.querySelector(".confirmation-popup").classList.add("open");
                     }}
                   />
 
@@ -1496,6 +1512,7 @@ class UIRoot extends Component {
                       <Collectables ftr={collectablesFtr.ftr} closeModal={collectablesFtr.closeModal} />
                     )}
 
+                    <ConfirmationPopup />
                     {window.authorization.role === "moderator" && <AdminFeatures />}
                     {Boolean(helpFtr) && <Help ftr={helpFtr.ftr} />}
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}

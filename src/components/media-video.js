@@ -804,7 +804,17 @@ AFRAME.registerComponent("media-video", {
       ) {
         const now = performance.now();
         if (now - this.lastUpdate > this.data.tickRate) {
-          this.el.setAttribute("media-video", "time", this.video.currentTime);
+          const mediaTime = this.el.getAttribute("media-video")?.time;
+          const offset = (this.video.currentTime - mediaTime) * 1000;
+
+          if (offset / this.data.tickRate < 2 || !this.lastUpdate) {
+            this.el.setAttribute("media-video", "time", this.video.currentTime);
+          } else {
+            const newTime = mediaTime + (now - this.lastUpdate) / 1000;
+            this.el.setAttribute("media-video", "time", newTime);
+            this.video.currentTime = newTime;
+          }
+
           this.lastUpdate = now;
         }
       }
