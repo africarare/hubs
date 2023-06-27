@@ -606,10 +606,10 @@ AFRAME.registerComponent("media-video", {
             }
 
             const hls = new HLS({
-              debug: qsTruthy("hlsDebug"),
-              enableWorker: true,
-              lowLatencyMode: true,
-              backBufferLength: 90
+              debug: qsTruthy("hlsDebug")
+              // enableWorker: true,
+              // lowLatencyMode: true,
+              // backBufferLength: 90
               // xhrSetup: (xhr, u) => {
               //   if (u.startsWith(corsProxyPrefix)) {
               //     u = u.substring(corsProxyPrefix.length);
