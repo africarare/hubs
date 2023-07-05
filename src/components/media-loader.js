@@ -25,7 +25,7 @@ import { waitForDOMContentLoaded } from "../utils/async-utils";
 
 import { SHAPE } from "three-ammo/constants";
 import { addComponent, entityExists, removeComponent } from "bitecs";
-import { MediaLoading } from "../bit-components";
+import { MediaContentBounds, MediaLoading } from "../bit-components";
 
 let loadingObject;
 
@@ -77,7 +77,7 @@ AFRAME.registerComponent("media-loader", {
     }
   },
 
-  updateScale: (function() {
+  updateScale: (function () {
     const center = new THREE.Vector3();
     const originalMeshMatrix = new THREE.Matrix4();
     const desiredObjectMatrix = new THREE.Matrix4();
@@ -85,7 +85,7 @@ AFRAME.registerComponent("media-loader", {
     const quaternion = new THREE.Quaternion();
     const scale = new THREE.Vector3();
     const box = new THREE.Box3();
-    return function(fitToBox, moveTheParentNotTheMesh) {
+    return function (fitToBox, moveTheParentNotTheMesh) {
       this.el.object3D.updateMatrices();
       const mesh = this.el.getObject3D("mesh");
       mesh.updateMatrices();
@@ -101,11 +101,7 @@ AFRAME.registerComponent("media-loader", {
         computeObjectAABB(mesh, box);
         center.addVectors(box.min, box.max).multiplyScalar(0.5);
         this.el.object3D.matrixWorld.decompose(position, quaternion, scale);
-        desiredObjectMatrix.compose(
-          center,
-          quaternion,
-          scale
-        );
+        desiredObjectMatrix.compose(center, quaternion, scale);
         setMatrixWorld(this.el.object3D, desiredObjectMatrix);
         mesh.updateMatrices();
         setMatrixWorld(mesh, originalMeshMatrix);
@@ -234,10 +230,10 @@ AFRAME.registerComponent("media-loader", {
     this.removeShape("loader");
   },
 
-  updateHoverableVisuals: (function() {
+  updateHoverableVisuals: (function () {
     const boundingBox = new THREE.Box3();
     const boundingSphere = new THREE.Sphere();
-    return function() {
+    return function () {
       const hoverableVisuals = this.el.components["hoverable-visuals"];
 
       if (hoverableVisuals) {
@@ -283,7 +279,9 @@ AFRAME.registerComponent("media-loader", {
       }
 
       // TODO this does duplicate work in some cases, but finish() is the only consistent place to do it
-      this.contentBounds = getBox(this.el, this.el.getObject3D("mesh")).getSize(new THREE.Vector3());
+      const contentBounds = getBox(this.el, this.el.getObject3D("mesh")).getSize(new THREE.Vector3());
+      addComponent(APP.world, MediaContentBounds, el.eid);
+      MediaContentBounds.bounds[el.eid].set(contentBounds.toArray());
 
       el.emit("media-loaded");
       if (el.eid && entityExists(APP.world, el.eid)) {
@@ -546,7 +544,7 @@ AFRAME.registerComponent("media-loader", {
           { once: true }
         );
         this.el.addEventListener("model-error", this.onError, { once: true });
-        if (this.data.mediaOptions.hasOwnProperty("applyGravity")) {
+        if (Object.prototype.hasOwnProperty.call(this.data.mediaOptions, "applyGravity")) {
           this.el.setAttribute("floaty-object", {
             modifyGravityOnRelease: !this.data.mediaOptions.applyGravity
           });

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, memo } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,7 +10,7 @@ import styles from "../assets/stylesheets/preferences-screen.scss";
 import { AVAILABLE_LOCALES } from "../assets/locales/locale_config";
 import { themes } from "../utils/theme";
 import MediaDevicesManager from "../utils/media-devices-manager";
-import { MediaDevicesEvents } from "../utils/media-devices-utils";
+import { MediaDevices, MediaDevicesEvents, PermissionStatus } from "../utils/media-devices-utils";
 import { Slider } from "./input/Slider";
 import {
   addOrientationChangeListener,
@@ -21,9 +21,12 @@ import {
   getScreenResolutionHeight,
   setMaxResolution
 } from "../utils/screen-orientation-utils";
+import { AAModes } from "../constants";
+import { isLockedDownDemoRoom } from "../utils/hub-utils";
 
 import dropdownArrowUrl from "../assets/images/dropdown_arrow.png";
 import dropdownArrow2xUrl from "../assets/images/dropdown_arrow@2x.png";
+import { PermissionNotification } from "./room/PermissionNotifications";
 
 export const CLIPPING_THRESHOLD_MIN = 0.0;
 export const CLIPPING_THRESHOLD_MAX = 0.1;
@@ -33,6 +36,17 @@ export const GLOBAL_VOLUME_MAX = 200;
 export const GLOBAL_VOLUME_STEP = 5;
 
 import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
+
+const CustomComponentWrapper = memo(({ componentType: ComponentType, children, ...rest }) => {
+  return <ComponentType {...rest}>{children}</ComponentType>;
+});
+
+CustomComponentWrapper.propTypes = {
+  componentType: PropTypes.elementType,
+  children: PropTypes.node
+};
+
+CustomComponentWrapper.displayName = "CustomComponentWrapper";
 
 function WarnIcon() {
   return (
@@ -94,7 +108,8 @@ export class NumberRangeSelector extends Component {
     digits: PropTypes.number,
     store: PropTypes.object,
     storeKey: PropTypes.string,
-    setValue: PropTypes.func
+    setValue: PropTypes.func,
+    disabled: PropTypes.bool
   };
   state = {
     isFocused: false,
@@ -124,8 +139,8 @@ export class NumberRangeSelector extends Component {
 
   render() {
     return (
-      <div className={classNames(styles.numberWithRange)}>
-        <div className={classNames(styles.numberInNumberWithRange)}>
+      <div className={classNames(styles.numberWithRange, { [styles.disabled]: this.props.disabled })}>
+        <div className={classNames(styles.numberInNumberWithRange, { [styles.disabled]: this.props.disabled })}>
           <input
             type="text"
             value={this.state.displayValue}
@@ -161,6 +176,7 @@ export class NumberRangeSelector extends Component {
                   : finalValue
               );
             }}
+            disabled={this.props.disabled}
           />
         </div>
         <Slider
@@ -173,6 +189,7 @@ export class NumberRangeSelector extends Component {
             this.setState({ displayValue: num, digitsFromUser: 0 });
             this.props.setValue(parseFloat(num));
           }}
+          disabled={this.props.disabled}
         />
       </div>
     );
@@ -198,7 +215,8 @@ function BooleanPreference({ store, storeKey, setValue }) {
 BooleanPreference.propTypes = {
   store: PropTypes.object,
   storeKey: PropTypes.string,
-  setValue: PropTypes.func
+  setValue: PropTypes.func,
+  disabled: PropTypes.bool
 };
 
 function MapCountPreference({ store, storeKey, defaultValue, text }) {
@@ -221,16 +239,21 @@ class Select extends React.Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     value: PropTypes.string,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    disabled: PropTypes.bool
   };
 
   render() {
     return (
       <div className={styles.dropdown}>
-        <select value={this.props.value} tabIndex="0" onChange={this.props.onChange}>
+        <select value={this.props.value} tabIndex="0" onChange={this.props.onChange} disabled={this.props.disabled}>
           {this.props.children}
         </select>
-        <img className={styles.dropdownArrow} src={dropdownArrowUrl} srcSet={`${dropdownArrow2xUrl} 2x`} />
+        <img
+          className={classNames(styles.dropdownArrow, { [styles.disabled]: this.props.disabled })}
+          src={dropdownArrowUrl}
+          srcSet={`${dropdownArrow2xUrl} 2x`}
+        />
       </div>
     );
   }
@@ -242,7 +265,8 @@ class PreferenceSelect extends React.Component {
     store: PropTypes.object,
     storeKey: PropTypes.string,
     setValue: PropTypes.func,
-    onChanged: PropTypes.func
+    onChanged: PropTypes.func,
+    disabled: PropTypes.bool
   };
   constructor() {
     super();
@@ -262,6 +286,7 @@ class PreferenceSelect extends React.Component {
           this.props.setValue(e.target.value);
           this.props.onChanged && this.props.onChanged(e.target.value);
         }}
+        disabled={this.props.disabled}
       >
         {options}
       </Select>
@@ -274,7 +299,8 @@ export const PREFERENCE_LIST_ITEM_TYPE = {
   SELECT: 2,
   NUMBER_WITH_RANGE: 3,
   MAX_RESOLUTION: 4,
-  MAP_COUNT: 5
+  MAP_COUNT: 5,
+  CUSTOM_COMPONENT: 6
 };
 
 export class MaxResolutionPreferenceItem extends Component {
@@ -497,10 +523,6 @@ const preferenceLabels = defineMessages({
     id: "preferences-screen.preference.theme",
     defaultMessage: "Theme"
   },
-  fastRoomSwitching: {
-    id: "preferences-screen.preference.fast-room-switching",
-    defaultMessage: "Enable Fast Room Switching"
-  },
   lazyLoadSceneMedia: {
     id: "preferences-screen.preference.lazy-load-scene-media",
     defaultMessage: "Enable Scene Media Lazy Loading"
@@ -520,6 +542,22 @@ const preferenceLabels = defineMessages({
   nametagVisibilityDistance: {
     id: "preferences-screen.preference.nametag-visibility-distance",
     defaultMessage: "Nametag visibility distance"
+  },
+  enablePostEffects: {
+    id: "preferences-screen.preference.enable-fx",
+    defaultMessage: "Enable Post Processing Effects (experimental)"
+  },
+  enablePostEffectsTooltip: {
+    id: "preferences-screen.preference.enable-fx.tooltip",
+    defaultMessage: "This feature is still experimental and may have issues. It is currently unsupported in VR."
+  },
+  enableBloom: {
+    id: "preferences-screen.preference.enable-fx-bloom",
+    defaultMessage: "Enable Bloom Effect"
+  },
+  aaMode: {
+    id: "preferences-screen.preference.fx-aa-mode",
+    defaultMessage: "Anti-Aliasing Mode"
   }
 });
 
@@ -529,7 +567,8 @@ class PreferenceListItem extends Component {
     store: PropTypes.object,
     storeKey: PropTypes.string,
     setValue: PropTypes.func,
-    itemProps: PropTypes.object
+    itemProps: PropTypes.object,
+    disabled: PropTypes.bool
   };
   componentDidMount() {
     this.props.store.addEventListener("statechanged", this.storeUpdated);
@@ -547,49 +586,64 @@ class PreferenceListItem extends Component {
   render() {
     const intl = this.props.intl;
     const isCheckbox = this.props.itemProps.prefType === PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX;
+    const isCustomComponent = this.props.itemProps.prefType === PREFERENCE_LIST_ITEM_TYPE.CUSTOM_COMPONENT;
     const isSmallScreen = window.innerWidth < 600;
-    const label = (
-      <span className={styles.preferenceLabel}>{intl.formatMessage(preferenceLabels[this.props.storeKey])}</span>
+    const label = preferenceLabels[this.props.storeKey] && (
+      <span
+        className={classNames(styles.preferenceLabel, { [styles.disabled]: this.props.disabled })}
+        title={this.props.itemProps.tooltipKey && intl.formatMessage(preferenceLabels[this.props.itemProps.tooltipKey])}
+      >
+        {intl.formatMessage(preferenceLabels[this.props.storeKey])}
+      </span>
     );
     const prefSchema = this.props.store.schema.definitions.preferences.properties;
     const hasPref =
       this.props.itemProps.prefType === PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION
         ? this.props.store.state.preferences.maxResolutionWidth !== undefined ||
           this.props.store.state.preferences.maxResolutionHeight !== undefined
-        : this.props.store.state.preferences[this.props.storeKey] !== prefSchema[this.props.storeKey].default;
-    const resetToDefault = hasPref ? (
-      <ResetToDefaultButton
-        onClick={() => {
-          switch (this.props.itemProps.prefType) {
-            case PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION:
-              this.props.store.update({
-                preferences: {
-                  maxResolutionWidth: undefined,
-                  maxResolutionHeight: undefined
-                }
-              });
-              break;
-            default:
-              this.props.setValue(prefSchema[this.props.storeKey].default);
-              break;
-          }
-          this.forceUpdate();
-        }}
-      />
-    ) : (
-      <ResetToDefaultButtonPlaceholder />
-    );
+        : prefSchema[this.props.storeKey] &&
+          this.props.store.state.preferences[this.props.storeKey] !== prefSchema[this.props.storeKey].default;
+    const resetToDefault =
+      !this.props.disabled && hasPref ? (
+        <ResetToDefaultButton
+          onClick={() => {
+            switch (this.props.itemProps.prefType) {
+              case PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION:
+                this.props.store.update({
+                  preferences: {
+                    maxResolutionWidth: undefined,
+                    maxResolutionHeight: undefined
+                  }
+                });
+                break;
+              default:
+                this.props.setValue(prefSchema[this.props.storeKey].default);
+                break;
+            }
+            this.forceUpdate();
+          }}
+        />
+      ) : (
+        <ResetToDefaultButtonPlaceholder />
+      );
 
     const disabled =
       (this.props.itemProps.disableIfTrue && this.props.store.state.preferences[this.props.itemProps.disableIfTrue]) ||
       (this.props.itemProps.disableIfFalse && !this.props.store.state.preferences[this.props.itemProps.disableIfFalse]);
     const indent = this.props.itemProps.disableIfTrue || this.props.itemProps.disableIfFalse;
 
-    if (isCheckbox) {
+    if (isCustomComponent) {
+      return <Control itemProps={this.props.itemProps} store={this.props.store} />;
+    } else if (isCheckbox) {
       return (
         <ListItem disabled={disabled} indent={indent}>
           <div className={styles.row}>
-            <Control itemProps={this.props.itemProps} store={this.props.store} setValue={this.props.setValue} />
+            <Control
+              itemProps={this.props.itemProps}
+              store={this.props.store}
+              setValue={this.props.setValue}
+              disabled={this.props.disabled}
+            />
             {label}
             <div className={styles.rowRight}>{resetToDefault}</div>
           </div>
@@ -605,7 +659,12 @@ class PreferenceListItem extends Component {
             </div>
             <div className={styles.row}>
               <div className={styles.rowCenter}>
-                <Control itemProps={this.props.itemProps} store={this.props.store} setValue={this.props.setValue} />
+                <Control
+                  itemProps={this.props.itemProps}
+                  store={this.props.store}
+                  setValue={this.props.setValue}
+                  disabled={this.props.disabled}
+                />
               </div>
               <div className={styles.rowRight}>{resetToDefault}</div>
             </div>
@@ -619,7 +678,12 @@ class PreferenceListItem extends Component {
           {<CheckboxPlaceholder />}
           {label}
           <div className={styles.rowRight}>
-            <Control itemProps={this.props.itemProps} store={this.props.store} setValue={this.props.setValue} />
+            <Control
+              itemProps={this.props.itemProps}
+              store={this.props.store}
+              setValue={this.props.setValue}
+              disabled={this.props.disabled}
+            />
           </div>
           <div className={styles.rowRight}>{resetToDefault}</div>
         </div>
@@ -636,6 +700,7 @@ const CATEGORY_MISC = 2;
 const CATEGORY_MOVEMENT = 3;
 const CATEGORY_TOUCHSCREEN = 4;
 const CATEGORY_ACCESSIBILITY = 5;
+const CATEGORY_GRAPHICS = 6;
 const TOP_LEVEL_CATEGORIES = [CATEGORY_AUDIO, CATEGORY_CONTROLS, CATEGORY_MISC];
 const categoryNames = defineMessages({
   [CATEGORY_AUDIO]: { id: "preferences-screen.category.audio", defaultMessage: "Audio" },
@@ -643,7 +708,8 @@ const categoryNames = defineMessages({
   [CATEGORY_MISC]: { id: "preferences-screen.category.misc", defaultMessage: "Misc" },
   [CATEGORY_MOVEMENT]: { id: "preferences-screen.category.movement", defaultMessage: "Movement" },
   [CATEGORY_TOUCHSCREEN]: { id: "preferences-screen.category.touchscreen", defaultMessage: "Touchscreen" },
-  [CATEGORY_ACCESSIBILITY]: { id: "preferences-screen.category.accessibility", defaultMessage: "Accessibility" }
+  [CATEGORY_ACCESSIBILITY]: { id: "preferences-screen.category.accessibility", defaultMessage: "Accessibility" },
+  [CATEGORY_GRAPHICS]: { id: "preferences-screen.category.graphics", defaultMessage: "Graphics" }
 });
 
 function NavItem({ ariaLabel, title, onClick, selected }) {
@@ -690,7 +756,8 @@ const controlType = new Map([
   [PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION, MaxResolutionPreferenceItem],
   [PREFERENCE_LIST_ITEM_TYPE.SELECT, PreferenceSelect],
   [PREFERENCE_LIST_ITEM_TYPE.NUMBER_WITH_RANGE, NumberRangeSelector],
-  [PREFERENCE_LIST_ITEM_TYPE.MAP_COUNT, MapCountPreference]
+  [PREFERENCE_LIST_ITEM_TYPE.MAP_COUNT, MapCountPreference],
+  [PREFERENCE_LIST_ITEM_TYPE.CUSTOM_COMPONENT, CustomComponentWrapper]
 ]);
 
 function Control({ itemProps, store, setValue }) {
@@ -700,10 +767,12 @@ function Control({ itemProps, store, setValue }) {
 Control.propTypes = {
   itemProps: PropTypes.object,
   store: PropTypes.object,
-  setValue: PropTypes.func
+  setValue: PropTypes.func,
+  disabled: PropTypes.bool
 };
 
 function createItem(itemProps, store) {
+  if (itemProps.hidden) return null;
   const setValue = v => {
     if (itemProps.promptForRefresh) {
       store.update({ preferences: { [itemProps.key]: v, shouldPromptForRefresh: true } });
@@ -719,6 +788,7 @@ function createItem(itemProps, store) {
       storeKey={itemProps.key}
       setValue={setValue}
       onChanged={itemProps.onChanged}
+      disabled={itemProps.disabled}
     />
   );
 }
@@ -805,6 +875,8 @@ class PreferencesScreen extends Component {
     super();
 
     this.storeUpdated = this.storeUpdated.bind(this);
+    this.permissionsUpdated = this.permissionsUpdated.bind(this);
+    const canVoiceChat = APP.hubChannel.can("voice_chat");
 
     this.mediaDevicesManager = APP.mediaDevicesManager;
 
@@ -814,7 +886,8 @@ class PreferencesScreen extends Component {
       preferredMic: {
         key: "preferredMic",
         prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
-        options: [{ value: "none", text: "None" }]
+        options: [{ value: "none", text: "None" }],
+        disabled: !canVoiceChat
       },
       preferredCamera: {
         key: "preferredCamera",
@@ -827,7 +900,8 @@ class PreferencesScreen extends Component {
           prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
           options: [{ value: "none", text: "None" }]
         }
-      })
+      }),
+      canVoiceChat
     };
   }
 
@@ -849,6 +923,7 @@ class PreferencesScreen extends Component {
     }));
     const preferredMic = { ...this.state.preferredMic };
     preferredMic.options = micOptions;
+    preferredMic.disabled = !this.state.canVoiceChat;
 
     const speakersOptions = this.mediaDevicesManager.outputDevicesOptions.map(device => ({
       value: device.value,
@@ -856,6 +931,9 @@ class PreferencesScreen extends Component {
     }));
     const preferredSpeakers = { ...this.state.preferredSpeakers };
     preferredSpeakers.options = speakersOptions?.length > 0 ? speakersOptions : [{ value: "none", text: "None" }];
+    preferredSpeakers.disabled =
+      !this.state.canVoiceChat &&
+      this.mediaDevicesManager.getPermissionsStatus(MediaDevices.SPEAKERS) !== PermissionStatus.GRANTED;
 
     // Video devices update
     const videoOptions = this.mediaDevicesManager.videoDevicesOptions.map(device => ({
@@ -899,26 +977,39 @@ class PreferencesScreen extends Component {
   componentDidMount() {
     this.props.store.addEventListener("statechanged", this.storeUpdated);
     this.mediaDevicesManager.on(MediaDevicesEvents.DEVICE_CHANGE, this.onMediaDevicesUpdated);
+    APP.hubChannel.addEventListener("permissions_updated", this.permissionsUpdated);
 
-    this.mediaDevicesManager.fetchMediaDevices().then(this.updateMediaDevices);
+    if (this.state.canVoiceChat && !isLockedDownDemoRoom()) {
+      this.mediaDevicesManager.startMicShare({ updatePrefs: false }).then(this.updateMediaDevices);
+    } else {
+      this.updateMediaDevices();
+    }
   }
 
   componentWillUnmount() {
     this.props.store.removeEventListener("statechanged", this.storeUpdated);
     this.mediaDevicesManager.off(MediaDevicesEvents.DEVICE_CHANGE, this.onMediaDevicesUpdated);
+    APP.hubChannel.removeEventListener("permissions_updated", this.permissionsUpdated);
+  }
+
+  permissionsUpdated() {
+    this.setState({
+      canVoiceChat: APP.hubChannel.can("voice_chat")
+    });
+    this.updateMediaDevices();
   }
 
   storeUpdated() {
     const { preferredMic } = this.props.store.state.preferences;
     if (preferredMic !== this.mediaDevicesManager.selectedMicDeviceId) {
-      this.mediaDevicesManager.startMicShare({ updatePrefs: false }).then(this.updateMediaDevices);
+      this.state.canVoiceChat &&
+        this.mediaDevicesManager.startMicShare({ updatePrefs: false }).then(this.updateMediaDevices);
     }
 
     const { enableThirdPersonView } = this.props.store.state.preferences;
     this.props.scene.systems["hubs-systems"].cameraSystem.setMode(
       enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
     );
-
   }
 
   createSections() {
@@ -1016,7 +1107,19 @@ class PreferencesScreen extends Component {
       [
         CATEGORY_AUDIO,
         [
-          ...(MediaDevicesManager.isAudioInputSelectEnabled ? [this.state.preferredMic] : []),
+          ...(!this.state.canVoiceChat
+            ? [
+                {
+                  key: "voiceChatPinnedMessage",
+                  prefType: PREFERENCE_LIST_ITEM_TYPE.CUSTOM_COMPONENT,
+                  componentType: PermissionNotification,
+                  permission: "voice_chat"
+                }
+              ]
+            : []),
+          ...(MediaDevicesManager.isAudioInputSelectEnabled && !isLockedDownDemoRoom()
+            ? [this.state.preferredMic]
+            : []),
           ...(MediaDevicesManager.isAudioOutputSelectEnabled ? [this.state.preferredSpeakers] : []),
           {
             key: "globalVoiceVolume",
@@ -1210,15 +1313,70 @@ class PreferencesScreen extends Component {
             prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
           },
           {
+            key: "theme",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
+            options: availableThemes
+          },
+          ...(!isLockedDownDemoRoom()
+            ? [
+                {
+                  key: "nametagVisibility",
+                  prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
+                  options: [
+                    {
+                      value: "showAll",
+                      text: intl.formatMessage({
+                        id: "preferences-screen.nametag-visibility.show-all",
+                        defaultMessage: "Always"
+                      })
+                    },
+                    {
+                      value: "showNone",
+                      text: intl.formatMessage({
+                        id: "preferences-screen.nametag-visibility.show-none",
+                        defaultMessage: "Never"
+                      })
+                    },
+                    {
+                      value: "showFrozen",
+                      text: intl.formatMessage({
+                        id: "preferences-screen.nametag-visibility.show-frozen",
+                        defaultMessage: "Only in Frozen state"
+                      })
+                    },
+                    {
+                      value: "showSpeaking",
+                      text: intl.formatMessage({
+                        id: "preferences-screen.nametag-visibility.show-speaking",
+                        defaultMessage: "Only speaking"
+                      })
+                    },
+                    {
+                      value: "showClose",
+                      text: intl.formatMessage({
+                        id: "preferences-screen.nametag-visibility.show-close",
+                        defaultMessage: "Close to me"
+                      })
+                    }
+                  ]
+                },
+                {
+                  key: "nametagVisibilityDistance",
+                  prefType: PREFERENCE_LIST_ITEM_TYPE.NUMBER_WITH_RANGE,
+                  min: 1,
+                  max: 20,
+                  step: 1,
+                  digits: 2
+                }
+              ]
+            : []),
+          this.state.preferredCamera,
+          {
             key: "allowMultipleHubsInstances",
             prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
           },
           {
             key: "disableIdleDetection",
-            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
-          },
-          {
-            key: "fastRoomSwitching",
             prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
           },
           {
@@ -1259,6 +1417,106 @@ class PreferencesScreen extends Component {
             prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
           }
         ]
+      ],
+      [
+        CATEGORY_GRAPHICS,
+        [
+          { key: "maxResolution", prefType: PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION },
+          {
+            key: "materialQualitySetting",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
+            options: [
+              {
+                value: "low",
+                text: intl.formatMessage({
+                  id: "preferences-screen.material-quality-setting.low",
+                  defaultMessage: "Low"
+                })
+              },
+              {
+                value: "medium",
+                text: intl.formatMessage({
+                  id: "preferences-screen.material-quality-setting.medium",
+                  defaultMessage: "Medium"
+                })
+              },
+              {
+                value: "high",
+                text: intl.formatMessage({
+                  id: "preferences-screen.material-quality-setting.high",
+                  defaultMessage: "High"
+                })
+              }
+            ],
+            promptForRefresh: true
+          },
+          {
+            key: "enableDynamicShadows",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
+          },
+          {
+            key: "disableAutoPixelRatio",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX
+          },
+          {
+            key: "enablePostEffects",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+            hidden: AFRAME.utils.device.isMobileVR(),
+            tooltipKey: "enablePostEffectsTooltip",
+            promptForRefresh: true
+          },
+          {
+            key: "enableBloom",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+            hidden: AFRAME.utils.device.isMobileVR(),
+            disableIfFalse: "enablePostEffects",
+            promptForRefresh: true
+          },
+          {
+            key: "aaMode",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
+            hidden: AFRAME.utils.device.isMobileVR(),
+            disableIfFalse: "enablePostEffects",
+            promptForRefresh: true,
+            options: [
+              {
+                value: AAModes.NONE,
+                text: intl.formatMessage({
+                  id: "preferences-screen.aa-mode.none",
+                  defaultMessage: "none"
+                })
+              },
+              {
+                value: AAModes.SMAA,
+                text: intl.formatMessage({
+                  id: "preferences-screen.aa-mode.smaa",
+                  defaultMessage: "SMAA"
+                })
+              },
+              {
+                value: AAModes.MSAA_2X,
+                text: intl.formatMessage({
+                  id: "preferences-screen.aa-mode.msaa_2x",
+                  defaultMessage: "2x MSAA"
+                })
+              },
+              {
+                value: AAModes.MSAA_4X,
+                text: intl.formatMessage({
+                  id: "preferences-screen.aa-mode.msaa_4x",
+                  defaultMessage: "4x MSAA"
+                })
+              },
+              {
+                value: AAModes.MSAA_8X,
+                text: intl.formatMessage({
+                  id: "preferences-screen.aa-mode.msaa_8x",
+                  defaultMessage: "8x MSAA"
+                })
+              }
+            ]
+          }
+        ]
       ]
     ]);
 
@@ -1267,7 +1525,10 @@ class PreferencesScreen extends Component {
     const items = new Map();
 
     for (const [category, definitions] of DEFINITIONS) {
-      items.set(category, definitions.map(toItem));
+      items.set(
+        category,
+        definitions.map(toItem).filter(item => !!item)
+      );
     }
 
     return new Map([
@@ -1294,7 +1555,16 @@ class PreferencesScreen extends Component {
           }
         ]
       ],
-      [CATEGORY_MISC, [{ items: items.get(CATEGORY_MISC) }]]
+      [
+        CATEGORY_MISC,
+        [
+          { items: items.get(CATEGORY_MISC) },
+          {
+            name: intl.formatMessage(categoryNames[CATEGORY_GRAPHICS]),
+            items: items.get(CATEGORY_GRAPHICS)
+          }
+        ]
+      ]
     ]);
   }
 

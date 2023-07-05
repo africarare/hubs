@@ -21,7 +21,7 @@ import {
   ConstraintRemoteLeft,
   ConstraintRemoteRight
 } from "../bit-components";
-import { takeOwnership } from "./netcode";
+import { takeOwnership } from "../utils/take-ownership";
 
 const queryRemoteRight = defineQuery([HeldRemoteRight, OffersRemoteConstraint]);
 const queryEnterRemoteRight = enterQuery(queryRemoteRight);
@@ -46,7 +46,7 @@ function add(world, physicsSystem, interactor, constraintComponent, entities) {
   for (let i = 0; i < entities.length; i++) {
     const eid = findAncestorEntity(world, entities[i], ancestor => hasComponent(world, Rigidbody, ancestor));
     takeOwnership(world, eid);
-    physicsSystem.updateBodyOptions(Rigidbody.bodyId[eid], grabBodyOptions);
+    physicsSystem.updateRigidBodyOptions(eid, grabBodyOptions);
     physicsSystem.addConstraint(interactor, Rigidbody.bodyId[eid], Rigidbody.bodyId[interactor], {});
     addComponent(world, Constraint, eid);
     addComponent(world, constraintComponent, eid);
@@ -58,7 +58,7 @@ function remove(world, offersConstraint, constraintComponent, physicsSystem, int
     const eid = findAncestorEntity(world, entities[i], ancestor => hasComponent(world, Rigidbody, ancestor));
     if (!entityExists(world, eid)) continue;
     if (hasComponent(world, offersConstraint, entities[i]) && hasComponent(world, Rigidbody, eid)) {
-      physicsSystem.updateBodyOptions(Rigidbody.bodyId[eid], releaseBodyOptions);
+      physicsSystem.updateRigidBodyOptions(eid, releaseBodyOptions);
       physicsSystem.removeConstraint(interactor);
       removeComponent(world, constraintComponent, eid);
       if (
@@ -73,8 +73,7 @@ function remove(world, offersConstraint, constraintComponent, physicsSystem, int
   }
 }
 
-export function constraintsSystem(world) {
-  const physicsSystem = AFRAME.scenes[0].systems["hubs-systems"].physicsSystem;
+export function constraintsSystem(world, physicsSystem) {
   add(world, physicsSystem, anyEntityWith(world, RemoteRight), ConstraintRemoteRight, queryEnterRemoteRight(world));
   add(world, physicsSystem, anyEntityWith(world, RemoteLeft), ConstraintRemoteLeft, queryEnterRemoteLeft(world));
   add(world, physicsSystem, anyEntityWith(world, HandRight), ConstraintHandRight, queryEnterHandRight(world));

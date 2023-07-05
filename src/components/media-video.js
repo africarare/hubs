@@ -1,13 +1,14 @@
-/* global performance THREE AFRAME NAF MediaStream setTimeout */
-import configs from "../utils/configs";
 import audioIcon from "../assets/images/audio.png";
 import { paths } from "../systems/userinput/paths";
 import HLS from "hls.js";
-import { MediaPlayer } from "dashjs";
-import { addAndArrangeMedia, createVideoOrAudioEl, hasAudioTracks } from "../utils/media-utils";
+import {
+  addAndArrangeMedia,
+  createVideoOrAudioEl,
+  createDashPlayer,
+  createHLSPlayer,
+  hasAudioTracks
+} from "../utils/media-utils";
 import { disposeTexture } from "../utils/material-utils";
-import { proxiedUrlFor } from "../utils/media-url-utils";
-// import { buildAbsoluteURL } from "url-toolkit";
 import { SOUND_CAMERA_TOOL_TOOK_SNAPSHOT } from "../systems/sound-effects-system";
 import { applyPersistentSync } from "../utils/permissions-utils";
 import { refreshMediaMirror, getCurrentMirroredMedia } from "../utils/mirror-utils";
@@ -21,8 +22,7 @@ import { errorTexture } from "../utils/error-texture";
 import { scaleToAspectRatio } from "../utils/scale-to-aspect-ratio";
 import { isSafari } from "../utils/detect-safari";
 import { isIOS as detectIOS } from "../utils/is-mobile";
-
-import qsTruthy from "../utils/qs_truthy";
+import { Layers } from "../camera-layers";
 
 const ONCE_TRUE = { once: true };
 const TYPE_IMG_PNG = { type: "image/png" };
@@ -478,6 +478,7 @@ AFRAME.registerComponent("media-video", {
       }
 
       this.mesh = new THREE.Mesh(geometry, material);
+      this.mesh.layers.set(Layers.CAMERA_LAYER_FX_MASK);
       this.el.setObject3D("mesh", this.mesh);
     }
 
@@ -508,6 +509,7 @@ AFRAME.registerComponent("media-video", {
     const contentType = this.data.contentType;
     let pollTimeout;
 
+    /* eslint-disable-next-line no-async-promise-executor*/
     return new Promise(async (resolve, reject) => {
       if (this._audioSyncInterval) {
         clearInterval(this._audioSyncInterval);
@@ -575,80 +577,16 @@ AFRAME.registerComponent("media-video", {
         videoEl.srcObject = new MediaStream(stream.getVideoTracks());
         // If hls.js is supported we always use it as it gives us better events
       } else if (contentType.startsWith("application/dash")) {
-        const dashPlayer = MediaPlayer().create();
-        dashPlayer.extend("RequestModifier", function () {
-          return { modifyRequestHeader: xhr => xhr, modifyRequestURL: proxiedUrlFor };
-        });
-        dashPlayer.on(MediaPlayer.events.ERROR, failLoad);
-        dashPlayer.initialize(videoEl, url);
-        dashPlayer.setTextDefaultEnabled(false);
-
-        // TODO this countinously pings to get updated time, unclear if this is actually needed, but this preserves the default behavior
-        dashPlayer.clearDefaultUTCTimingSources();
-        dashPlayer.addUTCTimingSource(
-          "urn:mpeg:dash:utc:http-xsdate:2014",
-          proxiedUrlFor("https://time.akamai.com/?iso")
-        );
-        // We can also use our own HEAD request method like we use to sync NAF
-        // dashPlayer.addUTCTimingSource("urn:mpeg:dash:utc:http-head:2014", location.href);
-
-        texture.dash = dashPlayer;
+        texture.dash = createDashPlayer(url, videoEl, failLoad);
       } else if (AFRAME.utils.material.isHLS(url, contentType)) {
         if (HLS.isSupported()) {
-          const corsProxyPrefix = `https://${configs.CORS_PROXY_SERVER}/`;
-          const baseUrl = url.startsWith(corsProxyPrefix) ? url.substring(corsProxyPrefix.length) : url;
-          const setupHls = () => {
-            if (texture.hls) {
-              texture.hls.stopLoad();
-              texture.hls.detachMedia();
-              texture.hls.destroy();
-              texture.hls = null;
-            }
-
-            const hls = new HLS({
-              debug: qsTruthy("hlsDebug")
-              // enableWorker: true,
-              // lowLatencyMode: true,
-              // backBufferLength: 90
-              // xhrSetup: (xhr, u) => {
-              //   if (u.startsWith(corsProxyPrefix)) {
-              //     u = u.substring(corsProxyPrefix.length);
-              //   }
-
-              //   // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
-              //   // TODO extend HLS.js to allow overriding of its internal resolving instead
-              //   if (!u.startsWith("http")) {
-              //     u = buildAbsoluteURL(baseUrl, u.startsWith("/") ? u : `/${u}`);
-              //   }
-
-              //   xhr.open("GET", proxiedUrlFor(u), true);
-              // }
-            });
-
-            texture.hls = hls;
-            hls.loadSource(url);
-            hls.attachMedia(videoEl);
-
-            hls.on(HLS.Events.ERROR, function (event, data) {
-              console.log("HLS Error", data);
-              if (data.fatal) {
-                switch (data.type) {
-                  case HLS.ErrorTypes.NETWORK_ERROR:
-                    // try to recover network error
-                    hls.startLoad();
-                    break;
-                  case HLS.ErrorTypes.MEDIA_ERROR:
-                    hls.recoverMediaError();
-                    break;
-                  default:
-                    failLoad(event);
-                    return;
-                }
-              }
-            });
-          };
-
-          setupHls();
+          if (texture.hls) {
+            texture.hls.stopLoad();
+            texture.hls.detachMedia();
+            texture.hls.destroy();
+            texture.hls = null;
+          }
+          texture.hls = createHLSPlayer(url, videoEl, failLoad);
         } else if (videoEl.canPlayType(contentType)) {
           videoEl.src = url;
           videoEl.onerror = failLoad;
@@ -804,17 +742,7 @@ AFRAME.registerComponent("media-video", {
       ) {
         const now = performance.now();
         if (now - this.lastUpdate > this.data.tickRate) {
-          const mediaTime = this.el.getAttribute("media-video")?.time;
-          const offset = (this.video.currentTime - mediaTime) * 1000;
-
-          if (offset / this.data.tickRate < 2 || !this.lastUpdate) {
-            this.el.setAttribute("media-video", "time", this.video.currentTime);
-          } else {
-            const newTime = mediaTime + (now - this.lastUpdate) / 1000;
-            this.el.setAttribute("media-video", "time", newTime);
-            this.video.currentTime = newTime;
-          }
-
+          this.el.setAttribute("media-video", "time", this.video.currentTime);
           this.lastUpdate = now;
         }
       }

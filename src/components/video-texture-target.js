@@ -1,7 +1,7 @@
 import { disposeTexture } from "../utils/material-utils";
 import { createVideoOrAudioEl } from "../utils/media-utils";
 import { findNode } from "../utils/three-utils";
-import { Layers } from "./layers";
+import { Layers } from "../camera-layers";
 
 /**
  * @component video-texture-source
@@ -20,12 +20,13 @@ AFRAME.registerComponent("video-texture-source", {
   init() {
     this.camera = findNode(this.el.object3D, n => n.isCamera);
 
-    this.camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
-
     if (!this.camera) {
       console.warn("video-texture-source added to an entity without a camera");
       return;
     }
+
+    this.camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
+    this.camera.layers.enable(Layers.CAMERA_LAYER_FX_MASK);
 
     this.camera.aspect = this.data.resolution[0] / this.data.resolution[1];
 
@@ -35,9 +36,7 @@ AFRAME.registerComponent("video-texture-source", {
       format: THREE.RGBAFormat,
       minFilter: THREE.LinearFilter,
       magFilter: THREE.NearestFilter,
-      encoding: THREE.sRGBEncoding,
-      depth: false,
-      stencil: false
+      encoding: THREE.sRGBEncoding
     });
 
     const texture = this.renderTarget.texture;
@@ -78,6 +77,7 @@ AFRAME.registerComponent("video-texture-source", {
     sceneEl.object3D.autoUpdate = false;
 
     renderer.setRenderTarget(this.renderTarget);
+    renderer.clearDepth();
     renderer.render(sceneEl.object3D, this.camera);
     renderer.setRenderTarget(null);
 

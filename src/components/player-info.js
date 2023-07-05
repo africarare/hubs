@@ -4,8 +4,9 @@ import { registerComponentInstance, deregisterComponentInstance } from "../utils
 import defaultAvatar from "../assets/models/DefaultAvatar.glb";
 import { MediaDevicesEvents } from "../utils/media-devices-utils";
 import { createHeadlessModelForSkinnedMesh } from "../utils/three-utils";
-import { createModelForSkinnedMesh } from "../utils/three-utils";
-import { Layers } from "./layers";
+// import { createModelForSkinnedMesh } from "../utils/three-utils";
+// import { Layers } from "./layers";
+import { Layers } from "../camera-layers";
 
 function ensureAvatarNodes(json) {
   const { nodes } = json;
@@ -56,7 +57,7 @@ AFRAME.registerComponent("player-info", {
         this.playerSessionId = NAF.utils.getCreator(networkedEntity);
         const playerPresence = window.APP.hubChannel.presence.state[this.playerSessionId];
         if (playerPresence) {
-          this.updateFromPresenceMeta(playerPresence.metas[0]);
+          this.permissions = playerPresence.metas[0].permissions;
         }
       });
     }
@@ -76,10 +77,10 @@ AFRAME.registerComponent("player-info", {
     const modelEl = this.el.querySelector(".model");
     if (this.isLocalPlayerInfo && e.target === modelEl) {
       let isSkinnedAvatar = false;
-      modelEl.object3D.traverse(function(o) {
+      modelEl.object3D.traverse(function (o) {
         if (o.isSkinnedMesh) {
           const headlessMesh = createHeadlessModelForSkinnedMesh(o);
-					//const headlessMesh = createModelForSkinnedMesh(o);
+          //const headlessMesh = createModelForSkinnedMesh(o);
           if (headlessMesh) {
             isSkinnedAvatar = true;
             o.parent.add(headlessMesh);
@@ -89,7 +90,7 @@ AFRAME.registerComponent("player-info", {
       // This is to support using arbitrary models as avatars.
       // TODO We can drop support for this when we go full VRM, or at least handle it earlier in the process.
       if (!isSkinnedAvatar) {
-        modelEl.object3D.traverse(function(o) {
+        modelEl.object3D.traverse(function (o) {
           if (o.isMesh) o.layers.set(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
         });
       }
@@ -139,8 +140,7 @@ AFRAME.registerComponent("player-info", {
     if (!this.playerSessionId && this.isLocalPlayerInfo) {
       this.playerSessionId = NAF.clientId;
     }
-    if (!this.playerSessionId) return;
-    if (this.playerSessionId !== presenceMeta.sessionId) return;
+    if (!this.playerSessionId || this.playerSessionId !== presenceMeta.sessionId) return;
 
     this.permissions = presenceMeta.permissions;
   },

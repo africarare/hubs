@@ -5,17 +5,16 @@ import { Sidebar } from "../sidebar/Sidebar";
 import { CloseButton } from "../input/CloseButton";
 import { ReactComponent as WandIcon } from "../icons/Wand.svg";
 import { ReactComponent as AttachIcon } from "../icons/Attach.svg";
-import { ReactComponent as ChatIcon } from "../icons/Chat.svg";
 import { ReactComponent as SendIcon } from "../icons/Send.svg";
 import { ReactComponent as ReactionIcon } from "../icons/Reaction.svg";
 import { IconButton } from "../input/IconButton";
 import { TextAreaInput } from "../input/TextAreaInput";
-import { ToolbarButton } from "../input/ToolbarButton";
 import { Popover } from "../popover/Popover";
 import { EmojiPicker } from "./EmojiPicker";
 import styles from "./ChatSidebar.scss";
 import { formatMessageBody } from "../../utils/chat-message";
 import { FormattedMessage, useIntl, defineMessages, FormattedRelativeTime } from "react-intl";
+import { permissionMessage } from "./PermissionNotifications";
 
 export function SpawnMessageButton(props) {
   return (
@@ -35,7 +34,7 @@ export function SendMessageButton(props) {
 
 // Memoize EmojiPickerPopoverButton since we don't want it re-rendering
 // the EmojiPicker unnecessarily.
-export const EmojiPickerPopoverButton = React.memo(({ onSelectEmoji }) => {
+export const EmojiPickerPopoverButton = React.memo(({ onSelectEmoji, disabled }) => {
   // We're using a ref here, since we don't want to re-render anything, but we
   // do want to know if the Shift key is down when an emoji is selected.
   const shiftKeyDown = useRef(false);
@@ -75,7 +74,13 @@ export const EmojiPickerPopoverButton = React.memo(({ onSelectEmoji }) => {
       offsetDistance={28}
     >
       {({ togglePopover, popoverVisible, triggerRef }) => (
-        <IconButton ref={triggerRef} className={styles.chatInputIcon} selected={popoverVisible} onClick={togglePopover}>
+        <IconButton
+          ref={triggerRef}
+          className={styles.chatInputIcon}
+          selected={popoverVisible}
+          onClick={togglePopover}
+          disabled={disabled}
+        >
           <ReactionIcon />
         </IconButton>
       )}
@@ -84,19 +89,26 @@ export const EmojiPickerPopoverButton = React.memo(({ onSelectEmoji }) => {
 });
 
 EmojiPickerPopoverButton.propTypes = {
-  onSelectEmoji: PropTypes.func.isRequired
+  onSelectEmoji: PropTypes.func.isRequired,
+  disabled: PropTypes.bool
 };
+
+EmojiPickerPopoverButton.displayName = "EmojiPickerPopoverButton";
 
 export function MessageAttachmentButton(props) {
   return (
     <>
-      <IconButton as="label" className={styles.chatInputIcon}>
+      <IconButton as="label" className={styles.chatInputIcon} disabled={props.disabled}>
         <AttachIcon />
-        <input type="file" {...props} />
+        <input type="file" {...props} disabled={props.disabled} />
       </IconButton>
     </>
   );
 }
+
+MessageAttachmentButton.propTypes = {
+  disabled: PropTypes.bool
+};
 
 export function ChatLengthWarning({ messageLength, maxLength }) {
   return (
@@ -138,6 +150,8 @@ ChatInput.propTypes = {
   warning: PropTypes.node,
   isOverMaxLength: PropTypes.bool
 };
+
+ChatInput.displayName = "ChatInput";
 
 const enteredMessages = defineMessages({
   room: { id: "chat-sidebar.system-message.entered-room", defaultMessage: "{name} entered the room." },
@@ -336,42 +350,29 @@ SystemMessage.propTypes = {
   showLineBreak: PropTypes.bool
 };
 
-function MessageBubble({ media, monospace, emoji, isPrivate, children }) {
-  if(isPrivate) {
-    return (
-      <div
-        className={classNames(styles.messageBubble, {
-          [styles.media]: media,
-          [styles.emoji]: emoji,
-          [styles.monospace]: monospace
-        })}
-        style={{"backgroundColor":"#db7093"}}
-      >
-        {children}
-      </div>
-    );
-  } else {
-    return (
-      <div
-        className={classNames(styles.messageBubble, {
-          [styles.media]: media,
-          [styles.emoji]: emoji,
-          [styles.monospace]: monospace
-        })}
-        
-      >
-        {children}
-      </div>
-    );
-  }
+export const bubbletypes = ["none", "left", "middle", "right"];
 
+function MessageBubble({ media, monospace, emoji, children, permission }) {
+  return (
+    <div
+      className={classNames(styles.messageBubble, {
+        [styles.media]: media,
+        [styles.emoji]: emoji,
+        [styles.monospace]: monospace,
+        [styles.permission]: permission
+      })}
+    >
+      {children}
+    </div>
+  );
 }
 
 MessageBubble.propTypes = {
   media: PropTypes.bool,
   monospace: PropTypes.bool,
   emoji: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
-  children: PropTypes.node
+  children: PropTypes.node,
+  permission: PropTypes.bool
 };
 
 function getMessageComponent(message) {
@@ -397,32 +398,38 @@ function getMessageComponent(message) {
           <img src={message.body.src} />
         </MessageBubble>
       );
+    case "permission":
+      return (
+        <MessageBubble key={message.id} media>
+          <img src={message.body.src} />
+        </MessageBubble>
+      );
     default:
       return null;
   }
 }
 
 export function ChatMessageGroup({ sent, sender, timestamp, messages }) {
+  // private messages
+  // messages.map(message => {
+  //   message.isPrivate = false;
+  //   if (message.body !== undefined) {
+  //     const tokens = message.body.split("@");
+  //     if (tokens.length > 1) {
+  //       if (sent || tokens[1].split(" ")[0] === window.APP.store.state.profile.displayName) {
+  //         message.isPrivate = true;
+  //       }
+  //     }
+  //   }
+  // });
 
-    // private messages
-  messages.map( (message) => { 
-    message.isPrivate = false;
-    if(message.body !== undefined) { 
-      let tokens = message.body.split('@');
-      if(tokens.length > 1) {
-        if(sent || tokens[1].split(" ")[0] === window.APP.store.state.profile.displayName) {
-          message.isPrivate = true;
-        }
-      }
-    }
-  });
-
+  const intl = useIntl();
   return (
-    <li className={classNames(styles.messageGroup, { [styles.sent]: sent })} >
+    <li className={classNames(styles.messageGroup, { [styles.sent]: sent })}>
       <p className={styles.messageGroupLabel}>
         {sender} | <FormattedRelativeTime updateIntervalInSeconds={10} value={(timestamp - Date.now()) / 1000} />
       </p>
-      <ul className={styles.messageGroupMessages}>{messages.map(message => getMessageComponent(message))}</ul>
+      <ul className={styles.messageGroupMessages}>{messages.map(message => getMessageComponent(message, intl))}</ul>
     </li>
   );
 }
@@ -430,6 +437,36 @@ export function ChatMessageGroup({ sent, sender, timestamp, messages }) {
 ChatMessageGroup.propTypes = {
   sent: PropTypes.bool,
   sender: PropTypes.string,
+  timestamp: PropTypes.any,
+  messages: PropTypes.array
+};
+
+export function PermissionMessageGroup({ sent, timestamp, messages }) {
+  const intl = useIntl();
+  return (
+    <li className={classNames(styles.messageGroup, { [styles.sent]: sent })}>
+      <p className={styles.messageGroupLabel}>
+        <FormattedRelativeTime updateIntervalInSeconds={10} value={(timestamp - Date.now()) / 1000} />
+      </p>
+      <ul className={styles.messageGroupMessages}>
+        {messages.map(message => (
+          <MessageBubble key={message.id} permission>
+            {permissionMessage(
+              {
+                permission: message.body.permission,
+                status: message.body.status
+              },
+              intl
+            )}
+          </MessageBubble>
+        ))}
+      </ul>
+    </li>
+  );
+}
+
+PermissionMessageGroup.propTypes = {
+  sent: PropTypes.bool,
   timestamp: PropTypes.any,
   messages: PropTypes.array
 };
@@ -443,6 +480,8 @@ export const ChatMessageList = forwardRef(({ children, ...rest }, ref) => (
 ChatMessageList.propTypes = {
   children: PropTypes.node
 };
+
+ChatMessageList.displayName = "ChatMessageList";
 
 export function ChatSidebar({ onClose, children, ...rest }) {
   return (
@@ -464,14 +503,3 @@ ChatSidebar.propTypes = {
   children: PropTypes.node,
   listRef: PropTypes.func
 };
-
-export function ChatToolbarButton(props) {
-  return (
-    <ToolbarButton
-      {...props}
-      icon={<ChatIcon />}
-      preset="accent4"
-      label={<FormattedMessage id="chat-toolbar-button" defaultMessage="Chat" />}
-    />
-  );
-}

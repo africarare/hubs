@@ -1,20 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { MicSetupModal } from "./MicSetupModal";
-import { useMicrophoneStatus } from "./useMicrophoneStatus";
-import { useMicrophone } from "./useMicrophone";
-import { useSound } from "./useSound";
+import { useMicrophoneStatus } from "./hooks/useMicrophoneStatus";
+import { useMicrophone } from "./hooks/useMicrophone";
+import { useSound } from "./hooks/useSound";
 import { SOUND_SPEAKER_TONE } from "../../systems/sound-effects-system";
-import { useSpeakers } from "./useSpeakers";
+import { useSpeakers } from "./hooks/useSpeakers";
 import { useCallback } from "react";
 import { useState } from "react";
 import MediaDevicesManager from "../../utils/media-devices-manager";
 import { VolumeLevelBar } from "../misc/VolumeLevelBar";
 import styles from "./MicSetupModal.scss";
+import { useCan } from "./hooks/useCan";
 
 export function MicSetupModalContainer({ scene, ...rest }) {
   const { isMicEnabled, permissionStatus } = useMicrophoneStatus(scene);
   const { micDeviceChanged, micDevices } = useMicrophone(scene);
+  const canVoiceChat = useCan("voice_chat");
   const { speakerDeviceChanged, speakerDevices } = useSpeakers();
   const { playSound } = useSound({
     scene,
@@ -43,6 +45,7 @@ export function MicSetupModalContainer({ scene, ...rest }) {
       onChangeMicrophoneMuted={onChangeMicrophoneMuted}
       isAudioInputSelectAvailable={MediaDevicesManager.isAudioInputSelectEnabled}
       isAudioOutputSelectAvailable={MediaDevicesManager.isAudioOutputSelectEnabled}
+      canVoiceChat={canVoiceChat}
       {...rest}
     />
   );

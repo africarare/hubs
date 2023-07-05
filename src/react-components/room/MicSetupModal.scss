@@ -18,14 +18,13 @@ $mobile-breakpoint-width: 450px;
   display: flex;
   gap: 24px 24px;
 
-  @media(max-width: $mobile-breakpoint-width) {
+  @media (max-width: $mobile-breakpoint-width) {
     flex-flow: wrap;
   }
 }
 
 :local(.audio-io-container) {
   width: 200px;
-  position: relative;
   border-radius: theme.$border-radius-regular;
   display: flex;
   flex: auto;
@@ -52,11 +51,12 @@ $mobile-breakpoint-width: 450px;
 :local(.icon-disabled) {
   path {
     stroke-width: 1;
+    color: theme.$disabled-icon-color;
   }
 
   width: 48px;
   height: 48px;
-  color: theme.$text2-color;
+  color: theme.$disabled-text-color;
 }
 
 :local(.icon-container) {
@@ -64,7 +64,20 @@ $mobile-breakpoint-width: 450px;
   margin-bottom: 10px;
 }
 
-:local(.action-container) {  
+:local(.voice-chat-disabled) {
+  display: flex;
+  flex: auto;
+  align-items: center;
+  justify-content: center;
+  flex-flow: column;
+  gap: 20px;
+}
+
+:local(.text-disabled) {
+  color: theme.$disabled-text-color;
+}
+
+:local(.action-container) {
   height: 48px;
   margin-bottom: 10px;
   display: flex;
@@ -72,7 +85,7 @@ $mobile-breakpoint-width: 450px;
   gap: 10px;
 }
 
-:local(.selection-container) {  
+:local(.selection-container) {
   display: flex;
   flex-direction: column;
   flex: auto;
@@ -80,7 +93,7 @@ $mobile-breakpoint-width: 450px;
   align-self: stretch;
 }
 
-:local(.selection-input) {  
+:local(.selection-input) {
   width: 100%;
   max-width: none;
 }

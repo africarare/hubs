@@ -1,3 +1,6 @@
+import { removeEntity } from "bitecs";
+import { forEachMaterial } from "./material-utils";
+
 const tempVector3 = new THREE.Vector3();
 const tempQuaternion = new THREE.Quaternion();
 
@@ -31,6 +34,9 @@ export function disposeMaterial(mtrl) {
   if (mtrl.roughnessMap) mtrl.roughnessMap.dispose();
   if (mtrl.emissiveMap) mtrl.emissiveMap.dispose();
   mtrl.dispose();
+  if (mtrl.eid) {
+    removeEntity(APP.world, mtrl.eid);
+  }
 }
 
 export function disposeNode(node) {
@@ -40,13 +46,7 @@ export function disposeNode(node) {
     node.geometry.dispose();
   }
 
-  if (node.material) {
-    if (Array.isArray(node.material)) {
-      node.material.forEach(disposeMaterial);
-    } else {
-      disposeMaterial(node.material);
-    }
-  }
+  forEachMaterial(node.material, disposeMaterial);
 }
 
 const IDENTITY = new THREE.Matrix4().identity();
@@ -146,6 +146,10 @@ export function cloneObject3D(source, preserveUUIDs) {
 
   parallelTraverse(source, clone, (sourceNode, clonedNode) => {
     cloneLookup.set(sourceNode, clonedNode);
+
+    if (sourceNode.userData.gltfExtensions?.MOZ_hubs_components) {
+      clonedNode.userData.gltfExtensions.MOZ_hubs_components = sourceNode.userData.gltfExtensions.MOZ_hubs_components;
+    }
   });
 
   source.traverse(sourceNode => {
@@ -164,6 +168,8 @@ export function cloneObject3D(source, preserveUUIDs) {
     if (!clonedNode) {
       return;
     }
+
+    clonedNode.onBeforeRender = sourceNode.onBeforeRender;
 
     if (sourceNode.animations) {
       clonedNode.animations = sourceNode.animations.map(animationClip =>
@@ -358,7 +364,7 @@ export function createPlaneBufferGeometry(width, height, widthSegments, heightSe
   return geometry;
 }
 
-import { Layers } from "../components/layers";
+import { Layers } from "../camera-layers";
 
 // This code is from three-vrm. We will likely be using that in the future and this inlined code can go away
 function excludeTriangles(triangles, bws, skinIndex, exclude) {

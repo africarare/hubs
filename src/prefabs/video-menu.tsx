@@ -3,10 +3,12 @@ import { BoxBufferGeometry, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 
 import { Label } from "../prefabs/camera-tool";
 import { AlphaMode } from "../utils/create-image-mesh";
 import { createElementEntity, createRef } from "../utils/jsx-entity";
+import { ProjectionMode } from "../utils/projection-mode";
 
 import { textureLoader } from "../utils/media-utils";
 import playImageUrl from "../assets/images/sprites/notice/play.png";
 import pauseImageUrl from "../assets/images/sprites/notice/pause.png";
+import { TextureCache } from "../utils/texture-cache";
 
 const playTexture = textureLoader.load(playImageUrl);
 const pauseTexture = textureLoader.load(pauseImageUrl);
@@ -42,6 +44,7 @@ function Slider({ trackRef, headRef, ...props }: any) {
 export function VideoMenuPrefab() {
   const uiZ = 0.001;
   const timeLabelRef = createRef();
+  const sliderRef = createRef();
   const headRef = createRef();
   const trackRef = createRef();
   const playIndicatorRef = createRef();
@@ -49,7 +52,10 @@ export function VideoMenuPrefab() {
   const halfHeight = 9 / 16 / 2;
 
   return (
-    <entity name="Video Menu" videoMenu={{ timeLabelRef, headRef, trackRef, playIndicatorRef, pauseIndicatorRef }}>
+    <entity
+      name="Video Menu"
+      videoMenu={{ sliderRef, timeLabelRef, headRef, trackRef, playIndicatorRef, pauseIndicatorRef }}
+    >
       <Label
         name="Time Label"
         text={{ anchorY: "top", anchorX: "right" }}
@@ -57,7 +63,7 @@ export function VideoMenuPrefab() {
         scale={[0.5, 0.5, 0.5]}
         position={[0.5 - 0.02, halfHeight - 0.02, uiZ]}
       />
-      <Slider trackRef={trackRef} headRef={headRef} position={[0, -halfHeight + 0.025, uiZ]} />
+      <Slider ref={sliderRef} trackRef={trackRef} headRef={headRef} position={[0, -halfHeight + 0.025, uiZ]} />
       <entity
         ref={playIndicatorRef}
         position={[0, 0, uiZ]}
@@ -65,12 +71,9 @@ export function VideoMenuPrefab() {
         image={{
           texture: playTexture,
           ratio: 1,
-          projection: "flat",
-          alphaMode: AlphaMode.Blend
-        }}
-        textureCacheKey={{
-          src: playImageUrl,
-          version: 1
+          projection: ProjectionMode.FLAT,
+          alphaMode: AlphaMode.Blend,
+          cacheKey: TextureCache.key(playImageUrl, 1)
         }}
         visible={false}
       />
@@ -81,12 +84,9 @@ export function VideoMenuPrefab() {
         image={{
           texture: pauseTexture,
           ratio: 1,
-          projection: "flat",
-          alphaMode: AlphaMode.Blend
-        }}
-        textureCacheKey={{
-          src: pauseImageUrl,
-          version: 1
+          projection: ProjectionMode.FLAT,
+          alphaMode: AlphaMode.Blend,
+          cacheKey: TextureCache.key(pauseImageUrl, 1)
         }}
         visible={false}
       />

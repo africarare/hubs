@@ -15,6 +15,7 @@ export default class ProfileEntryPanel extends Component {
     messages: PropTypes.object,
     finished: PropTypes.func,
     history: PropTypes.object,
+    africarareRole: PropTypes.string,
     avatarId: PropTypes.string,
     onClose: PropTypes.func,
     onBack: PropTypes.func,
@@ -26,6 +27,7 @@ export default class ProfileEntryPanel extends Component {
   };
 
   state = {
+    africarareRole: null,
     avatarId: null,
     displayName: null,
     avatar: null
@@ -62,7 +64,8 @@ export default class ProfileEntryPanel extends Component {
       },
       profile: {
         displayName: this.state.displayName,
-        avatarId: this.state.avatarId
+        avatarId: this.state.avatarId,
+        africarareRole: this.state.africarareRole
       }
     });
     this.props.finished();

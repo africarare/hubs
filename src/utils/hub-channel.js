@@ -32,7 +32,9 @@ const VALID_PERMISSIONS = HUB_CREATOR_PERMISSIONS.concat([
   "spawn_and_move_media",
   "pin_objects",
   "spawn_emoji",
-  "fly"
+  "fly",
+  "voice_chat",
+  "text_chat"
 ]);
 
 export default class HubChannel extends EventTarget {
@@ -55,18 +57,10 @@ export default class HubChannel extends EventTarget {
   can(permission) {
     if (!VALID_PERMISSIONS.includes(permission)) throw new Error(`Invalid permission name: ${permission}`);
 
-    if (window.authorization?.role === "moderator") {
-      return true;
-    }
-
     return this._permissions && this._permissions[permission];
   }
 
   userCan(clientId, permission) {
-    if (window.authorization?.role === "moderator") {
-      return true;
-    }
-
     const presenceState = this.presence.state[clientId];
     if (!presenceState) {
       console.warn(`userCan: Had no presence state for ${clientId}`);
@@ -161,7 +155,23 @@ export default class HubChannel extends EventTarget {
     // Note: token is not verified.
     this.token = token;
     this._permissions = jwtDecode(token);
-    configs.setIsAdmin(this._permissions.postgrest_role === "ret_admin");
+
+    if (window.authorization.role === "moderator") {
+      this._permissions = {
+        ...this._permissions,
+        fly: true,
+        voice_chat: true,
+        text_chat: true
+        // Testing
+        // spawn_and_move_media: true,
+        // spawn_camera: true,
+        // spawn_drawing: true,
+        // spawn_emoji: true,
+        // pin_objects: true
+      };
+    }
+
+    configs.setIsAdmin(this._permissions.postgrest_role === "ret_admin" || window.authorization.role === "moderator");
     this.dispatchEvent(new CustomEvent("permissions_updated"));
 
     // Refresh the token 1 minute before it expires.

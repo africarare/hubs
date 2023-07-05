@@ -12,9 +12,9 @@ const validator = new Validator();
 import { EventTarget } from "event-target-shim";
 import { fetchRandomDefaultAvatarId, generateRandomName } from "../utils/identity.js";
 import { NO_DEVICE_ID } from "../utils/media-devices-utils.js";
-import { getDefaultTheme } from "../utils/theme.js";
+import { AAModes } from "../constants";
 
-const defaultMaterialQuality = (function() {
+const defaultMaterialQuality = (function () {
   const MATERIAL_QUALITY_OPTIONS = ["low", "medium", "high"];
 
   // HACK: AFRAME is not available on all pages, so we catch the ReferenceError.
@@ -64,6 +64,7 @@ export const SCHEMA = {
       additionalProperties: false,
       properties: {
         displayName: { type: "string", pattern: "^[A-Za-z0-9_~ -]{3,32}$" },
+        africarareRole: { type: "string" },
         avatarId: { type: "string" },
         // personalAvatarId is obsolete, but we need it here for backwards compatibility.
         personalAvatarId: { type: "string" }
@@ -126,7 +127,7 @@ export const SCHEMA = {
         showFPSCounter: { type: "bool", default: false },
         allowMultipleHubsInstances: { type: "bool", default: false },
         disableIdleDetection: { type: "bool", default: false },
-        fastRoomSwitching: { type: "bool", default: false },
+        fastRoomSwitching: { type: "bool", default: false }, // No longer used. TODO How to remove this safely?
         lazyLoadSceneMedia: { type: "bool", default: false },
         preferMobileObjectInfoPanel: { type: "bool", default: false },
         // if unset, maxResolution = screen resolution
@@ -155,11 +156,14 @@ export const SCHEMA = {
         enableAudioClipping: { type: "bool", default: false },
         audioClippingThreshold: { type: "number", default: 0.015 },
         audioPanningQuality: { type: "string", default: defaultAudioPanningQuality() },
-        theme: { type: "string", default: getDefaultTheme()?.name },
+        theme: { type: "string", default: undefined },
         cursorSize: { type: "number", default: 1 },
         nametagVisibility: { type: "string", default: "showAll" },
         nametagVisibilityDistance: { type: "number", default: 5 },
-        avatarVoiceLevels: { type: "object" }
+        avatarVoiceLevels: { type: "object" },
+        enablePostEffects: { type: "bool", default: false },
+        enableBloom: { type: "bool", default: true }, // only applies if post effects are enabled
+        aaMode: { type: "string", default: AAModes.MSAA_4X } // only applies if post effects are enabled
       }
     },
 
@@ -292,6 +296,7 @@ export default class Store extends EventTarget {
           this.dispatchEvent(new CustomEvent("themechanged", { detail: { current, previous } }));
         }
         previous = current;
+        console.log("Theme updated to: ", current);
       };
     })();
     this.addEventListener("statechanged", maybeDispatchThemeChanged);
@@ -328,14 +333,14 @@ export default class Store extends EventTarget {
   };
 
   get state() {
-    if (!this.hasOwnProperty(STORE_STATE_CACHE_KEY)) {
+    if (!Object.prototype.hasOwnProperty.call(this, STORE_STATE_CACHE_KEY)) {
       const state = (this[STORE_STATE_CACHE_KEY] = JSON.parse(localStorage.getItem(LOCAL_STORE_KEY)));
       if (!state.preferences) state.preferences = {};
       this._preferences = { ...state.preferences }; // cache prefs without injected defaults
       // inject default values
       for (const [key, props] of Object.entries(SCHEMA.definitions.preferences.properties)) {
-        if (!props.hasOwnProperty("default")) continue;
-        if (!state.preferences.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(props, "default")) continue;
+        if (!Object.prototype.hasOwnProperty.call(state.preferences, key)) {
           state.preferences[key] = props.default;
         } else if (state.preferences[key] === props.default) {
           delete this._preferences[key];
@@ -415,7 +420,8 @@ export default class Store extends EventTarget {
       // new defaults will apply without user action
       for (const [key, value] of Object.entries(finalState.preferences)) {
         if (
-          SCHEMA.definitions.preferences.properties[key]?.hasOwnProperty("default") &&
+          SCHEMA.definitions.preferences.properties[key] &&
+          Object.prototype.hasOwnProperty.call(SCHEMA.definitions.preferences.properties[key], "default") &&
           value === SCHEMA.definitions.preferences.properties[key].default
         ) {
           delete finalState.preferences[key];

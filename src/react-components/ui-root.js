@@ -6,6 +6,7 @@ import { FormattedMessage } from "react-intl";
 import screenfull from "screenfull";
 
 import configs from "../utils/configs";
+import { isLockedDownDemoRoom } from "../utils/hub-utils";
 import { VR_DEVICE_AVAILABILITY } from "../utils/vr-caps-detect";
 import { canShare } from "../utils/share";
 import styles from "../assets/stylesheets/ui-root.scss";
@@ -30,7 +31,7 @@ import MediaBrowserContainer from "./media-browser";
 import EntryStartPanel from "./entry-start-panel.js";
 import AvatarEditor from "./avatar-editor";
 import PreferencesScreen from "./preferences-screen.js";
-import PresenceLog from "./presence-log.js";
+import { PresenceLog } from "./presence-log.js";
 import PreloadOverlay from "./preload-overlay.js";
 import RTCDebugPanel from "./debug-panel/RtcDebugPanel.js";
 import { showFullScreenIfAvailable, showFullScreenIfWasFullScreen } from "../utils/fullscreen";
@@ -49,13 +50,13 @@ import { EnterOnDeviceModal } from "./room/EnterOnDeviceModal";
 import { MicSetupModalContainer } from "./room/MicSetupModalContainer";
 import { InvitePopoverContainer } from "./room/InvitePopoverContainer";
 import { MoreMenuPopoverButton, CompactMoreMenuButton, MoreMenuContextProvider } from "./room/MoreMenuPopover";
-import { ChatSidebarContainer, ChatContextProvider, ChatToolbarButtonContainer } from "./room/ChatSidebarContainer";
+import { ChatSidebarContainer } from "./room/ChatSidebarContainer";
 import {
   ContentMenu,
-  ChatMenuButton,
   PeopleMenuButton,
   ObjectsMenuButton,
-  ECSDebugMenuButton
+  ECSDebugMenuButton,
+  ChatMenuButton
 } from "./room/ContentMenu";
 import { ReactComponent as CameraIcon } from "./icons/Camera.svg";
 import { ReactComponent as AvatarIcon } from "./icons/Avatar.svg";
@@ -77,13 +78,13 @@ import { ReactComponent as EnterIcon } from "./icons/Enter.svg";
 import { ReactComponent as InviteIcon } from "./icons/Invite.svg";
 import { ReactComponent as HelpIcon } from "./icons/Help.svg";
 import { PeopleSidebarContainer, userFromPresence } from "./room/PeopleSidebarContainer";
-import { ObjectListProvider } from "./room/useObjectList";
+import { ObjectListProvider } from "./room/hooks/useObjectList";
 import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
-import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
+import { AudioPopoverButtonContainer } from "./room/AudioPopoverButtonContainer";
 import { ReactionPopoverContainer } from "./room/ReactionPopoverContainer";
 import { SafariMicModal } from "./room/SafariMicModal";
 import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
@@ -97,12 +98,16 @@ import { UserProfileSidebarContainer } from "./room/UserProfileSidebarContainer"
 import { CloseRoomModal } from "./room/CloseRoomModal";
 import { WebVRUnsupportedModal } from "./room/WebVRUnsupportedModal";
 import { TweetModalContainer } from "./room/TweetModalContainer";
-import { TipContainer, FullscreenTip } from "./room/TipContainer";
+import { TipContainer, FullscreenTip, RecordModeTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
 import { MediaDevicesEvents } from "../utils/media-devices-utils";
 import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
+import { NotificationsContainer } from "./room/NotificationsContainer";
+import { usePermissions } from "./room/hooks/usePermissions";
+import { ChatContextProvider } from "./room/contexts/ChatContext";
+import ChatToolbarButton from "./room/components/ChatToolbarButton/ChatToolbarButton";
 
 // africarare
 import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
@@ -110,7 +115,6 @@ import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../syst
 import Exhibit from "../hubs_private/react-components/Exhibit/Exhibit";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
 import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
-import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import VoiceInstallation from "../hubs_private/react-components/VoiceInstallation/VoiceInstallation";
 
 import InfoPanel from "./info-panel/InfoPanel.js";
@@ -193,7 +197,8 @@ class UIRoot extends Component {
     onLoaded: PropTypes.func,
     activeObject: PropTypes.object,
     selectedObject: PropTypes.object,
-    breakpoint: PropTypes.string
+    breakpoint: PropTypes.string,
+    canVoiceChat: PropTypes.bool
   };
 
   state = {
@@ -212,6 +217,7 @@ class UIRoot extends Component {
     showPrefs: false,
     watching: false,
     isStreaming: false,
+    isRecordingMode: false,
 
     waitingOnAudio: false,
     audioTrackClone: null,
@@ -229,7 +235,8 @@ class UIRoot extends Component {
     objectSrc: "",
     sidebarId: null,
     presenceCount: 0,
-    chatInputEffect: () => {}
+    chatPrefix: "",
+    chatAutofocus: false
   };
 
   constructor(props) {
@@ -354,6 +361,21 @@ class UIRoot extends Component {
     this.props.scene.addEventListener("action_toggle_ui", () =>
       this.setState({ hide: !this.state.hide, hideUITip: false })
     );
+    this.props.scene.addEventListener("action_toggle_record", () => {
+      const cursor = document.querySelector("#right-cursor");
+      if (this.state.isRecordingMode) {
+        // If isRecordingMode is true then toggle it off.
+        cursor.object3D.children[1].material.visible = true;
+        this.setState({ hide: false, hideUITip: false, isRecordingMode: false });
+        document.querySelector(".rs-fps-counter").style.visibility = "visible";
+        document.querySelector(".rs-base").style.visibility = "visible";
+      } else {
+        cursor.object3D.children[1].material.visible = false;
+        this.setState({ hide: true, hideUITip: true, isRecordingMode: true });
+        document.querySelector(".rs-fps-counter").style.visibility = "hidden";
+        document.querySelector(".rs-base").style.visibility = "hidden";
+      }
+    });
     this.props.scene.addEventListener("devicechange", () => {
       this.forceUpdate();
     });
@@ -614,7 +636,9 @@ class UIRoot extends Component {
   };
 
   onRequestMicPermission = async () => {
-    await this.mediaDevicesManager.startMicShare({});
+    if (this.props.canVoiceChat) {
+      await this.mediaDevicesManager.startMicShare({});
+    }
   };
 
   beginOrSkipAudioSetup = () => {
@@ -777,7 +801,7 @@ class UIRoot extends Component {
   pushHistoryState = (k, v) => pushHistoryState(this.props.history, k, v);
 
   setSidebar(sidebarId, otherState) {
-    this.setState({ sidebarId, chatInputEffect: () => {}, selectedUserId: null, ...otherState });
+    this.setState({ sidebarId, chatPrefix: "", chatAutofoucs: false, selectedUserId: null, ...otherState });
   }
 
   toggleSidebar(sidebarId, otherState) {
@@ -794,10 +818,8 @@ class UIRoot extends Component {
 
   onFocusChat = e => {
     this.setSidebar("chat", {
-      chatInputEffect: input => {
-        input.focus();
-        input.value = e.detail.prefix;
-      }
+      chatPrefix: e.detail.prefix,
+      chatAutofocus: true
     });
   };
 
@@ -828,6 +850,7 @@ class UIRoot extends Component {
 
   renderEntryStartPanel = () => {
     const { hasAcceptedProfile, hasChangedName } = this.props.store.state.activity;
+    const isLockedDownDemo = isLockedDownDemoRoom();
     const promptForNameAndAvatarBeforeEntry = this.props.hubIsBound ? !hasAcceptedProfile : !hasChangedName;
 
     // TODO: What does onEnteringCanceled do?
@@ -837,10 +860,16 @@ class UIRoot extends Component {
           roomName={this.props.hub.name}
           showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
           onJoinRoom={() => {
+            if (isLockedDownDemo) {
+              if (this.props.forcedVREntryType?.startsWith("vr")) {
+                this.setState({ enterInVR: true }, this.onAudioReadyButton);
+                return;
+              }
+              return this.onAudioReadyButton();
+            }
             if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
               this.setState({ entering: true });
               this.props.hubChannel.sendEnteringEvent();
-
               if (promptForNameAndAvatarBeforeEntry) {
                 this.pushHistoryState("entry_step", "profile");
               } else {
@@ -855,8 +884,8 @@ class UIRoot extends Component {
           onEnterOnDevice={() => this.attemptLink()}
           showSpectate={!this.state.waitingOnAudio}
           onSpectate={() => this.setState({ watching: true })}
-          showOptions={this.props.hubChannel.canOrWillIfCreator("update_hub")}
-          onOptions={() => {
+          showRoomSettings={this.props.hubChannel.canOrWillIfCreator("update_hub")}
+          onRoomSettings={() => {
             this.props.performConditionalSignIn(
               () => this.props.hubChannel.can("update_hub"),
               () => this.setSidebar("room-settings"),
@@ -973,6 +1002,13 @@ class UIRoot extends Component {
       isGhost,
       hide
     };
+    if (this.state.isRecordingMode) {
+      return (
+        <div className={classNames(rootStyles)}>
+          <RoomLayoutContainer scene={this.props.scene} store={this.props.store} viewport={<RecordModeTip />} />
+        </div>
+      );
+    }
     if (this.props.hide || this.state.hide) {
       return (
         <div className={classNames(rootStyles)}>
@@ -1103,7 +1139,9 @@ class UIRoot extends Component {
 
     const streaming = this.state.isStreaming;
 
-    const showObjectList = enteredOrWatching;
+    const isLockedDownDemo = isLockedDownDemoRoom();
+
+    const showObjectList = enteredOrWatching && !isLockedDownDemo;
     const showECSObjectsMenuButton = qsTruthy("ecsDebug");
 
     const streamer = getCurrentStreamer();
@@ -1336,9 +1374,7 @@ class UIRoot extends Component {
           {Boolean(voiceInstallationFtr) && <VoiceInstallation ftr={voiceInstallationFtr.ftr} />}
           {Boolean(exhibitFtr) && <Exhibit />}
 
-          {Boolean(treasureHuntFtr) && (
-            <TreasureHuntMain />
-          )}
+          {Boolean(treasureHuntFtr) && <TreasureHuntMain />}
 
           <Popup
             isMinimized={false}
@@ -1357,7 +1393,7 @@ class UIRoot extends Component {
               {entered && (
                 <>
                   <MoreMenuPopoverButton style={{ marginLeft: "10px" }} menu={moreMenu} />
-                  <AudioPopoverContainer scene={this.props.scene} />
+                  <AudioPopoverButtonContainer scene={this.props.scene} />
                   <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
 
                   <PlacePopoverContainer
@@ -1528,7 +1564,8 @@ class UIRoot extends Component {
                         )}
                         <PeopleMenuButton
                           active={this.state.sidebarId === "people"}
-                          onClick={() => this.toggleSidebar("people")}
+                          disabled={isLockedDownDemo}
+                          onClick={!isLockedDownDemo ? () => this.toggleSidebar("people") : null}
                           presencecount={this.state.presenceCount}
                         />
                         <ChatMenuButton
@@ -1558,7 +1595,8 @@ class UIRoot extends Component {
                     )}
                     {this.state.sidebarId !== "chat" && this.props.hub && (
                       <PresenceLog
-                        inRoom={true}
+                        preset={"InRoom"}
+                        exclude={isMobile ? [] : ["permission"]}
                         presences={this.props.presences}
                         entries={presenceLogEntries}
                         hubId={this.props.hub.hub_id}
@@ -1566,17 +1604,31 @@ class UIRoot extends Component {
                         onViewProfile={sessionId => this.setSidebar("user", { selectedUserId: sessionId })}
                       />
                     )}
-                    <TipContainer
-                      hide={this.props.activeObject}
-                      inLobby={watching}
-                      inRoom={entered}
-                      isEmbedded={this.props.embed}
-                      isStreaming={streaming}
-                      hubId={this.props.hub.hub_id}
-                      presences={this.props.presences}
-                      scene={this.props.scene}
-                      store={this.props.store}
-                    />
+                    <NotificationsContainer>
+                      {(this.state.hide || this.state.hideUITip || !this.props.activeObject) && (
+                        <TipContainer
+                          inLobby={watching}
+                          inRoom={entered}
+                          isEmbedded={this.props.embed}
+                          isStreaming={streaming}
+                          hubId={this.props.hub.hub_id}
+                          presences={this.props.presences}
+                          scene={this.props.scene}
+                          store={this.props.store}
+                        />
+                      )}
+                      {!isMobile && !this.state.hide && (
+                        <PresenceLog
+                          preset={"Notifications"}
+                          include={["permission"]}
+                          presences={this.props.presences}
+                          entries={presenceLogEntries}
+                          hubId={this.props.hub.hub_id}
+                          history={this.props.history}
+                          onViewProfile={sessionId => this.setSidebar("user", { selectedUserId: sessionId })}
+                        />
+                      )}
+                    </NotificationsContainer>
                     {(showRtcDebugPanel || showAudioDebugPanel) && (
                       <RTCDebugPanel
                         history={this.props.history}
@@ -1600,7 +1652,8 @@ class UIRoot extends Component {
                           canSpawnMessages={entered && this.props.hubChannel.can("spawn_and_move_media")}
                           scene={this.props.scene}
                           onClose={() => this.setSidebar(null)}
-                          inputEffect={this.state.chatInputEffect}
+                          autoFocus={this.state.chatAutofocus}
+                          initialValue={this.state.chatPrefix}
                         />
                       )}
                       {this.state.sidebarId === "objects" && (
@@ -1718,14 +1771,18 @@ class UIRoot extends Component {
                     )}
                     {entered && (
                       <>
-                        <AudioPopoverContainer scene={this.props.scene} />
-                        <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-                        <PlacePopoverContainer
-                          scene={this.props.scene}
-                          hubChannel={this.props.hubChannel}
-                          mediaSearchStore={this.props.mediaSearchStore}
-                          showNonHistoriedDialog={this.showNonHistoriedDialog}
-                        />
+                        {!isLockedDownDemo && (
+                          <>
+                            <AudioPopoverButtonContainer scene={this.props.scene} />
+                            <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
+                            <PlacePopoverContainer
+                              scene={this.props.scene}
+                              hubChannel={this.props.hubChannel}
+                              mediaSearchStore={this.props.mediaSearchStore}
+                              showNonHistoriedDialog={this.showNonHistoriedDialog}
+                            />
+                          </>
+                        )}
                         {this.props.hubChannel.can("spawn_emoji") && (
                           <ReactionPopoverContainer
                             scene={this.props.scene}
@@ -1734,7 +1791,11 @@ class UIRoot extends Component {
                         )}
                       </>
                     )}
-                    <ChatToolbarButtonContainer onClick={() => this.toggleSidebar("chat")} />
+                    {!isLockedDownDemo && (
+                      <ChatToolbarButton
+                        onClick={() => this.toggleSidebar("chat", { chatPrefix: "", chatAutofocus: false })}
+                      />
+                    )}
                     {entered && isMobileVR && (
                       <ToolbarButton
                         className={styleUtils.hideLg}
@@ -1793,6 +1854,7 @@ class UIRoot extends Component {
 function UIRootHooksWrapper(props) {
   useAccessibleOutlineStyle();
   const breakpoint = useCssBreakpoints();
+  const { voice_chat: canVoiceChat } = usePermissions();
 
   useEffect(() => {
     const el = document.getElementById("preload-overlay");
@@ -1816,7 +1878,7 @@ function UIRootHooksWrapper(props) {
   return (
     <ChatContextProvider messageDispatch={props.messageDispatch}>
       <ObjectListProvider scene={props.scene}>
-        <UIRoot breakpoint={breakpoint} {...props} />
+        <UIRoot breakpoint={breakpoint} {...props} canVoiceChat={canVoiceChat} />
       </ObjectListProvider>
     </ChatContextProvider>
   );

@@ -79,13 +79,15 @@ module.exports = (env, argv) => {
       BASE_ASSETS_PATH: "https://hubs.local:8989/",
       RETICULUM_SERVER: "hubs.local:4000",
       POSTGREST_SERVER: "",
-      ITA_SERVER: ""
+      ITA_SERVER: "turkey",
+      TIER: "p1"
     });
   }
 
   const defaultHostName = "hubs.local";
   const host = process.env.HOST_IP || defaultHostName;
 
+  const internalHostname = process.env.INTERNAL_HOSTNAME || "hubs.local";
   return {
     cache: {
       type: "filesystem"
@@ -112,7 +114,8 @@ module.exports = (env, argv) => {
         buffer: require.resolve("buffer/"),
         stream: require.resolve("stream-browserify"),
         path: require.resolve("path-browserify")
-      }
+      },
+      extensions: [".ts", ".tsx", ".js", ".jsx"]
     },
     entry: {
       admin: path.join(__dirname, "src", "admin.js")
@@ -135,7 +138,7 @@ module.exports = (env, argv) => {
       },
       host: process.env.HOST_IP || "0.0.0.0",
       port: process.env.PORT || "8989",
-      allowedHosts: [host],
+      allowedHosts: [host, internalHostname],
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
@@ -183,7 +186,6 @@ module.exports = (env, argv) => {
           test: /\.tsx?$/,
           loader: "babel-loader",
           options: require("../babel.config"),
-          include: [path.resolve(__dirname, "src")],
           exclude: function (modulePath) {
             return /node_modules/.test(modulePath) && !/node_modules\/hubs/.test(modulePath);
           }
@@ -293,10 +295,12 @@ module.exports = (env, argv) => {
       new webpack.DefinePlugin({
         "process.browser": true,
         "process.env": JSON.stringify({
+          DISABLE_BRANDING: process.env.DISABLE_BRANDING,
           NODE_ENV: argv.mode,
           BUILD_VERSION: process.env.BUILD_VERSION,
           CONFIGURABLE_SERVICES: process.env.CONFIGURABLE_SERVICES,
           ITA_SERVER: process.env.ITA_SERVER,
+          TIER: process.env.TIER,
           RETICULUM_SERVER: process.env.RETICULUM_SERVER,
           CORS_PROXY_SERVER: process.env.CORS_PROXY_SERVER,
           POSTGREST_SERVER: process.env.POSTGREST_SERVER,

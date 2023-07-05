@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { ObjectMenu, ObjectMenuButton } from "./ObjectMenu";
-import { useObjectList } from "./useObjectList";
+import { useObjectList } from "./hooks/useObjectList";
 import {
   usePinObject,
   useRemoveObject,
@@ -122,15 +122,8 @@ ObjectMenuItems.propTypes = {
 };
 
 export function ObjectMenuContainer({ hubChannel, scene, onOpenProfile, onGoToObject }) {
-  const {
-    objects,
-    activeObject,
-    deselectObject,
-    selectNextObject,
-    selectPrevObject,
-    toggleLights,
-    lightsEnabled
-  } = useObjectList();
+  const { objects, activeObject, deselectObject, selectNextObject, selectPrevObject, toggleLights, lightsEnabled } =
+    useObjectList();
 
   let menuItems;
 
