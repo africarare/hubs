@@ -1,24 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { LoadingScreenLayout } from "../layout/LoadingScreenLayout";
-import { Spinner } from "../misc/Spinner";
-import { useRandomMessageTransition } from "./hooks/useRandomMessageTransition";
+
+import { AfricarareLoadingLayout } from "../layout/AfricarareLoadingLayout";
+
+// eslint-disable-next-line no-unused-vars
 export function LoadingScreen({ message, infoMessages }) {
-  const infoMessage = useRandomMessageTransition(infoMessages);
-  return (
-    <LoadingScreenLayout
-      center={
-        <>
-          <Spinner />
-          <p>{message}</p>
-        </>
-      }
-      bottom={
-        <>
-        </>
-      }
-    />
-  );
+  return <AfricarareLoadingLayout />;
 }
 
 LoadingScreen.propTypes = {
