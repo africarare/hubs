@@ -340,7 +340,7 @@ export default class MediaDevicesManager extends EventEmitter {
     APP.dialog.enableMicrophone(false);
   }
 
-  async startVideoShare({ isDisplayMedia, target, success, error }) {
+  async startVideoShare({ camera, isDisplayMedia, target, success, error }) {
     let newStream;
     let videoTrackAdded = false;
 
@@ -361,13 +361,24 @@ export default class MediaDevicesManager extends EventEmitter {
           }
         });
       } else {
-        newStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: isIOS ? { max: 1280 } : { max: 1280, ideal: 1280 },
-            frameRate: 60
-          }
-          //TODO: Capture audio from camera?
-        });
+        if (camera) {
+          newStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: isIOS ? { max: 640 } : { max: 640, ideal: 640 },
+              height: isIOS ? { max: 640 } : { max: 640, ideal: 640 },
+              frameRate: 60
+            }
+            //TODO: Capture audio from camera?
+          });
+        } else {
+          newStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: isIOS ? { max: 1280 } : { max: 1280, ideal: 1280 },
+              frameRate: 60
+            }
+            //TODO: Capture audio from camera?
+          });
+        }
       }
 
       const videoTracks = newStream ? newStream.getVideoTracks() : [];
@@ -403,7 +414,7 @@ export default class MediaDevicesManager extends EventEmitter {
       return;
     }
 
-    success(isDisplayMedia, videoTrackAdded, target);
+    success(isDisplayMedia, videoTrackAdded, target, camera);
   }
 
   async stopVideoShare() {

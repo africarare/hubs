@@ -59,6 +59,7 @@ AFRAME.registerComponent("media-video", {
     src: { type: "string" },
     audioSrc: { type: "string" }, // set only if audio track is separated from video track (eg. 360 video)
     contentType: { type: "string" },
+    circle: { type: "boolean", default: false },
     loop: { type: "boolean", default: true },
     hidePlaybackControls: { type: "boolean", default: false },
     videoPaused: { type: "boolean" },
@@ -473,7 +474,13 @@ AFRAME.registerComponent("media-video", {
         geometry.scale(-1, 1, 1);
       } else {
         const flipY = texture.isVideoTexture ? texture.flipY : audioIconTexture.flipY;
-        geometry = createPlaneBufferGeometry(undefined, undefined, undefined, undefined, flipY);
+
+        if (this.data.circle) {
+          geometry = new THREE.CircleGeometry(0.8, 32);
+        } else {
+          geometry = createPlaneBufferGeometry(undefined, undefined, undefined, undefined, flipY);
+        }
+
         material.side = THREE.DoubleSide;
       }
 

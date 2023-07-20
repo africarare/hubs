@@ -442,6 +442,7 @@ AFRAME.registerComponent("media-loader", {
         this.el.setAttribute(
           "media-video",
           Object.assign({}, this.data.mediaOptions, {
+            circle: this.data.contentSubtype === "camera",
             src: accessibleUrl,
             audioSrc: canonicalAudioUrl ? proxiedUrlFor(canonicalAudioUrl) : null,
             time: startTime,

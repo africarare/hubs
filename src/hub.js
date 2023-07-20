@@ -275,6 +275,7 @@ NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
 // 0] Imports features
 import { hubsAuthorizationClass } from "./hubs_private/global/hubs_authorization";
+import { hubsExperienceClass } from "./hubs_private/global/hubs_experience";
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
@@ -319,6 +320,10 @@ if (window.land === null) {
 const hubsAuthorization = new hubsAuthorizationClass();
 hubsAuthorization.init();
 window.authorization = hubsAuthorization;
+
+const hubsExperience = new hubsExperienceClass();
+hubsExperience.init();
+window.experienceSettings = hubsExperience;
 
 // 3] Load balancing
 const ftrLoadbalancing = new ftrLoadbalancingClass();

@@ -221,14 +221,14 @@ export default class SceneEntryManager {
 
   _setupMedia = () => {
     // HACK we only care about the return value in 1 spot, don't want to deal with that in the newLoader path
-    const spawnMediaInfrontOfPlayerAndReturn = (src, contentOrigin) => {
+    const spawnMediaInfrontOfPlayerAndReturn = (src, contentOrigin, camera) => {
       if (!this.hubChannel.can("spawn_and_move_media")) return;
       const offset = { x: 0, y: 0, z: -1.5 };
       const { entity, orientation } = addMedia(
         src,
         "#interactable-media",
         contentOrigin,
-        null,
+        camera ? "camera" : null,
         !(src instanceof MediaStream),
         true
       );
@@ -356,14 +356,18 @@ export default class SceneEntryManager {
     let currentVideoShareEntity;
     let isHandlingVideoShare = false;
 
-    const shareSuccess = (isDisplayMedia, isVideoTrackAdded, target) => {
+    const shareSuccess = (isDisplayMedia, isVideoTrackAdded, target, camera) => {
       isHandlingVideoShare = false;
 
       if (isVideoTrackAdded) {
         if (target === "avatar") {
           this.avatarRig.setAttribute("player-info", { isSharingAvatarCamera: true });
         } else {
-          currentVideoShareEntity = spawnMediaInfrontOfPlayerAndReturn(this.mediaDevicesManager.mediaStream, undefined);
+          currentVideoShareEntity = spawnMediaInfrontOfPlayerAndReturn(
+            this.mediaDevicesManager.mediaStream,
+            undefined,
+            camera
+          );
           // Wire up custom removal event which will stop the stream.
           currentVideoShareEntity.setAttribute(
             "emit-scene-event-on-remove",
@@ -386,6 +390,7 @@ export default class SceneEntryManager {
       if (isHandlingVideoShare) return;
       isHandlingVideoShare = true;
       this.mediaDevicesManager.startVideoShare({
+        camera: true,
         isDisplayMedia: false,
         target: event.detail?.target,
         success: shareSuccess,
@@ -397,6 +402,7 @@ export default class SceneEntryManager {
       if (isHandlingVideoShare) return;
       isHandlingVideoShare = true;
       this.mediaDevicesManager.startVideoShare({
+        camera: false,
         isDisplayMedia: true,
         target: null,
         success: shareSuccess,
