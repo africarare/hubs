@@ -130,6 +130,7 @@ AFRAME.registerComponent("text", {
     mesh.textIndent = data.textIndent;
     mesh.whiteSpace = data.whiteSpace;
     mesh.maxWidth = data.maxWidth;
+    mesh.colorManagment = false;
     mesh.sync(() => {
       this.el.emit("text-updated", this);
     });
