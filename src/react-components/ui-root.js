@@ -131,6 +131,7 @@ import Collectables from "../hubs_private/react-components/Collectables/Collecta
 import ExhibitImages from "../hubs_private/react-components/ExhibitImages/ExhibitImages";
 import Help from "../hubs_private/react-components/Help/Help";
 import ConfirmationPopup from "../hubs_private/react-components/ConfirmationPopup/ConfirmationPopup";
+import Abada from "../hubs_private/react-components/Abada/Abada";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1362,6 +1363,7 @@ class UIRoot extends Component {
     const treasureHuntFtr = window.listFeatures.find(ftr => ftr.name === "treasure-hunt");
     const exhibitFtr = window.listFeatures.find(ftr => ftr.name === "exhibit");
     const collectablesFtr = window.listFeatures.find(ftr => ftr.name === "collectables");
+    const abadaFtr = window.listFeatures.find(ftr => ftr.name === "abada");
     const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
     const helpFtr = window.listFeatures.find(ftr => ftr.name === "help");
 
@@ -1547,6 +1549,7 @@ class UIRoot extends Component {
                     {Boolean(collectablesFtr) && (
                       <Collectables ftr={collectablesFtr.ftr} closeModal={collectablesFtr.closeModal} />
                     )}
+                    {Boolean(abadaFtr) && <Abada ftr={abadaFtr.ftr} />}
 
                     <ConfirmationPopup />
                     {window.authorization.role === "moderator" && <AdminFeatures />}

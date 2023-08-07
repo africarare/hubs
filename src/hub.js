@@ -297,6 +297,7 @@ import { ftrAdminAvatarsClass } from "./hubs_private/global/ftr_admin-avatars";
 import { ftrClearDrawingClass } from "./hubs_private/global/ftr_clear-drawing";
 import { ftrRedirectClass } from "./hubs_private/global/ftr_redirect";
 import { ftrCollectablesClass } from "./hubs_private/global/ftr_collectables";
+import { ftrAbadaClass } from "./hubs_private/global/ftr_abada";
 import { ftrExhibitImagesClass } from "./hubs_private/global/ftr_exhibit-images";
 import { ftrHelpClass } from "./hubs_private/global/ftr_help";
 
@@ -1697,6 +1698,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ftrCollectables = new ftrCollectablesClass();
             ftrCollectables.init(_ftr);
             window.listFeatures.push(ftrCollectables);
+            break;
+          case "abada":
+            // eslint-disable-next-line no-case-declarations
+            const ftrAbada = new ftrAbadaClass();
+            ftrAbada.init(_ftr);
+            window.listFeatures.push(ftrAbada);
             break;
           case "exhibit-images":
             // eslint-disable-next-line no-case-declarations
