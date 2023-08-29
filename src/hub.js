@@ -1549,7 +1549,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Features specific to that land
   fetch(
-    `https://backend-dashboard.ubuntuland.io/api/visit/feature-list?land=${window.land}&experience=${window.exp}&level=${window.lvl}`
+    `https://backend-dashboard.ubuntuland.io/api/visit/feature-list?land=${window.land}&experience=${window.exp}&level=${window.lvl}`,
+    {
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${window.authorization.token}`
+      }
+    }
   )
     .then(function (response) {
       return response.json();

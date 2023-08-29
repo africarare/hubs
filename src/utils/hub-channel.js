@@ -338,6 +338,21 @@ export default class HubChannel extends EventTarget {
     if (!body) return;
     this.channel.push("message", { body, type });
 
+    if (body.includes("@matwetwe")) {
+      fetch("https://backend-dashboard.ubuntuland.io/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          question: body
+        })
+      }).then(async data => {
+        const body = await data.json();
+        APP.hubChannel.sendMessage(`Matwetwe: ${body.replace("@matwetwe", "")}`);
+      });
+    }
+
     if (window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog") !== undefined) {
       const id = window.listFeatures.find(_ftr => _ftr.ftr.type === "chatlog").ftr._id;
       const username = APP.store.state.profile.displayName;
