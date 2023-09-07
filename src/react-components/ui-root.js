@@ -132,6 +132,7 @@ import ExhibitImages from "../hubs_private/react-components/ExhibitImages/Exhibi
 import Help from "../hubs_private/react-components/Help/Help";
 import ConfirmationPopup from "../hubs_private/react-components/ConfirmationPopup/ConfirmationPopup";
 import Abada from "../hubs_private/react-components/Abada/Abada";
+import Countdown from "../hubs_private/react-components/Countdown/Countdown";
 
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
@@ -1366,6 +1367,7 @@ class UIRoot extends Component {
     const abadaFtr = window.listFeatures.find(ftr => ftr.name === "abada");
     const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
     const helpFtr = window.listFeatures.find(ftr => ftr.name === "help");
+    const ticket = window.authorization?.ticket;
 
     return (
       <MoreMenuContextProvider>
@@ -1538,6 +1540,7 @@ class UIRoot extends Component {
                 streaming={streaming}
                 viewport={
                   <>
+                    {Boolean(ticket) && <Countdown end={ticket.end} expiresIn={ticket.expiresIn} />}
                     {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
                     {Boolean(exhibitImagesFtr) && (
                       <ExhibitImages
