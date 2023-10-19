@@ -680,22 +680,22 @@ export function createDashPlayer(url, videoEl, failLoad) {
 
 export function createHLSPlayer(url, videoEl, failLoad) {
   const corsProxyPrefix = `https://${configs.CORS_PROXY_SERVER}/`;
-  const baseUrl = url.startsWith(corsProxyPrefix) ? url.substring(corsProxyPrefix.length) : url;
+  // const baseUrl = url.startsWith(corsProxyPrefix) ? url.substring(corsProxyPrefix.length) : url;
   const hls = new HLS({
-    debug: qsTruthy("hlsDebug")
-    //   xhrSetup: (xhr, u) => {
-    //     if (u.startsWith(corsProxyPrefix)) {
-    //       u = u.substring(corsProxyPrefix.length);
-    //     }
+    debug: qsTruthy("hlsDebug"),
+    xhrSetup: (xhr, u) => {
+      if (u.startsWith(corsProxyPrefix)) {
+        u = u.substring(corsProxyPrefix.length);
+      }
 
-    //     // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
-    //     // TODO extend HLS.js to allow overriding of its internal resolving instead
-    //     if (!u.startsWith("http")) {
-    //       u = buildAbsoluteURL(baseUrl, u.startsWith("/") ? u : `/${u}`);
-    //     }
+      // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
+      // TODO extend HLS.js to allow overriding of its internal resolving instead
+      // if (!u.startsWith("http")) {
+      //   u = buildAbsoluteURL(baseUrl, u.startsWith("/") ? u : `/${u}`);
+      // }
 
-    //     xhr.open("GET", proxiedUrlFor(u), true);
-    //   }
+      xhr.open("GET", proxiedUrlFor(u), true);
+    }
   });
 
   hls.loadSource(url);

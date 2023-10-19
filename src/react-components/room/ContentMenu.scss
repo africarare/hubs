@@ -13,7 +13,7 @@
   pointer-events: auto;
   padding: 4px;
 
-  @media(min-width: theme.$breakpoint-lg) {
+  @media (min-width: theme.$breakpoint-lg) {
     top: 24px;
     right: 24px;
   }
@@ -70,7 +70,7 @@
 
 :local(.separator) {
   width: 1px;
-  margin: 0 8px;
+  margin: 0 4px;
   background-color: theme.$border1-color;
 }
 

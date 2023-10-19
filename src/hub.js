@@ -276,11 +276,13 @@ NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 // 0] Imports features
 import { hubsAuthorizationClass } from "./hubs_private/global/hubs_authorization";
 import { hubsExperienceClass } from "./hubs_private/global/hubs_experience";
+import { hubsFriendsClass } from "./hubs_private/global/hubs_friends";
 
 import { ftrInfopinClass } from "./hubs_private/global/ftr_infopin.js";
 import { ftrExhibitClass } from "./hubs_private/global/ftr_exhibit.js";
 import { ftrVoiceClass } from "./hubs_private/global/ftr_voice-installation.js";
 import { ftrPresentationClass } from "./hubs_private/global/ftr_presentation.js";
+import { ftrCameraPresentationClass } from "./hubs_private/global/ftr_camera-presentation";
 import { ftrParticipationClass } from "./hubs_private/global/ftr_participation.js";
 import { ftrCameraChestClass } from "./hubs_private/global/ftr_camera-chest.js";
 import { ftrTreasureHuntClass } from "./hubs_private/global/ftr_treasure-hunt.js";
@@ -325,6 +327,13 @@ window.authorization = hubsAuthorization;
 const hubsExperience = new hubsExperienceClass();
 hubsExperience.init();
 window.experienceSettings = hubsExperience;
+
+const hubsFriends = new hubsFriendsClass();
+hubsFriends.init();
+window.friends = hubsFriends;
+setInterval(() => {
+  window.friends.tick();
+}, 3000);
 
 // 3] Load balancing
 const ftrLoadbalancing = new ftrLoadbalancingClass();
@@ -1620,6 +1629,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ftrChatlog = new ftrChatlogClass();
             ftrChatlog.init(_ftr);
             window.listFeatures.push(ftrChatlog);
+            break;
+          case "camera-presentation":
+            // eslint-disable-next-line no-case-declarations
+            const ftrCameraPresentation = new ftrCameraPresentationClass();
+            ftrCameraPresentation.init(_ftr);
+            window.listFeatures.push(ftrCameraPresentation);
             break;
           case "presentation":
             // eslint-disable-next-line no-case-declarations

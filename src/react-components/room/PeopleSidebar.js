@@ -16,6 +16,7 @@ import { ReactComponent as HandRaisedIcon } from "../icons/HandRaised.svg";
 import { List, ButtonListItem } from "../layout/List";
 import { FormattedMessage, useIntl } from "react-intl";
 import { PermissionNotification } from "./PermissionNotifications";
+import { FriendsSidebar } from "../../hubs_private/react-components/Friends/Friends";
 
 function getDeviceLabel(ctx, intl) {
   if (ctx) {
@@ -156,6 +157,8 @@ export function PeopleSidebar({
             );
           })}
       </List>
+
+      <FriendsSidebar />
     </Sidebar>
   );
 }
