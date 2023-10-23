@@ -6,8 +6,16 @@ import configs from "../../utils/configs";
 import { useIntl, defineMessages } from "react-intl";
 import { Button } from "../input/Button";
 import { IconButton } from "../input/IconButton";
-import { ReactComponent as InviteIcon } from "../icons/Invite.svg";
+// import { ReactComponent as InviteIcon } from "../icons/Invite.svg";
 import { ReactComponent as MoreIcon } from "../icons/More.svg";
+import { ReactComponent as ViewIcon } from "../icons/VR.svg";
+import { ReactComponent as ReactionIcon } from "../icons/Reaction.svg";
+import { ReactComponent as ObjectIcon } from "../icons/Object.svg";
+import { ReactComponent as CameraIcon } from "../icons/Camera.svg";
+import { ReactComponent as ShareIcon } from "../icons/Share.svg";
+import { ReactComponent as ArrowIcon } from "../icons/Arrow.svg";
+import { ReactComponent as MicrophoneIcon } from "../icons/Microphone.svg";
+import { TIPS } from "../../systems/tips";
 
 // These keys are hardcoded in the input system to be based on the physical location on the keyboard rather than character
 let moveKeyFront = "W";
@@ -58,10 +66,44 @@ const onboardingMessages = defineMessages({
     id: "tips.desktop.turning2",
     defaultMessage: "Use {left} or {right} or click and drag to look around"
   },
-  "tips.desktop.invite": {
-    id: "tips.desktop.invite2",
-    defaultMessage: "<p>Use the {invite} button to share</p><p2>this room</p2>"
+  // NEW
+  "tips.desktop.audio": {
+    id: "tips.desktop.audio2",
+    defaultMessage: "Click {up} to edit audio settings"
   },
+  "tips.desktop.voice": {
+    id: "tips.desktop.voice2",
+    defaultMessage: "Click {voice} or {m} to mute/unmute your microphone"
+  },
+  "tips.desktop.share": {
+    id: "tips.desktop.share2",
+    defaultMessage: "Click {camera} or {share} to share your camera or screen"
+  },
+  "tips.desktop.place": {
+    id: "tips.desktop.place2",
+    defaultMessage: "Click {place} to load a 3D object that will appear in the shared virtual environment"
+  },
+  "tips.desktop.reactions": {
+    id: "tips.desktop.reactions2",
+    defaultMessage: "Click {reactions} to share 3D emoticons in the shared environment"
+  },
+  "tips.desktop.view": {
+    id: "tips.desktop.view2",
+    defaultMessage: "Click {view} to change between 1st person and 3rd person view"
+  },
+  "tips.desktop.meeting-timer": {
+    id: "tips.desktop.meeting-timer2",
+    defaultMessage: "{meetingTimer} keep track of how much time remains in your meeting"
+  },
+  "tips.desktop.chair": {
+    id: "tips.desktop.chair2",
+    defaultMessage: "Hover over a chair so everyone in the room can hear you"
+  },
+  // NEW
+  // "tips.desktop.invite": {
+  //   id: "tips.desktop.invite2",
+  //   defaultMessage: "<p>Use the {invite} button to share</p><p2>this room</p2>"
+  // },
   "tips.end": {
     id: "tips.end",
     defaultMessage: "Tutorial completed! Have fun exploring"
@@ -97,7 +139,7 @@ function isStep(step, item) {
 }
 
 function maxSteps(step) {
-  return isStep(step, "desktop") ? 3 : 2;
+  return isStep(step, "desktop") ? TIPS.desktop.length - 3 : TIPS.mobile.length - 3;
 }
 
 function Key({ children }) {
@@ -252,6 +294,7 @@ function onboardingSteps({ intl, step }) {
           }
         }
       };
+
     case "tips.desktop.turning":
       return {
         control: {
@@ -268,16 +311,13 @@ function onboardingSteps({ intl, step }) {
           }
         }
       };
-    case "tips.desktop.invite":
+    case "tips.mobile.audio":
+    case "tips.desktop.audio":
       return {
         control: {
           type: Step,
           params: {
-            invite: (
-              <InlineButton icon={<InviteIcon />} text={intl.formatMessage(onboardingMessages["tips.text.invite"])} />
-            ),
-            p: chunks => <p style={{ width: "100%" }}>{chunks}</p>,
-            p2: chunks => <p style={{ width: "100%" }}>{chunks}</p>
+            up: <InlineIcon icon={<ArrowIcon />} />
           }
         },
         navigationBar: {
@@ -287,6 +327,150 @@ function onboardingSteps({ intl, step }) {
           }
         }
       };
+    case "tips.mobile.voice":
+    case "tips.desktop.voice":
+      return {
+        control: {
+          type: Step,
+          params: {
+            voice: <InlineIcon icon={<MicrophoneIcon />} />,
+            m: <Key>M</Key>
+          }
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 3
+          }
+        }
+      };
+    case "tips.mobile.share":
+    case "tips.desktop.share":
+      return {
+        control: {
+          type: Step,
+          params: {
+            camera: <InlineIcon icon={<CameraIcon />} />,
+            share: <InlineIcon icon={<ShareIcon />} />
+          }
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 4
+          }
+        }
+      };
+    case "tips.mobile.place":
+    case "tips.desktop.place":
+      return {
+        control: {
+          type: Step,
+          params: {
+            place: <InlineIcon icon={<ObjectIcon />} />
+          }
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 5
+          }
+        }
+      };
+    case "tips.mobile.reactions":
+    case "tips.desktop.reactions":
+      return {
+        control: {
+          type: Step,
+          params: {
+            reactions: <InlineIcon icon={<ReactionIcon />} />
+          }
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 6
+          }
+        }
+      };
+    case "tips.mobile.view":
+    case "tips.desktop.view":
+      return {
+        control: {
+          type: Step,
+          params: {
+            view: <InlineIcon icon={<ViewIcon />} />
+          }
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 7
+          }
+        }
+      };
+    case "tips.mobile.meeting-timer":
+    case "tips.desktop.meeting-timer":
+      return {
+        control: {
+          type: Step,
+          params: {
+            meetingTimer: (
+              <div
+                style={{
+                  backgroundColor: "#f0a632",
+                  color: "#000",
+                  borderRadius: "8px",
+                  padding: "12px 16px",
+                  textAlign: "center",
+                  fontWeight: 500,
+                  fontSize: "14px"
+                }}
+              >
+                01 hr 53 min 42 secs
+              </div>
+            )
+          }
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 8
+          }
+        }
+      };
+    case "tips.mobile.chair":
+    case "tips.desktop.chair":
+      return {
+        control: {
+          type: Step
+        },
+        navigationBar: {
+          type: StepNavigationBar,
+          params: {
+            currentStep: 8
+          }
+        }
+      };
+    // case "tips.desktop.invite":
+    //   return {
+    //     control: {
+    //       type: Step,
+    //       params: {
+    //         invite: (
+    //           <InlineButton icon={<InviteIcon />} text={intl.formatMessage(onboardingMessages["tips.text.invite"])} />
+    //         ),
+    //         p: chunks => <p style={{ width: "100%" }}>{chunks}</p>,
+    //         p2: chunks => <p style={{ width: "100%" }}>{chunks}</p>
+    //       }
+    //     },
+    //     navigationBar: {
+    //       type: StepNavigationBar,
+    //       params: {
+    //         currentStep: 8
+    //       }
+    //     }
+    //   };
     case "tips.desktop.menu":
       return {
         control: {

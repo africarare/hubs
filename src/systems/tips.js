@@ -12,15 +12,44 @@ import { paths } from "./userinput/paths";
 // VALID - Tip is valid to show
 // FINISH - Tip should always be assumed INVALID going forward
 //
-const INVALID = 0;
+// const INVALID = 0;
 const VALID = 1;
 const FINISH = 2;
 
 const LOCAL_STORAGE_KEY = "__hubs_finished_tips";
 
-const TIPS = {
-  desktop: ["welcome", "locomotion", "turning", "invite", "end", "menu"],
-  mobile: ["welcome", "locomotion", "turning", "end", "menu"],
+export const TIPS = {
+  desktop: [
+    "welcome",
+    "locomotion",
+    "turning",
+    "audio",
+    "voice",
+    "share",
+    "place",
+    "reactions",
+    "view",
+    "meeting-timer",
+    "chair",
+    // "invite",
+    "end",
+    "menu"
+  ],
+  mobile: [
+    "welcome",
+    "locomotion",
+    "turning",
+    "audio",
+    "voice",
+    "share",
+    "palce",
+    "reactions",
+    "view",
+    "meeting-timer",
+    "chair",
+    "end",
+    "menu"
+  ],
   standalone: []
 };
 
@@ -73,10 +102,36 @@ const VALIDATORS = {
     );
     return rotate || cameraDelta ? FINISH : VALID;
   },
-  invite: function (_userinput, scene, hub) {
-    if (hub && hub.entry_mode === "invite") return INVALID;
-    return scene.is("copresent") ? FINISH : VALID;
+  audio: function () {
+    return storedStateForTip("audio");
   },
+  voice: function () {
+    return storedStateForTip("voice");
+  },
+  share: function () {
+    return storedStateForTip("share");
+  },
+  place: function () {
+    return storedStateForTip("place");
+  },
+  reactions: function () {
+    return storedStateForTip("reactions");
+  },
+  view: function () {
+    return storedStateForTip("view");
+  },
+  "meeting-timer": function () {
+    return storedStateForTip("meeting-timer");
+  },
+
+  chair: function () {
+    return storedStateForTip("chair");
+  },
+  // invite: function (_userinput, scene, hub) {
+  //   if (hub && hub.entry_mode === "invite") return INVALID;
+  //   return scene.is("copresent") ? FINISH : VALID;
+  // },
+
   end: function () {
     return storedStateForTip("end");
   },

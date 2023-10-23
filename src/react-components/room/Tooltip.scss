@@ -170,14 +170,15 @@
   background-color: theme.$disabled-bg-color;
   border-radius: 50%;
   display: inline-block;
+  margin: 0 3px;
 
-  &:first-child {
-    margin: 0px 12px 0px 0px;
-  }
+  // &:first-child {
+  //   margin: 0px 12px 0px 0px;
+  // }
 
-  &:last-child {
-    margin: 0px 0px 0px 12px;
-  }
+  // &:last-child {
+  //   margin: 0px 0px 0px 12px;
+  // }
 }
 
 :local(.dot-enabled) {

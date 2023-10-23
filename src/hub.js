@@ -302,6 +302,7 @@ import { ftrCollectablesClass } from "./hubs_private/global/ftr_collectables";
 import { ftrAbadaClass } from "./hubs_private/global/ftr_abada";
 import { ftrExhibitImagesClass } from "./hubs_private/global/ftr_exhibit-images";
 import { ftrHelpClass } from "./hubs_private/global/ftr_help";
+import { ftrTutorialClass } from "./hubs_private/global/ftr_tutorial";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1677,6 +1678,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ftrQuiz = new ftrQuizClass();
             ftrQuiz.init(_ftr);
             window.listFeatures.push(ftrQuiz);
+            break;
+          case "tutorial":
+            // eslint-disable-next-line no-case-declarations
+            const ftrTutorial = new ftrTutorialClass();
+            ftrTutorial.init(_ftr);
+            window.listFeatures.push(ftrTutorial);
             break;
           case "link-button":
             // eslint-disable-next-line no-case-declarations
