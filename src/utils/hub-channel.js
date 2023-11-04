@@ -351,20 +351,20 @@ export default class HubChannel extends EventTarget {
         const body = await data.json();
         APP.hubChannel.sendMessage(`Matwetwe: ${body}`);
 
-        fetch("https://backend-dashboard.ubuntuland.io/api/ai/audio", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            body
-          })
-        }).then(async speachData => {
-          const body = await speachData.json();
-          const audio = new Audio(body.path);
+        // fetch("https://backend-dashboard.ubuntuland.io/api/ai/audio", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json"
+        //   },
+        //   body: JSON.stringify({
+        //     body
+        //   })
+        // }).then(async speachData => {
+        //   const body = await speachData.json();
+        //   const audio = new Audio(body.path);
 
-          await audio.play();
-        });
+        //   await audio.play();
+        // });
       });
     }
 
