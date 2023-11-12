@@ -1541,7 +1541,14 @@ class UIRoot extends Component {
                 viewport={
                   <>
                     {Boolean(ticket) && <Countdown end={ticket.end} expiresIn={ticket.expiresIn} />}
-                    {Boolean(quizFtr) && <Quiz ftr={quizFtr.ftr} />}
+                    {Boolean(quizFtr) && (
+                      <Quiz
+                        ftr={quizFtr.ftr}
+                        handleQuizScoreUpdate={quizFtr.handleQuizScoreUpdate}
+                        handleLeaderboardUpdate={quizFtr.handleLeaderboardUpdate}
+                        handleQuizRedirect={quizFtr.handleQuizRedirect}
+                      />
+                    )}
                     {Boolean(exhibitImagesFtr) && (
                       <ExhibitImages
                         ftr={exhibitImagesFtr.ftr}
