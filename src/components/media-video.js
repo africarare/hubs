@@ -560,6 +560,14 @@ AFRAME.registerComponent("media-video", {
         };
       }
 
+      videoEl.addEventListener("timeupdate", () => {
+        const timeLeft = videoEl.duration - videoEl.currentTime;
+        if (timeLeft <= 10) {
+          const quizFeature = window.listFeatures.find(feature => feature.name === "quiz");
+          quizFeature.unhideButton("video");
+        }
+      });
+
       // Set src on video to begin loading.
       if (url.startsWith("hubs://")) {
         const streamClientId = url.substring(7).split("/")[1]; // /clients/<client id>/video is only URL for now

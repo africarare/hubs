@@ -288,6 +288,7 @@ import { ftrCameraChestClass } from "./hubs_private/global/ftr_camera-chest.js";
 import { ftrTreasureHuntClass } from "./hubs_private/global/ftr_treasure-hunt.js";
 import { ftrLeaderboardClass } from "./hubs_private/global/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/global/ftr_portal.js";
+import { ftrAiCourseClass } from "./hubs_private/global/ftr_ai-course";
 import { ftrQuizClass } from "./hubs_private/global/ftr_quiz.js";
 import { ftrLinkButtonClass } from "./hubs_private/global/ftr_link-button.js";
 import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.js";
@@ -1667,17 +1668,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrExhibit.init(_ftr);
             window.listFeatures.push(ftrExhibit);
             break;
+          case "quiz":
+            // eslint-disable-next-line no-case-declarations
+            const ftrQuiz = new ftrQuizClass();
+            ftrQuiz.init(_ftr);
+            window.listFeatures.push(ftrQuiz);
+            break;
           case "redirect":
             // eslint-disable-next-line no-case-declarations
             const ftrRedirect = new ftrRedirectClass();
             ftrRedirect.init(_ftr);
             window.listFeatures.push(ftrRedirect);
             break;
-          case "quiz":
+          case "ai-course":
             // eslint-disable-next-line no-case-declarations
-            const ftrQuiz = new ftrQuizClass();
-            ftrQuiz.init(_ftr);
-            window.listFeatures.push(ftrQuiz);
+            const ftrAiCourse = new ftrAiCourseClass();
+            ftrAiCourse.init(_ftr);
+            window.listFeatures.push(ftrAiCourse);
             break;
           case "tutorial":
             // eslint-disable-next-line no-case-declarations

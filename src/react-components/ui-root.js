@@ -1544,6 +1544,7 @@ class UIRoot extends Component {
                     {Boolean(quizFtr) && (
                       <Quiz
                         ftr={quizFtr.ftr}
+                        hasRedirect={quizFtr.hasRedirect}
                         handleQuizScoreUpdate={quizFtr.handleQuizScoreUpdate}
                         handleLeaderboardUpdate={quizFtr.handleLeaderboardUpdate}
                         handleQuizRedirect={quizFtr.handleQuizRedirect}
