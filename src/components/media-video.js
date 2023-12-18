@@ -564,7 +564,7 @@ AFRAME.registerComponent("media-video", {
         const timeLeft = videoEl.duration - videoEl.currentTime;
         if (timeLeft <= 10) {
           const quizFeature = window.listFeatures.find(feature => feature.name === "quiz");
-          quizFeature.unhideButton("video");
+          quizFeature?.unhideButton("video");
         }
       });
 

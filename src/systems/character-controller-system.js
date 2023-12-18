@@ -57,6 +57,9 @@ export class CharacterControllerSystem {
     this.relativeMotion = new THREE.Vector3(0, 0, 0);
     this.nextRelativeMotion = new THREE.Vector3(0, 0, 0);
     this.dXZ = 0;
+
+    this.gameMode = false;
+
     this.scene.addEventListener("nav-mesh-loaded", () => {
       this.navGroup = null;
       this.navNode = null;
@@ -85,6 +88,8 @@ export class CharacterControllerSystem {
     const targetForRig = new THREE.Vector3();
     //TODO: Use enqueue waypoint
     return function teleportTo(targetWorldPosition) {
+      if (this.gameMode) return;
+
       this.didTeleportSinceLastWaypointTravel = true;
       this.isMotionDisabled = false;
       this.avatarRig.object3D.getWorldPosition(rig);
@@ -168,6 +173,15 @@ export class CharacterControllerSystem {
 
     let uiRoot;
     return function tick(t, dt) {
+      if (this.gameMode) {
+        return;
+      } else {
+        const gameFeature = window.listFeatures.find(feature => feature.name === "game");
+        if (gameFeature) {
+          this.gameMode = true;
+        }
+      }
+
       const entered = this.scene.is("entered");
       uiRoot = uiRoot || document.getElementById("ui-root");
       const isGhost = !entered && uiRoot && uiRoot.firstChild && uiRoot.firstChild.classList.contains("isGhost");

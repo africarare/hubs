@@ -1367,6 +1367,7 @@ class UIRoot extends Component {
     const abadaFtr = window.listFeatures.find(ftr => ftr.name === "abada");
     const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
     const helpFtr = window.listFeatures.find(ftr => ftr.name === "help");
+    const queueFtr = window.listFeatures.find(ftr => ftr.name === "queue");
     const ticket = window.authorization?.ticket;
 
     return (
@@ -1540,7 +1541,8 @@ class UIRoot extends Component {
                 streaming={streaming}
                 viewport={
                   <>
-                    {Boolean(ticket) && <Countdown end={ticket.end} expiresIn={ticket.expiresIn} />}
+                    {Boolean(queueFtr?.end) && <Countdown end={queueFtr.end} />}
+                    {Boolean(ticket) && <Countdown end={ticket.end} />}
                     {Boolean(quizFtr) && (
                       <Quiz
                         ftr={quizFtr.ftr}

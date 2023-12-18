@@ -289,6 +289,7 @@ import { ftrTreasureHuntClass } from "./hubs_private/global/ftr_treasure-hunt.js
 import { ftrLeaderboardClass } from "./hubs_private/global/ftr_leaderboard.js";
 import { ftrPortalClass } from "./hubs_private/global/ftr_portal.js";
 import { ftrAiCourseClass } from "./hubs_private/global/ftr_ai-course";
+import { ftrQueueClass } from "./hubs_private/global/ftr_queue";
 import { ftrQuizClass } from "./hubs_private/global/ftr_quiz.js";
 import { ftrLinkButtonClass } from "./hubs_private/global/ftr_link-button.js";
 import { ftrLoadbalancingClass } from "./hubs_private/global/ftr_loadbalancing.js";
@@ -304,6 +305,7 @@ import { ftrAbadaClass } from "./hubs_private/global/ftr_abada";
 import { ftrExhibitImagesClass } from "./hubs_private/global/ftr_exhibit-images";
 import { ftrHelpClass } from "./hubs_private/global/ftr_help";
 import { ftrTutorialClass } from "./hubs_private/global/ftr_tutorial";
+import { ftrGameClass } from "./hubs_private/global/ftr_game";
 
 // 1] Link system => Land - Exp - Lvl - Ftr
 window.land = qs.get("land");
@@ -1692,6 +1694,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             ftrTutorial.init(_ftr);
             window.listFeatures.push(ftrTutorial);
             break;
+          case "game":
+            // eslint-disable-next-line no-case-declarations
+            const ftrGame = new ftrGameClass();
+            ftrGame.init(_ftr);
+            window.listFeatures.push(ftrGame);
+            break;
           case "link-button":
             // eslint-disable-next-line no-case-declarations
             const ftrLinkButton = new ftrLinkButtonClass();
@@ -1745,6 +1753,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ftrExhibitImages = new ftrExhibitImagesClass();
             ftrExhibitImages.init(_ftr);
             window.listFeatures.push(ftrExhibitImages);
+            break;
+          case "queue":
+            // eslint-disable-next-line no-case-declarations
+            const ftrQueue = new ftrQueueClass();
+            ftrQueue.init(_ftr);
+            window.listFeatures.push(ftrQueue);
             break;
         }
       });
