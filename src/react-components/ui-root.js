@@ -113,8 +113,9 @@ import ChatToolbarButton from "./room/components/ChatToolbarButton/ChatToolbarBu
 import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
 
 import Exhibit from "../hubs_private/react-components/Exhibit/Exhibit";
+import Game from "../hubs_private/react-components/Game/Game";
 import TreasureHuntMain from "../hubs_private/nedbank/TreasureHuntComponents/TreasureHuntMain";
-import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
+// import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
 import VoiceInstallation from "../hubs_private/react-components/VoiceInstallation/VoiceInstallation";
 
 import InfoPanel from "./info-panel/InfoPanel.js";
@@ -123,7 +124,7 @@ import "./info-panel/infoPanelUtils.js";
 // import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
 // import TreasureContainer from "../hubs_private/react-components/TreasureContainer/TreasureContainer";
 import Popup from "../hubs_private/react-components/artInfoPopup/ArtInfoPopup.js";
-import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
+// import WelcomeDialog from "../hubs_private/react-components/WelcomeDialog/WelcomeDialog";
 import TreasureLoader from "../hubs_private/react-components/Loader/Loader";
 import AdminFeatures from "../hubs_private/react-components/AdminFeatures/AdminFeatures";
 import Quiz from "../hubs_private/react-components/Quiz/Quiz";
@@ -1368,6 +1369,8 @@ class UIRoot extends Component {
     const exhibitImagesFtr = window.listFeatures.find(ftr => ftr.name === "exhibit-images");
     const helpFtr = window.listFeatures.find(ftr => ftr.name === "help");
     const queueFtr = window.listFeatures.find(ftr => ftr.name === "queue");
+    const gameFtr = window.listFeatures.find(ftr => ftr.name === "game");
+
     const ticket = window.authorization?.ticket;
 
     return (
@@ -1376,6 +1379,7 @@ class UIRoot extends Component {
           <TreasureLoader />
 
           {/* Features */}
+          {Boolean(gameFtr) && <Game />}
           {Boolean(voiceInstallationFtr) && <VoiceInstallation ftr={voiceInstallationFtr.ftr} />}
           {Boolean(exhibitFtr) && <Exhibit />}
 

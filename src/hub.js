@@ -346,8 +346,23 @@ window.listFeatures.push(ftrLoadbalancing);
 
 // 9] The big Loop,
 setInterval(() => {
-  window.listFeatures.forEach(_ftr => _ftr.tick());
+  window.listFeatures
+    .filter(feature => feature.name !== "game")
+    .forEach(_ftr => {
+      if (_ftr.tick) {
+        _ftr.tick();
+      }
+    });
 }, 60); // Should be a tick in AFRAME
+setInterval(() => {
+  window.listFeatures
+    .filter(feature => feature.name === "game")
+    .forEach(_ftr => {
+      if (_ftr.tick) {
+        _ftr.tick();
+      }
+    });
+}, 20);
 
 // AFRICARARE INTRO end
 

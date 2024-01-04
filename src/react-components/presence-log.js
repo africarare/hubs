@@ -95,6 +95,9 @@ export function PresenceLog({ entries, preset, hubId, history, presences, onView
       default: {
         const systemMessage = formatSystemMessage(e, intl);
 
+        const HIDDEN_TYPES = ["join", "entered", "leave"];
+        if (HIDDEN_TYPES.includes(e.type)) return null;
+
         return (
           systemMessage && (
             <div key={e.key} className={classNames(entryClasses)}>

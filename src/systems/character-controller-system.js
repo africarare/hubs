@@ -88,7 +88,7 @@ export class CharacterControllerSystem {
     const targetForRig = new THREE.Vector3();
     //TODO: Use enqueue waypoint
     return function teleportTo(targetWorldPosition) {
-      if (this.gameMode) return;
+      // if (this.gameMode) return;
 
       this.didTeleportSinceLastWaypointTravel = true;
       this.isMotionDisabled = false;
@@ -173,9 +173,7 @@ export class CharacterControllerSystem {
 
     let uiRoot;
     return function tick(t, dt) {
-      if (this.gameMode) {
-        return;
-      } else {
+      if (!this.gameMode) {
         const gameFeature = window.listFeatures.find(feature => feature.name === "game");
         if (gameFeature) {
           this.gameMode = true;
@@ -298,7 +296,7 @@ export class CharacterControllerSystem {
       const navMeshExists = NAV_ZONE in this.scene.systems.nav.pathfinder.zones;
       if (!this.isMotionDisabled) {
         const playerScale = v.setFromMatrixColumn(this.avatarPOV.object3D.matrixWorld, 1).length();
-        const triedToMove = this.relativeMotion.lengthSq() > 0.000001;
+        const triedToMove = this.relativeMotion.lengthSq() > 0.000001 && !this.gameMode;
 
         if (triedToMove) {
           const speedModifier = preferences.movementSpeedModifier;
