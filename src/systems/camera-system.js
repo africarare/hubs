@@ -52,7 +52,7 @@ const decompose = (function () {
 })();
 
 const IDENTITY = new THREE.Matrix4().identity();
-const orbit = (function () {
+export const orbit = (function () {
   const owq = new THREE.Quaternion();
   const owp = new THREE.Vector3();
   const cwq = new THREE.Quaternion();

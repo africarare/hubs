@@ -337,7 +337,7 @@ hubsFriends.init();
 window.friends = hubsFriends;
 setInterval(() => {
   window.friends.tick();
-}, 3000);
+}, 10_000);
 
 // 3] Load balancing
 const ftrLoadbalancing = new ftrLoadbalancingClass();
