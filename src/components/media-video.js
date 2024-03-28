@@ -566,6 +566,13 @@ AFRAME.registerComponent("media-video", {
           const quizFeature = window.listFeatures.find(feature => feature.name === "quiz");
           quizFeature?.unhideButton("video");
         }
+
+        if (timeLeft <= 0) {
+          const redirectFeature = window.listFeatures.find(feature => feature.name === "redirect");
+          if (redirectFeature?.type === 'video') {
+            redirectFeature._receiveData();
+          }
+        }
       });
 
       // Set src on video to begin loading.
