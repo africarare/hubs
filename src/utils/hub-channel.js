@@ -345,7 +345,8 @@ export default class HubChannel extends EventTarget {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          question: body.replace("@matwetwe", "")
+          question: body.replace("@matwetwe", ""),
+          chatbotId: "E2QPt32xXZefQTEbegJAn"
         })
       }).then(async data => {
         const body = await data.json();

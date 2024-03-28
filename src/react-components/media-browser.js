@@ -549,70 +549,52 @@ class MediaBrowserContainer extends Component {
                 }
               />
             )}
-            {activeFilter !== "nft-collections" ? (
-              entries.map((entry, idx) => {
-                const isAvatar = entry.type === "avatar" || entry.type === "avatar_listing";
-                const isScene = entry.type === "scene" || entry.type === "scene_listing";
-                const onShowSimilar =
-                  entry.type === "avatar_listing"
-                    ? e => {
-                        e.preventDefault();
-                        this.onShowSimilar(entry.id, entry.name);
-                      }
-                    : undefined;
+            {entries.map((entry, idx) => {
+              const isAvatar = entry.type === "avatar" || entry.type === "avatar_listing";
+              const isScene = entry.type === "scene" || entry.type === "scene_listing";
+              const onShowSimilar =
+                entry.type === "avatar_listing"
+                  ? e => {
+                      e.preventDefault();
+                      this.onShowSimilar(entry.id, entry.name);
+                    }
+                  : undefined;
 
-                let onEdit;
+              let onEdit;
 
-                if (entry.type === "avatar") {
-                  onEdit = e => {
-                    e.preventDefault();
-                    pushHistoryState(this.props.history, "overlay", "avatar-editor", { avatarId: entry.id });
-                  };
-                } else if (entry.type === "scene") {
-                  onEdit = e => {
-                    e.preventDefault();
-                    const spokeProjectUrl = getReticulumFetchUrl(`/spoke/projects/${entry.project_id}`);
-                    window.open(spokeProjectUrl);
-                  };
-                }
+              if (entry.type === "avatar") {
+                onEdit = e => {
+                  e.preventDefault();
+                  pushHistoryState(this.props.history, "overlay", "avatar-editor", { avatarId: entry.id });
+                };
+              } else if (entry.type === "scene") {
+                onEdit = e => {
+                  e.preventDefault();
+                  const spokeProjectUrl = getReticulumFetchUrl(`/spoke/projects/${entry.project_id}`);
+                  window.open(spokeProjectUrl);
+                };
+              }
 
-                let onCopy;
+              let onCopy;
 
-                if (isAvatar) {
-                  onCopy = e => this.handleCopyAvatar(e, entry);
-                } else if (isScene) {
-                  onCopy = e => this.handleCopyScene(e, entry);
-                }
+              if (isAvatar) {
+                onCopy = e => this.handleCopyAvatar(e, entry);
+              } else if (isScene) {
+                onCopy = e => this.handleCopyScene(e, entry);
+              }
 
-                return (
-                  <MediaTile
-                    key={`${entry.id}_${idx}`}
-                    entry={entry}
-                    processThumbnailUrl={this.processThumbnailUrl}
-                    onClick={e => this.handleEntryClicked(e, entry)}
-                    onEdit={onEdit}
-                    onShowSimilar={onShowSimilar}
-                    onCopy={onCopy}
-                  />
-                );
-              })
-            ) : (
-              // Temporary solution for upcoming nft collections
-              <div
-                style={{
-                  position: "absolute",
-                  display: "flex",
-                  height: "calc(100% - 210px)",
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "36px",
-                  color: "#BBB"
-                }}
-              >
-                <FormattedMessage id="media-browser.coming-soon" defaultMessage="Coming Soon!" />
-              </div>
-            )}
+              return (
+                <MediaTile
+                  key={`${entry.id}_${idx}`}
+                  entry={entry}
+                  processThumbnailUrl={this.processThumbnailUrl}
+                  onClick={e => this.handleEntryClicked(e, entry)}
+                  onEdit={onEdit}
+                  onShowSimilar={onShowSimilar}
+                  onCopy={onCopy}
+                />
+              );
+            })}
           </>
         ) : null}
       </MediaBrowser>
